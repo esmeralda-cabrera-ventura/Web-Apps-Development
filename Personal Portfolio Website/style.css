@@ -1,4 +1,4 @@
-/* RESET & BASE ---------------------------------------------------- */
+
 *,
 *::before,
 *::after {
@@ -156,25 +156,16 @@ h3[id] {
   font-family: 'Poppins', system-ui, sans-serif;
   font-size: 42px;
   margin: 0 0 8px;
-  white-space: nowrap;
-}
-
-.hero-subtitle {
-  margin-bottom: 196px; /* half inch */
-}
-
-.hero-tagline {
-  margin-bottom: 196px; /* half inch */
 }
 
 .hero-text p:last-of-type {
-  margin-bottom: 0; /* prevent extra gap after Welcome text */
+  margin-bottom: 0; 
 }
 
 .hero-subtitle {
   font-size: 54px;
   font-weight: 600;
-  margin: 0 0 56px;   /* 1 inch gap AFTER subtitle */
+  margin: 0 0 56px;   
   color: #cdd5ff;
 }
 
@@ -184,11 +175,11 @@ h3[id] {
   font-size: 46px;
   max-width: 620px;
   color: #e2e6ff;
-  margin: 0 0 56px;   /* 1 inch gap AFTER tagline */
+  margin: 0 0 56px;   
 }
 
 .hero-text p:last-of-type {
-  font-size: 21px;   /* was ~18px */
+  font-size: 21px;   
 }
 
 .hero-photo-wrapper {
@@ -230,14 +221,14 @@ h3[id] {
 
 #about.section {
   padding-top: 8px;
-  padding-bottom: 48px; /* ~½ inch gap below About section */
+  padding-bottom: 48px; 
 }
 
 .about-side {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  margin-top: 96px;     /* pushes skills/strengths down from photo */
+  margin-top: 96px;     
   margin-bottom: 40px;
 }
 
@@ -323,6 +314,17 @@ h3[id] {
   border: 1px solid rgba(120, 160, 255, 0.35);
 }
 
+#projects.section h2,
+#projects h2,
+#projects .container > h2,
+#projects .container h2 {
+  text-align: center !important;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 .portfolio-card img {
   border-radius: 10px;
 }
@@ -407,138 +409,163 @@ h3[id] {
   border-top: 1px solid rgba(200, 210, 255, 0.35);
   margin-bottom: 14px;
 }
-
-/* RESPONSIVE BREAKPOINTS ------------------------------------------ */
-@media (max-width: 1024px) {
-  .hero-grid,
-  .about-grid,
-  .two-col {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-photo-wrapper {
-    justify-content: flex-start;
-  }
-
-  .hero-photo {
-    max-width: 360px;
-  }
-
-  .hero-text > * {
-  margin-bottom: 24px;  
-  line-height: 4;     
-  }
-
-  .portfolio-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .contact-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .about-side {
-    grid-template-columns: 1fr;
-  }
-
-  .about-side .info-card:nth-child(3) {
-    grid-column: auto;
-  }
-
-  .video-card {
-    margin-top: 18px;
-  }
-}
+/* =========================================================
+   MOBILE VIEW (CLEAN SINGLE-COLUMN STACK)
+   Phones + small tablets
+========================================================= */
 
 @media (max-width: 768px) {
+
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .section {
+    padding: 18px 0; 
+  }
+
+  .section h2 {
+    margin: 0 0 10px; 
+  }
+
+  #about.section {
+    padding-bottom: 24px;
+  }
+
+  #projects.section {
+    padding-top: 16px;
+  }
+
+  /* ---------------- HEADER ---------------- */
   .header-inner {
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-area {
+    justify-content: center;
   }
 
   .main-nav ul {
-    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
   }
 
+  /* ---------------- HERO ---------------- */
   .hero {
     padding-top: 24px;
   }
 
   .hero-grid {
-    gap: 24px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .hero-text {
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    font-size: 28px;
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .hero-photo-wrapper {
+    justify-content: center;
   }
 
   .hero-photo {
-    max-width: 280px;
+    max-width: 260px;
   }
 
-  .portfolio-grid {
+  /* ---------------- ABOUT ---------------- */
+  .about-grid {
     grid-template-columns: 1fr;
-  }
-
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .section {
-    padding: 40px 0;
+    gap: 16px;
   }
 
   .about-side {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 0;
   }
 
-  .about-side .info-card:nth-child(3) {
-    grid-column: auto;
+  .info-card {
+    padding: 14px;
   }
 
+  /* ---------------- VIDEO ---------------- */
   .video-card {
-    margin-top: 16px;
+    margin-top: 8px; 
   }
-  
-}
 
-#about.section {
-  padding-bottom: 16px;      
-}
+  .video-placeholder {
+    height: 190px;
+  }
 
+  /* ---------------- SERVICES ---------------- */
+  .two-col {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 
-.about-side {
-  margin-bottom: 8px;       
-}
+  .services-list {
+    margin-bottom: 12px;
+  }
 
-#projects.section {
-  padding-top: 24px;         
-}
+  /* ---------------- PORTFOLIO ---------------- */
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
 
+  .portfolios-note {
+    margin-top: 12px;
+    font-size: 14px;
+  }
 
-#projects.section h2 {
-  margin-top: -80px;   
-  text-align: center;  
-}
+  /* ---------------- CONTACT ---------------- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    justify-items: center;
+  }
 
-/* Active state for nav link (used by JS) */
-.main-nav a.active {
-  color: #4fb3ff;
-}
+  .contact-card img {
+    max-width: 110px;
+  }
 
-.main-nav a.active::after {
-  width: 100%;
-}
+  /* ---------------- FOOTER ---------------- */
+  .site-footer {
+    font-size: 14px;
+    line-height: 1.5;
+  }
 
-/* Reveal-on-scroll animation (used by JS) */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-}
+  .site-footer p {
+    display: block;
+    margin: 6px 0;
+  }
 
-.section-subtitle.portfolios-note {
-  font-size: 18px;
-}
+  .site-footer .copyright-line {
+    white-space: nowrap;
+  }
 
-.reveal-visible {
-  opacity: 1;
-  transform: translateY(0);
+  .site-footer .rights-line {
+    display: block;
+  }
 }
 
