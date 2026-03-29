@@ -69,9 +69,43 @@ This project was developed and tested locally in the following environment:
 
 ```text
 
+ACME-Parking-Phase-4/
 
+├── assets/
 
+│   ├── css/
 
+│   ├── images/
+
+│   └── videos/
+
+├── auth/
+
+├── includes/
+
+├── training/
+
+├── users/
+
+├── car\_wash\_schedule.php
+
+├── checkin.php
+
+├── checkout.php
+
+├── dashboard.php
+
+├── index.php
+
+├── occupancy.php
+
+├── valet\_checkin.php
+
+├── valet\_checkout.php
+
+├── parking\_lot\_db\_phase\_4.sql
+
+└── README.md
 
 
 **Local Setup Instructions**
@@ -172,42 +206,3 @@ This project is intended for local execution, not public production deployment.
 
 Author
 Esmeralda Cabrera Ventura
-
-
-ACME-Parking-Phase-4/
-
-├── assets/
-
-│   ├── css/
-
-│   ├── images/
-
-│   └── videos/
-
-├── auth/
-
-├── includes/
-
-├── training/
-
-├── users/
-
-├── car\_wash\_schedule.php
-
-├── checkin.php
-
-├── checkout.php
-
-├── dashboard.php
-
-├── index.php
-
-├── occupancy.php
-
-├── valet\_checkin.php
-
-├── valet\_checkout.php
-
-├── parking\_lot\_db\_phase\_4.sql
-
-└── README.md
