@@ -1,73 +1,68 @@
-\# ACME Parking Phase 4
+# ACME Parking 
 
-ACME Parking Phase 4 is a browser-based parking lot management web application built with PHP, MySQL, HTML, and CSS and designed to run locally using Apache and MySQL through XAMPP.
+ACME Parking is a browser-based parking lot management web application built with PHP, MySQL, HTML, and CSS and designed to run locally using Apache and MySQL through XAMPP.
 
 This project was developed as a course assignment and demonstrates a fictitious parking garage management system with role-based access, parking operations, valet services, user administration, and training pages with linked instructional videos.
 
-\## Project Type
+## Project Type
 
 This project is a web application.
 
-\## Features
+## Features
 
-\- Secure login with role-based access
+- Secure login with role-based access
 
-\- View parking garage occupancy
+- View parking garage occupancy
 
-\- Record incoming vehicles
+- Record incoming vehicles
 
-\- Record leaving vehicles
+- Record leaving vehicles
 
-\- Manage users and operators
+- Manage users and operators
 
-\- Valet check in
+- Valet check in
 
-\- Valet check out
+- Valet check out
 
-\- Car wash schedule
+- Car wash schedule
 
-\- Training pages for major use cases
+- Training pages for major use cases
 
-\- Linked instructional videos for staff training
+- Linked instructional videos for staff training
 
+## Technologies Used
 
-\## Technologies Used
+- PHP
 
-\- PHP
+- MySQL / MariaDB
 
-\- MySQL / MariaDB
+- HTML
 
-\- HTML
+- CSS
 
-\- CSS
+- Apache
 
-\- Apache
+- XAMPP
 
-\- XAMPP
-
-
-\## Development Environment
+## Development Environment
 
 This project was developed and tested locally in the following environment:
 
-\- Windows
+- Windows
 
-\- XAMPP
+- XAMPP
 
-\- Apache
+- Apache
 
-\- PHP
+- PHP
 
-\- MariaDB / MySQL
+- MariaDB / MySQL
 
-\- phpMyAdmin
+- phpMyAdmin
 
-\- Microsoft Edge
+- Microsoft Edge
 
-
-\## Repository Structure
-
-```text
+## Repository Structure
 
 ACME-Parking-Phase-4/
 
