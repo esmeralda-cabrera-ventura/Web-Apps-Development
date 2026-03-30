@@ -22,6 +22,7 @@ if (isset($_POST["search"])) {
                 p.license_plate,
                 p.entry_time,
                 p.hourly_rate,
+                p.is_valet,
                 s.slot_label,
                 f.floor_number,
                 f.name AS floor_name
@@ -38,6 +39,9 @@ if (isset($_POST["search"])) {
 
         if (!$activeSlip) {
             $error = "No active parking slip was found for that license plate.";
+        } elseif ((int)$activeSlip["is_valet"] === 1) {
+            $error = "This vehicle was checked in through valet and must be checked out from the Valet Check Out page.";
+            $activeSlip = null;
         }
     }
 }
@@ -51,6 +55,7 @@ if (isset($_POST["checkout"])) {
             p.license_plate,
             p.entry_time,
             p.hourly_rate,
+            p.is_valet,
             s.slot_label,
             f.floor_number,
             f.name AS floor_name
@@ -66,6 +71,8 @@ if (isset($_POST["checkout"])) {
 
     if (!$slip) {
         $error = "The active parking slip could not be found.";
+    } elseif ((int)$slip["is_valet"] === 1) {
+        $error = "This vehicle was checked in through valet and must be checked out from the Valet Check Out page.";
     } else {
         $exitTime = date('Y-m-d H:i:s');
 
