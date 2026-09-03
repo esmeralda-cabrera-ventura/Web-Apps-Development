@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel del dueño | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="manifest" href="/dashboard-es.webmanifest">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MM Panel">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="js/auth.js"></script>
+<script src="js/access.js"></script>
+<script>
+  /* Deployed, Static Web Apps has already checked identity before this file was
+     served. Offline, the local sign-in stands in. Either way the page waits. */
+  window.MCC_LOCAL_ROLE = "helper";
+  window.MCC_READY = window.MCC.access.guard({
+    roles: ["owner", "helper"],
+    localRole: "helper",
+    localLogin: "acceso.html"
+  });
+  window.MCC_READY["catch"](function () { /* a redirect is under way */ });
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap site-head__inner">
+    <a class="brand" href="index-es.html"><img src="assets/logo-sm.png" alt="Menifee Maids"></a>
+    <nav class="nav" aria-label="Dashboard">
+      <a href="index-es.html">Ver sitio web</a>
+      <a href="reservar.html">Página de reservas</a>
+      <span class="whoami" data-signed-in-as hidden></span>
+      <button class="btn btn--ghost btn--sm" data-signout type="button">Cerrar sesión</button>
+      <a class="langswitch" href="admin.html" hreflang="en" lang="en">Dashboard in English</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap" style="padding-block:2.5rem 4rem">
+
+  <div style="margin-bottom:1.75rem">
+    <p class="eyebrow">Panel del ayudante</p>
+    <h1 style="font-size:clamp(1.9rem,4vw,2.6rem);margin-bottom:.4rem">Tu calendario y solicitudes</h1>
+  </div>
+
+  <div class="notice notice--info" data-purge-note hidden></div>
+
+  <div class="notice notice--error" data-default-pass hidden>
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg>
+    <div><strong>Sigues con la contraseña inicial.</strong> Pídele al dueño que te asigne un usuario y una contraseña propios.</div>
+  </div>
+
+  <div class="notice notice--warn" style="margin-bottom:1.75rem">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg>
+    <span><strong>Panel del ayudante.</strong> Aquí puedes ver la agenda, atender solicitudes, subir fotos y cobrar. La configuración del negocio la maneja el dueño desde el panel en inglés.</span>
+  </div>
+
+  <div class="admin-grid">
+
+    <section class="card">
+      <p class="eyebrow">Tu calendario</p>
+      <h2 style="font-size:1.5rem">Marca tus horarios disponibles</h2>
+      <p style="color:var(--muted);font-size:.95rem">Toca un día, marca los horarios en que puedes trabajar y se guarda solo. Los clientes sólo ven los días que marcaste.</p>
+
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" data-bulk="weekdays">Abrir todos los días hábiles</button>
+        <button class="btn btn--ghost btn--sm" data-bulk="clear">Limpiar este mes</button>
+        <button class="btn btn--ghost btn--sm" data-export>Respaldar</button>
+        <button class="btn btn--ghost btn--sm" data-import>Restaurar</button>
+        <input type="file" accept="application/json" data-import-file hidden>
+      </div>
+
+      <div class="calhead">
+        <span>
+          <span class="calhead__label">Calendario de disponibilidad</span>
+          <span class="calhead__month" data-month>&nbsp;</span>
+        </span>
+        <span class="calnav">
+          <button data-prev aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 6 10l6 6"/></svg></button>
+          <button data-next-month aria-label="Next month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 6 6-6 6"/></svg></button>
+        </span>
+      </div>
+
+      <div class="calwrap">
+        <div class="cal" data-cal></div>
+        <div class="daypanel" data-daypanel>
+          <p style="color:var(--muted);margin:0;font-size:.94rem">Elige un día para fijar sus horarios.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Confirmed bookings calendar ============ -->
+    <section class="card">
+      <p class="eyebrow">Trabajos agendados</p>
+      <h2 style="font-size:1.5rem">Tu agenda confirmada</h2>
+      <p style="color:var(--muted);font-size:.95rem">Cada solicitud que aceptas llega aquí sola. Toca un día para cambiar la hora, mover el trabajo a otra fecha o agregar notas del cliente.</p>
+
+      <div class="notice notice--info">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6.5v.5"/></svg>
+        <span><strong>Cómo funcionan los mensajes.</strong> Cada botón de mensaje abre la app de mensajes de tu teléfono con el texto ya escrito &mdash; tú le das enviar. El envío automático de verdad necesita un servidor y una cuenta de SMS; README.md &rarr; “Turning on real texting” explica cómo.</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn--primary btn--sm" data-addbooking>Agregar una cita manualmente</button>
+      </div>
+      <div class="addform" data-addform hidden></div>
+      <div data-due></div>
+
+      <div class="calhead">
+        <span>
+          <span class="calhead__label">Calendario de trabajos agendados</span>
+          <span class="calhead__month" data-month2>&nbsp;</span>
+        </span>
+        <span class="calnav">
+          <button data-prev2 aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 6 10l6 6"/></svg></button>
+          <button data-next2 aria-label="Next month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 6 6-6 6"/></svg></button>
+        </span>
+      </div>
+
+      <div class="calwrap">
+        <div class="cal" data-cal2></div>
+        <div class="daypanel" data-bookpanel>
+          <p style="color:var(--muted);margin:0;font-size:.94rem">Toca un día marcado para ver los trabajos agendados.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card" style="margin-bottom:1.25rem">
+        <p class="eyebrow">Bandeja</p>
+        <h2 style="font-size:1.5rem;margin-bottom:.25rem">Solicitudes</h2>
+        <p style="color:var(--muted);font-size:.95rem;margin-bottom:1rem">Sólo trabajos activos, del más nuevo al más viejo. Al marcar uno como terminado pasa a la base de datos de abajo.</p>
+        <div class="toolbar" style="margin-bottom:0">
+          <button class="btn btn--ghost btn--sm" data-filter="all" aria-pressed="true">Todos</button>
+          <button class="btn btn--ghost btn--sm" data-filter="new" aria-pressed="false">Nuevos</button>
+          <button class="btn btn--ghost btn--sm" data-filter="confirmed" aria-pressed="false">Confirmados</button>
+          <button class="btn btn--ghost btn--sm" data-demo>Agregar solicitud de prueba</button>
+        </div>
+      </div>
+      <ul class="reqlist" data-requests></ul>
+    </section>
+
+    <!-- ============ Job database ============ -->
+    <section class="card" id="jobs">
+      <div class="dbhead">
+        <div>
+          <p class="eyebrow">Base de datos de trabajos</p>
+          <h2 style="font-size:1.5rem;margin-bottom:.35rem">Busca cualquier trabajo</h2>
+          <p style="color:var(--muted);font-size:.95rem;max-width:62ch;margin:0">
+            <strong>Actuales</strong> es todo lo que sigue abierto &mdash; solicitudes nuevas, trabajo confirmado y
+            trabajos que terminaste pero aún no te pagan. <strong>Pasados</strong> es terminado y pagado, más
+            lo cancelado.
+          </p>
+        </div>
+        <div class="monthbox" data-month-stats></div>
+      </div>
+
+      <div class="dbstats" data-db-stats></div>
+
+      <div class="dbtabs" role="tablist" aria-label="Which jobs to show">
+        <button class="dbtab is-on" data-bucket="present" role="tab" aria-selected="true">Actuales</button>
+        <button class="dbtab" data-bucket="past" role="tab" aria-selected="false">Pasados</button>
+        <button class="dbtab" data-bucket="all" role="tab" aria-selected="false">Todos</button>
+      </div>
+
+      <div class="field">
+        <label for="db-q">Buscar</label>
+        <input class="input" id="db-q" data-db-q placeholder="Número de trabajo, nombre, teléfono, correo, dirección o ciudad">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="db-status">Estado</label>
+          <select class="input" id="db-status" data-db-status>
+            <option value="">Cualquier estado</option>
+            <option value="new">Solicitud nueva</option>
+            <option value="awaiting">Esperando al cliente</option>
+            <option value="confirmed">Confirmados</option>
+            <option value="done_unpaid">Terminado &mdash; sin pagar</option>
+            <option value="closed">Cerrado (terminado y pagado)</option>
+            <option value="cancelled">Cancelado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="db-paid">Pago</label>
+          <select class="input" id="db-paid" data-db-paid>
+            <option value="">Pagado o sin pagar</option>
+            <option value="paid">Sólo pagados</option>
+            <option value="unpaid">Sólo sin pagar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="db-from">Agendado desde</label>
+          <input class="input" type="date" id="db-from" data-db-from>
+        </div>
+        <div class="field">
+          <label for="db-to">Agendado hasta</label>
+          <input class="input" type="date" id="db-to" data-db-to>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" data-db-clear>Limpiar filtros</button>
+        <button class="btn btn--ghost btn--sm" data-db-sync>Verificar pagos con Stripe</button>
+        <button class="btn btn--ghost btn--sm" data-db-pdf>Exportar a PDF</button>
+        <button class="btn btn--ghost btn--sm" data-db-export title="Opens in Excel, Numbers or Google Sheets">Exportar a CSV (Excel)</button>
+      </div>
+
+      <p class="dbcount" data-db-count></p>
+      <div class="dbtable" data-db-results></div>
+    </section>
+  </div>
+</main>
+
+<!-- Full job record -->
+<div class="lightbox" data-jobdlg hidden>
+  <div class="lightbox__inner" role="dialog" aria-modal="true" aria-label="Registro del trabajo">
+    <div class="lightbox__head">
+      <div>
+        <h3 data-job-title style="margin:0"></h3>
+        <p data-job-sub style="margin:.35rem 0 0"></p>
+      </div>
+      <button class="btn btn--ghost btn--sm" data-job-close>Cerrar</button>
+    </div>
+    <div class="lightbox__scroll" data-job-body></div>
+  </div>
+</div>
+
+<!-- Send completion message -->
+<div class="lightbox" data-senddlg hidden>
+  <div class="lightbox__inner lightbox__inner--sm" role="dialog" aria-modal="true" aria-label="Enviar mensaje de finalización">
+    <div class="lightbox__head">
+      <h3 style="margin:0">Envíaselo al cliente</h3>
+      <button class="btn btn--ghost btn--sm" data-send="skip">Cerrar</button>
+    </div>
+    <div data-send-body></div>
+  </div>
+</div>
+
+<!-- Photo viewer -->
+<div class="lightbox" data-lightbox hidden>
+  <div class="lightbox__inner" role="dialog" aria-modal="true" aria-label="Fotos del trabajo">
+    <div class="lightbox__head">
+      <div>
+        <h3 data-lb-title style="margin:0">Fotos del trabajo</h3>
+        <p class="dbsub" data-lb-sub style="margin:0"></p>
+      </div>
+      <button class="btn btn--ghost btn--sm" data-lb-close>Cerrar</button>
+    </div>
+    <div class="lightbox__grid" data-lb-grid></div>
+  </div>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-bottom" style="margin-top:0;border-top:0;padding-top:0">
+      <p>&copy; <span data-year>2026</span> Menifee Maids. All rights reserved.</p>
+      <p class="credit">Designed, developed, and hosted on Microsoft Azure by Apex Intelligent Systems.</p>
+      <p class="credit">Lead Developer &amp; Cloud Architect: Esmeralda C. Cabrera Ventura.</p>
+      <a class="signin" href="index-es.html">Volver al sitio</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/store.js"></script>
+<script src="js/db.js"></script>
+<script src="js/bubbles.js"></script>
+<script src="js/site.js"></script>
+<script src="js/admin.js"></script>
+<script>
+  /* Caches the shell so the dashboard opens without a signal. Registered only
+     on staff pages — customers browse once and never need it. */
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function () { /* not fatal */ });
+    });
+  }
+</script>
+</body>
+</html>

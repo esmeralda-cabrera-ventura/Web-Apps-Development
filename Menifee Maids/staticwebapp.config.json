@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+  "platform": {
+    "apiRuntime": "node:20"
+  },
+  "routes": [
+    {
+      "route": "/offline.html",
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/sw.js",
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ],
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/site.webmanifest",
+      "statusCode": 404
+    },
+    {
+      "route": "/api/bookings",
+      "methods": [
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/contact",
+      "methods": [
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/health",
+      "methods": [
+        "GET"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/availability",
+      "methods": [
+        "GET"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/availability",
+      "methods": [
+        "PUT"
+      ],
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/jobs",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/jobs/*",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/payments",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/payments/*",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/photos",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/settings",
+      "methods": [
+        "GET"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated",
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/settings",
+      "methods": [
+        "PUT"
+      ],
+      "allowedRoles": [
+        "owner"
+      ]
+    },
+    {
+      "route": "/api/verify-payment",
+      "allowedRoles": [
+        "owner"
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "rewrite": "/dashboard.html",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/dashboard.html",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/admin.html",
+      "allowedRoles": [
+        "owner"
+      ]
+    },
+    {
+      "route": "/admin-es.html",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/helper.html",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/helper-login.html",
+      "redirect": "/.auth/login/aad",
+      "statusCode": 302
+    },
+    {
+      "route": "/login.html",
+      "redirect": "/.auth/login/aad",
+      "statusCode": 302
+    },
+    {
+      "route": "/acceso.html",
+      "redirect": "/.auth/login/aad",
+      "statusCode": 302
+    },
+    {
+      "route": "/.auth/login/github",
+      "statusCode": 404
+    },
+    {
+      "route": "/.auth/login/twitter",
+      "statusCode": 404
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad"
+    },
+    "403": {
+      "rewrite": "/no-access.html"
+    },
+    "404": {
+      "rewrite": "/404.html"
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/404.html",
+    "exclude": [
+      "/assets/*",
+      "/css/*",
+      "/js/*",
+      "/data/*",
+      "/*.{png,jpg,svg,ico,webp,json,xml,txt,webmanifest}"
+    ]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=(self)",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains"
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".webmanifest": "application/manifest+json"
+  }
+}

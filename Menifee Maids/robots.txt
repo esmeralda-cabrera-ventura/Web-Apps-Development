@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Private pages are kept out of search results by a noindex meta tag on each
+# page rather than being listed here. robots.txt is public, so naming them
+# would advertise exactly what you are trying to keep quiet.
+
+Sitemap: https://www.menifeemaids.com/sitemap.xml

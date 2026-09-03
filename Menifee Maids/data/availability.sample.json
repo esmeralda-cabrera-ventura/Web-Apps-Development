@@ -1,0 +1,10 @@
+{
+  "_comment": "Reference shape only. The live calendar is edited from admin.html and stored in the browser. Restore a real backup file created by the dashboard instead of this one.",
+  "availability": {
+    "2026-09-01": ["morning", "afternoon"],
+    "2026-09-02": ["morning", "afternoon"],
+    "2026-09-05": ["morning"],
+    "2026-09-08": ["morning", "midday", "afternoon", "evening"]
+  },
+  "requests": []
+}

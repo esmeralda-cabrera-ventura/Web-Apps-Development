@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reservar Servicio | Cotizaci&oacute;n de Limpieza al Instante | Menifee, CA</title>
+<meta name="description" content="Obtenga una cotizaci&oacute;n de limpieza al instante y pida su cita en Menifee, Murrieta, Temecula, Wildomar, Hemet, Corona, Riverside y m&aacute;s. Tambi&eacute;n cotizamos limpieza comercial. No se cobra nada por solicitar.">
+<link rel="canonical" href="https://www.menifeemaids.com/reservar.html">
+<meta name="robots" content="index, follow">
+<link rel="alternate" hreflang="en" href="https://www.menifeemaids.com/book.html">
+<link rel="alternate" hreflang="es" href="https://www.menifeemaids.com/reservar.html">
+<link rel="alternate" hreflang="x-default" href="https://www.menifeemaids.com/book.html">
+<meta name="theme-color" content="#00B4CC">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Menifee Maids">
+<meta property="og:title" content="Book a Service | Menifee Maids">
+<meta property="og:description" content="Instant house cleaning quote and appointment request across western Riverside County.">
+<meta property="og:url" content="https://www.menifeemaids.com/reservar.html">
+<meta property="og:image" content="https://www.menifeemaids.com/assets/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap site-head__inner">
+    <a class="brand" href="index-es.html"><img src="assets/logo-sm.png" alt="Menifee Maids"></a>
+    <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="nav" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+    </button>
+    <nav class="nav" id="nav" data-nav aria-label="Main">
+      <a href="index-es.html">Inicio</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="reservar.html" aria-current="page">Reservar servicio</a>
+      <a href="tel:9514648147">951-464-8147</a>
+      <a class="langswitch" href="index.html" hreflang="en" lang="en">English</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero wrap" style="padding-bottom:1.5rem">
+    <div class="hero--mark">
+      <div style="max-width:56ch">
+        <p class="eyebrow">Reservar servicio</p>
+        <h1>Vea el precio. Elija horario. <span class="grad-text">Le confirmamos.</span></h1>
+        <p class="lede">Conteste unas preguntas r&aacute;pidas y su estimado aparece al momento. Elija los horarios que le acomoden y le confirmamos el mismo d&iacute;a.</p>
+      </div>
+      <div class="hero__mark" aria-hidden="true">
+        <img src="assets/logo.png" alt="" width="900" height="619" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-bottom:clamp(3rem,7vw,5rem)">
+    <div class="flow" data-flow>
+
+      <div class="flow__steps" data-steps role="list" aria-label="Booking progress"></div>
+
+      <div class="flow__body">
+
+        <!-- ============ 1. Service area + fork ============ -->
+        <div class="panel is-active" data-panel="area">
+          <h2 style="font-size:1.5rem">Primero, &iquest;d&oacute;nde vamos a limpiar?</h2>
+          <p style="color:var(--muted);margin-bottom:1.5rem">Somos un servicio m&oacute;vil en quince ciudades del oeste del condado de Riverside &mdash; llevamos todos los productos y herramientas.</p>
+
+          <div class="field" style="max-width:250px">
+            <label for="zip">C&oacute;digo postal</label>
+            <input class="input" id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="92584" autocomplete="postal-code">
+            <p class="field-error" data-error="zip"></p>
+          </div>
+          <div data-zip-result></div>
+
+          <div data-fork hidden style="margin-top:1.75rem">
+            <p class="field-label">&iquest;Qu&eacute; necesita limpieza?</p>
+            <div class="optiongrid" style="max-width:540px">
+              <button type="button" class="option" data-choose-kind="residential" aria-pressed="false">
+                <span class="option__title">Mi casa</span>
+                <span class="option__meta">Vea el precio ahora mismo</span>
+              </button>
+              <button type="button" class="option" data-choose-kind="commercial" aria-pressed="false">
+                <span class="option__title">Mi negocio</span>
+                <span class="option__meta">Cotizaci&oacute;n despu&eacute;s de una visita</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ 2a. Residential details ============ -->
+        <div class="panel" data-panel="home">
+          <h2 style="font-size:1.5rem">Cu&eacute;ntenos de su casa</h2>
+          <p style="color:var(--muted);margin-bottom:1.5rem">Su estimado se actualiza conforme elige.</p>
+
+          <div class="field">
+            <p class="field-label">Rec&aacute;maras</p>
+            <div class="chips" data-chips="bedrooms" role="group" aria-label="Bedrooms"></div>
+          </div>
+
+          <div class="field">
+            <p class="field-label">Ba&ntilde;os</p>
+            <div class="chips" data-chips="bathrooms" role="group" aria-label="Bathrooms"></div>
+          </div>
+
+          <div class="field">
+            <p class="field-label">&iquest;Con qu&eacute; frecuencia? <span class="hint">Las visitas fijas cuestan menos cada vez</span></p>
+            <div class="optiongrid" data-options="frequency" role="group" aria-label="Frequency"></div>
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+            <p class="field-label">&iquest;Agregar algo m&aacute;s? <span class="hint">Opcional</span></p>
+            <div class="chips" data-chips="addons" role="group" aria-label="Add-ons"></div>
+          </div>
+        </div>
+
+        <!-- ============ 2b. Commercial details ============ -->
+        <div class="panel" data-panel="business">
+          <h2 style="font-size:1.5rem">Cu&eacute;ntenos del local</h2>
+          <div class="notice notice--info">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6.5v.5"/></svg>
+            <span>El trabajo comercial se cotiza despu&eacute;s de una visita, por eso aqu&iacute; no ver&aacute; un precio. Le mandamos la cotizaci&oacute;n por escrito dentro de 48 horas.</span>
+          </div>
+
+          <div class="field">
+            <p class="field-label">Tipo de local</p>
+            <div class="optiongrid" data-options="facility" role="group" aria-label="Facility type"></div>
+            <p class="field-error" data-error="facility"></p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="sqft">Pies cuadrados aproximados</label>
+              <input class="input" id="sqft" name="sqft" inputmode="numeric" placeholder="e.g. 4,500">
+            </div>
+            <div class="field">
+              <label for="nights">Limpiezas por semana</label>
+              <select class="input" id="nights" name="nights">
+                <option value="">Elija</option>
+                <option>1</option><option>2</option><option>3</option>
+                <option>4</option><option>5</option><option>6</option><option>7</option>
+                <option>Solo una vez</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+            <label for="scope">&iquest;Qu&eacute; incluye el trabajo?</label>
+            <textarea class="input" id="scope" name="scope" placeholder="Ba&ntilde;os, comedor, pisos, basura, proveedor actual, fecha en que quiere empezar&hellip;"></textarea>
+          </div>
+        </div>
+
+        <!-- ============ 3. Preferred times ============ -->
+        <div class="panel" data-panel="when">
+          <h2 style="font-size:1.5rem" data-when-title>&iquest;Qu&eacute; d&iacute;a le acomoda?</h2>
+          <div class="notice notice--warn">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 5.5V10l3 2"/></svg>
+            <span>Esto es una solicitud, todav&iacute;a no es una cita confirmada. Le confirmamos el mismo d&iacute;a.</span>
+          </div>
+          <p style="color:var(--muted);margin-bottom:1.25rem">D&eacute;jenos una segunda opci&oacute;n y casi siempre logramos darle la primera.</p>
+          <div data-slots></div>
+          <p class="field-error" data-error="slots"></p>
+        </div>
+
+        <!-- ============ 4. Contact ============ -->
+        <div class="panel" data-panel="contact">
+          <h2 style="font-size:1.5rem">&iquest;A d&oacute;nde le mandamos la confirmaci&oacute;n?</h2>
+          <p style="color:var(--muted);margin-bottom:1.5rem">Necesitamos todos estos datos para poder apartarle el horario.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="name">Nombre completo</label>
+              <input class="input" id="name" name="name" autocomplete="name">
+              <p class="field-error" data-error="name"></p>
+            </div>
+            <div class="field">
+              <label for="phone">N&uacute;mero de celular</label>
+              <input class="input" id="phone" name="phone" type="tel" autocomplete="tel" placeholder="951-555-0148">
+              <p class="field-error" data-error="phone"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Correo electr&oacute;nico <span class="hint">Aqu&iacute; le llega la confirmaci&oacute;n y las fotos</span></label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email">
+            <p class="field-error" data-error="email"></p>
+          </div>
+
+          <div class="field" data-company-field hidden>
+            <label for="company">Nombre de la empresa</label>
+            <input class="input" id="company" name="company" autocomplete="organization">
+            <p class="field-error" data-error="company"></p>
+          </div>
+
+          <fieldset class="addrset">
+            <legend data-address-label>Direcci&oacute;n del servicio</legend>
+
+            <div class="field">
+              <label for="street">Calle y n&uacute;mero</label>
+              <input class="input" id="street" name="street" autocomplete="address-line1" placeholder="2841 Newport Rd">
+              <p class="field-error" data-error="street"></p>
+            </div>
+
+            <div class="field">
+              <label for="unit">Departamento, suite o unidad <span class="hint">opcional</span></label>
+              <input class="input" id="unit" name="unit" autocomplete="address-line2" placeholder="Apt 12B">
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="city">Ciudad</label>
+                <select class="input" id="city" name="city" autocomplete="address-level2"></select>
+                <p class="field-error" data-error="city"></p>
+              </div>
+              <div class="field">
+                <label for="state">Estado</label>
+                <input class="input" id="state" name="state" value="CA" readonly aria-readonly="true">
+              </div>
+              <div class="field">
+                <label for="zip2">C&oacute;digo postal</label>
+                <input class="input" id="zip2" name="zip2" inputmode="numeric" maxlength="5" autocomplete="postal-code">
+                <p class="field-error" data-error="zip2"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="access">&iquest;Algo que debamos saber? <span class="hint">Opcional</span></label>
+            <textarea class="input" id="access" name="access" placeholder="C&oacute;digo del port&oacute;n, mascotas, estacionamiento, d&oacute;nde est&aacute; la llave&hellip;"></textarea>
+          </div>
+
+          <label style="display:flex;gap:.65rem;align-items:flex-start;font-size:.91rem;color:var(--ink-soft)">
+            <input type="checkbox" id="photoConsent" checked style="margin-top:.35rem">
+            <span>Nuestro personal puede fotografiar el trabajo terminado para enviarte un reporte. Las fotos nunca se publican sin tu permiso por escrito.</span>
+          </label>
+
+          <label style="display:flex;gap:.65rem;align-items:flex-start;font-size:.91rem;color:var(--ink-soft);margin-top:.9rem">
+            <input type="checkbox" id="smsConsent" checked style="margin-top:.35rem">
+            <span>Env&iacute;enme mensajes de texto sobre esta cita &mdash; confirmaciones, un recordatorio el d&iacute;a anterior y un aviso de &ldquo;vamos en camino&rdquo;. Pueden aplicar tarifas de mensajes y datos. La frecuencia de mensajes var&iacute;a. Responde STOP para cancelar o HELP para ayuda. El consentimiento no es condici&oacute;n de compra. Consulta nuestro <a href="privacidad.html" target="_blank" rel="noopener">Aviso de Privacidad</a>.</span>
+          </label>
+        </div>
+
+        <!-- ============ 5. Review ============ -->
+        <div class="panel" data-panel="review">
+          <h2 style="font-size:1.5rem">Revise sus datos</h2>
+          <div data-summary></div>
+          <div class="notice notice--info">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="14" height="9" rx="2"/><path d="M7 7V5.5a3 3 0 0 1 6 0V7"/></svg>
+            <span>No se cobra nada ahora. Si desea pagar en l&iacute;nea, le mandamos un enlace seguro despu&eacute;s de la visita.</span>
+          </div>
+        </div>
+
+        <!-- ============ 6. Done ============ -->
+        <div class="panel" data-panel="done">
+          <div data-done></div>
+        </div>
+
+      </div>
+
+      <div class="flow__nav" data-nav-bar>
+        <button type="button" class="btn btn--ghost" data-back hidden>Atr&aacute;s</button>
+        <div data-estimate style="flex:1 1 auto"></div>
+        <button type="button" class="btn btn--primary" data-next>Continuar</button>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:1.5rem;font-size:.93rem;color:var(--muted)">
+      &iquest;Prefiere hablarlo? <a href="tel:9514648147">Llame o mande un texto al 951-464-8147</a>
+    </p>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>Menifee Maids</h4>
+        <p style="margin:0;max-width:32ch">Empresa con licencia, de familia y veteranos, dedicada a la limpieza dom&eacute;stica y comercial en el oeste del condado de Riverside.</p>
+      </div>
+      <div>
+        <h4>P&aacute;ginas</h4>
+        <ul>
+          <li><a href="index-es.html">Inicio</a></li>
+          <li><a href="servicios.html">Servicios</a></li>
+          <li><a href="reservar.html">Reservar servicio</a></li>
+          <li><a href="privacidad.html">Aviso de Privacidad</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="servicios.html#residential">Limpieza de casa</a></li>
+          <li><a href="servicios.html#commercial">Limpieza comercial</a></li>
+          <li><a href="servicios.html#specialized">Limpieza especializada</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="tel:9514648147">951-464-8147</a></li>
+          <li><a href="mailto:info.menifeemaids@outlook.com">info.menifeemaids@outlook.com</a></li>
+          <li>Servimos Menifee, Murrieta, Temecula, Wildomar, Canyon Lake, Lake Elsinore, Winchester, Perris, Nuevo, Homeland, Hemet, San Jacinto, Moreno Valley, Riverside y Corona</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>&copy; <span data-year>2026</span> Menifee Maids. Todos los derechos reservados.</p>
+      <p class="credit">Dise&ntilde;ado, desarrollado y alojado en Microsoft Azure por Apex Intelligent Systems.</p>
+      <p class="credit">Desarrolladora principal y arquitecta de nube: Esmeralda C. Cabrera Ventura.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/store.js"></script>
+<script src="js/bubbles.js"></script>
+<script src="js/site.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>

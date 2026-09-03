@@ -1,0 +1,26 @@
+# Azure Functions local settings — the usual way people leak connection strings
+local.settings.json
+**/local.settings.json
+.env
+.env.*
+!.env.example
+
+# Anything that looks like a credential
+*.pem
+*.key
+*.pfx
+*.p12
+secrets.json
+appsettings.*.json
+!appsettings.example.json
+
+node_modules/
+bin/
+obj/
+dist/
+
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

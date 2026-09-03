@@ -1,0 +1,15 @@
+{
+  "name": "menifee-maids-jobs",
+  "version": "2.0.0",
+  "description": "Function App — queued writes, reminders, archiving, customer roll-up",
+  "main": "src/functions/*.js",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@azure/functions": "^4.5.0",
+    "@azure/identity": "^4.4.1",
+    "@azure/cosmos": "^4.1.1",
+    "@azure/storage-blob": "^12.25.0",
+    "@azure/communication-email": "^1.0.0",
+    "@azure/communication-sms": "^1.1.0"
+  }
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Owner Sign In | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard">
+    <a href="index.html" class="authlogo"><img src="assets/logo.png" alt="Menifee Maids" width="900" height="619"></a>
+    <h1>Owner Sign In</h1>
+    <p class="authsub">Your calendar, bookings and customer details live behind this page.</p>
+
+    <div class="notice notice--error" data-auth-error role="alert" hidden></div>
+    <div class="notice notice--warn" data-auth-hint hidden></div>
+
+    <form data-login novalidate>
+      <div class="field">
+        <label for="user">Username</label>
+        <input class="input" id="user" name="user" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="pass">Password</label>
+        <input class="input" id="pass" name="pass" type="password" autocomplete="current-password">
+      </div>
+      <button class="btn btn--primary btn--block btn--lg" type="submit" data-login-btn>Sign in</button>
+    </form>
+
+    <p class="authback">
+      <a href="#" data-reset>Forgotten your password?</a>
+      <span aria-hidden="true" style="opacity:.4;margin:0 .5rem">&middot;</span>
+      <a href="index.html">Back to the website</a>
+    </p>
+    <p class="authback authback--lang">
+      <a class="langswitch langswitch--auth" href="acceso.html" hreflang="es" lang="es">Acceder en Espa&ntilde;ol</a>
+    </p>
+  </div>
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
+<script>
+(function () {
+  "use strict";
+  var A = window.MCC.auth;
+  var form = document.querySelector("[data-login]");
+  var errBox = document.querySelector("[data-auth-error]");
+  var hint = document.querySelector("[data-auth-hint]");
+
+  // Already signed in? Go straight through.
+  if (A.currentSession("owner")) { window.location.replace("admin.html"); return; }
+
+  // First run: show the starting credentials so the owner can actually get in.
+  if (A.usingDefaultPassword("owner")) {
+    hint.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg>' +
+      "<div><strong>First time here?</strong> Sign in with <code>" + A.defaults.user +
+      "</code> / <code>" + A.defaults.pass + "</code>, then change it straight away from Settings on the dashboard.</div>";
+    hint.hidden = false;
+  }
+
+  function fail(msg) {
+    errBox.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg><div>' + msg + "</div>";
+    errBox.hidden = false;
+  }
+
+  /* Chrome treats every file:// page as one origin, so a credential saved by an
+     older copy of this site can block the starting password. This clears it. */
+  document.querySelector("[data-reset]").addEventListener("click", function (e) {
+    e.preventDefault();
+    if (!window.confirm(
+      "Reset the sign-in back to the starting username and password?\n\n" +
+      "Your jobs, calendar and payment links are not touched \u2014 only the login is reset.")) return;
+    try { window.localStorage.removeItem("mcc.cred.v1"); window.localStorage.removeItem("mcc.lock.v1"); } catch (x) {}
+    window.location.reload();
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    errBox.hidden = true;
+    var u = document.getElementById("user").value;
+    var p = document.getElementById("pass").value;
+    if (!u || !p) { fail("Enter both your username and password."); return; }
+    var res = A.signIn(u, p, "owner");
+    if (res.ok) { window.location.replace("admin.html"); return; }
+    fail(res.message);
+    document.getElementById("pass").value = "";
+    document.getElementById("pass").focus();
+  });
+})();
+</script>
+</body>
+</html>

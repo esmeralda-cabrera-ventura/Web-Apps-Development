@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Owner Dashboard | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="manifest" href="/dashboard.webmanifest">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MM Dashboard">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="js/auth.js"></script>
+<script src="js/access.js"></script>
+<script>
+  /* Deployed, Static Web Apps has already checked identity before this file was
+     served. Offline, the local sign-in stands in. Either way the page waits. */
+  window.MCC_LOCAL_ROLE = "owner";
+  window.MCC_READY = window.MCC.access.guard({
+    roles: ["owner"],
+    localRole: "owner",
+    localLogin: "login.html"
+  });
+  window.MCC_READY["catch"](function () { /* a redirect is under way */ });
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap site-head__inner">
+    <a class="brand" href="index.html"><img src="assets/logo-sm.png" alt="Menifee Maids"></a>
+    <nav class="nav" aria-label="Dashboard">
+      <a href="index.html">View website</a>
+      <a href="book.html">Booking page</a>
+      <span class="whoami" data-signed-in-as hidden></span>
+      <button class="btn btn--ghost btn--sm" data-signout type="button">Sign out</button>
+      <a class="langswitch" href="admin-es.html" hreflang="es" lang="es">Panel en Espa&ntilde;ol</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap" style="padding-block:2.5rem 4rem">
+
+  <div style="margin-bottom:1.75rem">
+    <p class="eyebrow">Owner dashboard</p>
+    <h1 style="font-size:clamp(1.9rem,4vw,2.6rem);margin-bottom:.4rem">Your calendar and requests</h1>
+  </div>
+
+  <div class="notice notice--info" data-purge-note hidden></div>
+
+  <div class="notice notice--error" data-default-pass hidden>
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg>
+    <div><strong>You're still on the starting password.</strong> Anyone who has read the setup notes can sign in. Change it in <a href="#settings">Settings</a> now.</div>
+  </div>
+
+  <div class="notice notice--warn" style="margin-bottom:1.75rem">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg>
+    <span><strong>Saved in this browser only.</strong> Your calendar, bookings and payment links live in this browser, so use <strong>Back up</strong> regularly. This sign-in keeps casual visitors out but isn't real security &mdash; README.md &rarr; &ldquo;Protect the dashboard&rdquo; explains what to add before launch.</span>
+  </div>
+
+  <div class="admin-grid">
+
+    <section class="card">
+      <p class="eyebrow">Your calendar</p>
+      <h2 style="font-size:1.5rem">Mark the times you're open</h2>
+      <p style="color:var(--muted);font-size:.95rem">Click a day, tick the time windows you can work, and it's saved. Customers only ever see days you've marked open.</p>
+
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" data-bulk="weekdays">Open all weekdays</button>
+        <button class="btn btn--ghost btn--sm" data-bulk="clear">Clear this month</button>
+        <button class="btn btn--ghost btn--sm" data-export>Back up</button>
+        <button class="btn btn--ghost btn--sm" data-import>Restore</button>
+        <input type="file" accept="application/json" data-import-file hidden>
+      </div>
+
+      <div class="calhead">
+        <span>
+          <span class="calhead__label">Availability calendar</span>
+          <span class="calhead__month" data-month>&nbsp;</span>
+        </span>
+        <span class="calnav">
+          <button data-prev aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 6 10l6 6"/></svg></button>
+          <button data-next-month aria-label="Next month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 6 6-6 6"/></svg></button>
+        </span>
+      </div>
+
+      <div class="calwrap">
+        <div class="cal" data-cal></div>
+        <div class="daypanel" data-daypanel>
+          <p style="color:var(--muted);margin:0;font-size:.94rem">Pick a day to set its hours.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Confirmed bookings calendar ============ -->
+    <section class="card">
+      <p class="eyebrow">Booked jobs</p>
+      <h2 style="font-size:1.5rem">Your confirmed schedule</h2>
+      <p style="color:var(--muted);font-size:.95rem">Every request you accept lands here automatically. Click a day to change the time, move the job to another date, or add notes for that customer.</p>
+
+      <div class="notice notice--info">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6.5v.5"/></svg>
+        <span><strong>How texts work right now.</strong> Every text button opens your phone's messaging app with the message already written &mdash; you press send. Truly automatic sending needs a server and an SMS account; README.md &rarr; &ldquo;Turning on real texting&rdquo; explains how.</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn--primary btn--sm" data-addbooking>Add a booking manually</button>
+      </div>
+      <div class="addform" data-addform hidden></div>
+      <div data-due></div>
+
+      <div class="calhead">
+        <span>
+          <span class="calhead__label">Booked jobs calendar</span>
+          <span class="calhead__month" data-month2>&nbsp;</span>
+        </span>
+        <span class="calnav">
+          <button data-prev2 aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 6 10l6 6"/></svg></button>
+          <button data-next2 aria-label="Next month"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 6 6-6 6"/></svg></button>
+        </span>
+      </div>
+
+      <div class="calwrap">
+        <div class="cal" data-cal2></div>
+        <div class="daypanel" data-bookpanel>
+          <p style="color:var(--muted);margin:0;font-size:.94rem">Click a highlighted day to see the jobs booked for it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card" style="margin-bottom:1.25rem">
+        <p class="eyebrow">Inbox</p>
+        <h2 style="font-size:1.5rem;margin-bottom:.25rem">Requests</h2>
+        <p style="color:var(--muted);font-size:.95rem;margin-bottom:1rem">Live jobs only, newest first. Once you mark a job completed it moves out of here and into the job database below.</p>
+        <div class="toolbar" style="margin-bottom:0">
+          <button class="btn btn--ghost btn--sm" data-filter="all" aria-pressed="true">All</button>
+          <button class="btn btn--ghost btn--sm" data-filter="new" aria-pressed="false">New</button>
+          <button class="btn btn--ghost btn--sm" data-filter="confirmed" aria-pressed="false">Confirmed</button>
+          <button class="btn btn--ghost btn--sm" data-demo>Add sample request</button>
+        </div>
+      </div>
+      <ul class="reqlist" data-requests></ul>
+    </section>
+
+    <!-- ============ Job database ============ -->
+    <section class="card" id="jobs">
+      <div class="dbhead">
+        <div>
+          <p class="eyebrow">Job database</p>
+          <h2 style="font-size:1.5rem;margin-bottom:.35rem">Search every job</h2>
+          <p style="color:var(--muted);font-size:.95rem;max-width:62ch;margin:0">
+            <strong>Present</strong> is anything still open &mdash; new requests, confirmed work, and jobs
+            you've finished but haven't been paid for. <strong>Past</strong> is completed and paid, plus
+            anything cancelled.
+          </p>
+        </div>
+        <div class="monthbox" data-month-stats></div>
+      </div>
+
+      <div class="dbstats" data-db-stats></div>
+
+      <div class="dbtabs" role="tablist" aria-label="Which jobs to show">
+        <button class="dbtab is-on" data-bucket="present" role="tab" aria-selected="true">Present</button>
+        <button class="dbtab" data-bucket="past" role="tab" aria-selected="false">Past</button>
+        <button class="dbtab" data-bucket="all" role="tab" aria-selected="false">All</button>
+      </div>
+
+      <div class="field">
+        <label for="db-q">Search</label>
+        <input class="input" id="db-q" data-db-q placeholder="Job number, name, phone, email, address or city">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="db-status">Status</label>
+          <select class="input" id="db-status" data-db-status>
+            <option value="">Any status</option>
+            <option value="new">New request</option>
+            <option value="awaiting">Awaiting client</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="done_unpaid">Done &mdash; unpaid</option>
+            <option value="closed">Closed (done &amp; paid)</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="db-paid">Payment</label>
+          <select class="input" id="db-paid" data-db-paid>
+            <option value="">Paid or unpaid</option>
+            <option value="paid">Paid only</option>
+            <option value="unpaid">Unpaid only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="db-from">Scheduled from</label>
+          <input class="input" type="date" id="db-from" data-db-from>
+        </div>
+        <div class="field">
+          <label for="db-to">Scheduled to</label>
+          <input class="input" type="date" id="db-to" data-db-to>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn--ghost btn--sm" data-db-clear>Clear filters</button>
+        <button class="btn btn--ghost btn--sm" data-db-sync>Check payments with Stripe</button>
+        <button class="btn btn--ghost btn--sm" data-db-pdf>Export as PDF</button>
+        <button class="btn btn--ghost btn--sm" data-db-export title="Opens in Excel, Numbers or Google Sheets">Export as CSV (Excel)</button>
+      </div>
+
+      <p class="dbcount" data-db-count></p>
+      <div class="dbtable" data-db-results></div>
+    </section>
+
+    <!-- ============ Settings ============ -->
+    <section class="card" id="settings">
+      <p class="eyebrow">Settings</p>
+      <h2 style="font-size:1.5rem">Payments and sign-in</h2>
+
+      <div class="setblock">
+        <h3 style="font-size:1.1rem">Cloud job database</h3>
+        <p style="color:var(--muted);font-size:.92rem">Leave these blank and every job is stored in this browser. Paste the address of your REST API and the dashboard reads and writes the cloud database instead &mdash; nothing else changes. The endpoints it expects are listed in <code>server/README.md</code>.</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="set-api">API base URL</label>
+            <input class="input" id="set-api" type="url" placeholder="https://your-api.azurewebsites.net/api">
+          </div>
+          <div class="field">
+            <label for="set-apikey">API key <span class="hint">optional</span></label>
+            <input class="input" id="set-apikey" type="password" autocomplete="off">
+          </div>
+        </div>
+        <p class="notice notice--ok" data-db-mode hidden></p>
+      </div>
+
+      <div class="settings-split">
+        <div class="setcol">
+          <h3 style="font-size:1.1rem">Stripe payment link</h3>
+          <p style="color:var(--muted);font-size:.92rem">Paste the Stripe Payment Link from your Stripe dashboard. Until you do, the Pay button on a customer's invoice tells them card payments aren't switched on yet.</p>
+          <div class="field">
+            <label for="set-stripe">Stripe payment link</label>
+            <input class="input" id="set-stripe" type="url" placeholder="https://buy.stripe.com/...">
+          </div>
+          <div class="field">
+            <label for="set-expiry">Payment links expire after</label>
+            <select class="input" id="set-expiry">
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="21">21 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="set-verify">Stripe check endpoint <span class="hint">optional</span></label>
+            <input class="input" id="set-verify" type="url" placeholder="https://your-api.azurewebsites.net/api/verify-payment">
+            <p class="hint" style="margin-top:.35rem">Your own endpoint that asks Stripe whether a job number has been paid. Sample code is in the <code>server/</code> folder.</p>
+          </div>
+          <button class="btn btn--primary btn--sm" data-save-settings>Save settings</button>
+          <p class="field-error" data-error="settings"></p>
+          <p class="notice notice--ok" data-settings-ok hidden style="margin-top:1rem"></p>
+        </div>
+
+        <div class="vrule" aria-hidden="true"></div>
+
+        <div class="setcol" data-local-auth-only>
+          <h3 style="font-size:1.1rem">Change your sign-in</h3>
+          <p style="color:var(--muted);font-size:.92rem">Use at least 10 characters. If you forget it, the sign-in page has a reset link that restores the starting credentials without touching your jobs.</p>
+          <div class="field">
+            <label for="pw-current">Current password</label>
+            <input class="input" id="pw-current" type="password" autocomplete="current-password">
+          </div>
+          <div class="field">
+            <label for="pw-user">Username</label>
+            <input class="input" id="pw-user" autocomplete="username" autocapitalize="none" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="pw-new">New password</label>
+            <input class="input" id="pw-new" type="password" autocomplete="new-password">
+          </div>
+          <button class="btn btn--primary btn--sm" data-save-pass>Update sign-in</button>
+          <p class="field-error" data-error="pass"></p>
+          <p class="notice notice--ok" data-pass-ok hidden style="margin-top:1rem"></p>
+
+          <div data-local-auth-only style="margin-top:1.75rem;padding-top:1.5rem;border-top:2px solid var(--line)">
+            <h3 style="font-size:1.1rem;margin-top:0">Helper sign-in</h3>
+            <p style="color:var(--muted);font-size:.92rem">A separate account for the Spanish dashboard at <code>acceso.html</code>. Your helper can see the schedule, work jobs, upload photos and take payment &mdash; but not these settings. Set their details here; you don't need their current password.</p>
+            <p style="font-size:.9rem;color:var(--ink-soft);margin-bottom:1rem">Current helper username: <strong data-helper-user>&mdash;</strong></p>
+            <div class="field">
+              <label for="hp-user">Helper username</label>
+              <input class="input" id="hp-user" autocomplete="off" autocapitalize="none" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="hp-new">Helper password</label>
+              <input class="input" id="hp-new" type="password" autocomplete="new-password">
+            </div>
+            <button class="btn btn--primary btn--sm" data-save-helper>Update helper sign-in</button>
+            <p class="field-error" data-error="helper"></p>
+            <p class="notice notice--ok" data-helper-ok hidden style="margin-top:1rem"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Full job record -->
+<div class="lightbox" data-jobdlg hidden>
+  <div class="lightbox__inner" role="dialog" aria-modal="true" aria-label="Job record">
+    <div class="lightbox__head">
+      <div>
+        <h3 data-job-title style="margin:0"></h3>
+        <p data-job-sub style="margin:.35rem 0 0"></p>
+      </div>
+      <button class="btn btn--ghost btn--sm" data-job-close>Close</button>
+    </div>
+    <div class="lightbox__scroll" data-job-body></div>
+  </div>
+</div>
+
+<!-- Send completion message -->
+<div class="lightbox" data-senddlg hidden>
+  <div class="lightbox__inner lightbox__inner--sm" role="dialog" aria-modal="true" aria-label="Send completion message">
+    <div class="lightbox__head">
+      <h3 style="margin:0">Send it to the customer</h3>
+      <button class="btn btn--ghost btn--sm" data-send="skip">Close</button>
+    </div>
+    <div data-send-body></div>
+  </div>
+</div>
+
+<!-- Photo viewer -->
+<div class="lightbox" data-lightbox hidden>
+  <div class="lightbox__inner" role="dialog" aria-modal="true" aria-label="Job photos">
+    <div class="lightbox__head">
+      <div>
+        <h3 data-lb-title style="margin:0">Job photos</h3>
+        <p class="dbsub" data-lb-sub style="margin:0"></p>
+      </div>
+      <button class="btn btn--ghost btn--sm" data-lb-close>Close</button>
+    </div>
+    <div class="lightbox__grid" data-lb-grid></div>
+  </div>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-bottom" style="margin-top:0;border-top:0;padding-top:0">
+      <p>&copy; <span data-year>2026</span> Menifee Maids. All rights reserved.</p>
+      <p class="credit">Designed, developed, and hosted on Microsoft Azure by Apex Intelligent Systems.</p>
+      <p class="credit">Lead Developer &amp; Cloud Architect: Esmeralda C. Cabrera Ventura.</p>
+      <a class="signin" href="index.html">Back to website</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/store.js"></script>
+<script src="js/db.js"></script>
+<script src="js/bubbles.js"></script>
+<script src="js/site.js"></script>
+<script src="js/admin.js"></script>
+<script>
+  /* Caches the shell so the dashboard opens without a signal. Registered only
+     on staff pages — customers browse once and never need it. */
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function () { /* not fatal */ });
+    });
+  }
+</script>
+</body>
+</html>
