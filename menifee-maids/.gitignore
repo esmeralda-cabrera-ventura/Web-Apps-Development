@@ -1,0 +1,15 @@
+# Azure Functions local settings — the usual way people leak connection strings
+local.settings.json
+.env
+.env.*
+
+node_modules/
+bin/
+obj/
+dist/
+
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

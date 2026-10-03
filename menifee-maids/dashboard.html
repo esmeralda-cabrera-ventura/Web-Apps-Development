@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0054B4">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="manifest" href="/dashboard.webmanifest">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MM Dashboard">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard" style="text-align:center">
+    <img src="assets/logo.png" alt="Menifee Maids" width="900" height="619" class="authlogo" style="margin-bottom:1.5rem">
+
+    <div data-stage="working">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="authsub" data-t="working" style="margin-top:1rem">Signing you in&hellip;</p>
+    </div>
+
+    <div data-stage="choose" hidden>
+      <h1 style="font-size:1.4rem" data-t="pick">Which language?</h1>
+      <p class="authsub" data-t="picksub">We'll remember this and go straight there next time.</p>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn--primary" data-go="en">English</button>
+        <button class="btn btn--ghost" data-go="es" lang="es">Espa&ntilde;ol</button>
+      </div>
+    </div>
+
+    <div data-stage="offline" hidden>
+      <h1 style="font-size:1.3rem" data-t="offtitle">You're offline</h1>
+      <p class="authsub" data-t="offsub">Reconnect and this will open your dashboard.</p>
+      <button class="btn btn--primary btn--sm" data-retry data-t="retry">Try again</button>
+    </div>
+  </div>
+</main>
+
+<script src="js/errlang.js"></script>
+<script src="js/access.js"></script>
+<script>
+/*
+ * One address for everybody: /dashboard
+ *
+ * Three dashboards exist — owner English, helper English, helper Spanish — and
+ * nobody should have to remember which one is theirs. This signs them in, reads
+ * the role Static Web Apps assigned, and forwards them. The choice of language
+ * is remembered, so a Spanish helper types this once and never sees English again.
+ */
+(function () {
+  "use strict";
+
+  var COPY = {
+    en: { working: "Signing you in\u2026", pick: "Which language?",
+          picksub: "We'll remember this and go straight there next time.",
+          offtitle: "You're offline", offsub: "Reconnect and this will open your dashboard.",
+          retry: "Try again" },
+    es: { working: "Iniciando sesi\u00f3n\u2026", pick: "\u00bfEn qu\u00e9 idioma?",
+          picksub: "Lo recordamos y la pr\u00f3xima vez entras directo.",
+          offtitle: "Sin conexi\u00f3n", offsub: "Con\u00e9ctate y esto abrir\u00e1 tu panel.",
+          retry: "Intentar de nuevo" }
+  };
+
+  function paint(lang) {
+    var d = COPY[lang] || COPY.en;
+    document.documentElement.lang = lang;
+    Object.keys(d).forEach(function (k) {
+      var el = document.querySelector('[data-t="' + k + '"]');
+      if (el) el.textContent = d[k];
+    });
+  }
+
+  function stage(name) {
+    ["working", "choose", "offline"].forEach(function (s) {
+      var el = document.querySelector('[data-stage="' + s + '"]');
+      if (el) el.hidden = s !== name;
+    });
+  }
+
+  function stored() {
+    try { return window.localStorage.getItem("mcc.dashboard.lang"); } catch (e) { return null; }
+  }
+  function remember(lang) {
+    try { window.localStorage.setItem("mcc.dashboard.lang", lang); } catch (e) {}
+    window.MCC.errorLang.remember(lang);
+  }
+
+  /** Owner keeps the full English dashboard; helpers get their language's view. */
+  function destinationFor(role, lang) {
+    if (role === "owner") return lang === "es" ? "admin-es.html" : "admin.html";
+    return lang === "es" ? "admin-es.html" : "helper.html";
+  }
+
+  paint(window.MCC.errorLang.detect());
+
+  // A file:// copy has no platform to ask; send it to the local sign-in.
+  if (window.MCC.access.isOffline()) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  window.MCC.access.whoAmI()
+    .then(function (me) {
+      if (!me) {
+        // Not signed in. Static Web Apps will bring them back here afterwards.
+        window.location.replace(
+          "/.auth/login/aad?post_login_redirect_uri=" + encodeURIComponent("/dashboard")
+        );
+        return;
+      }
+
+      var role = me.roles.indexOf("owner") > -1 ? "owner"
+               : me.roles.indexOf("helper") > -1 ? "helper" : null;
+
+      if (!role) { window.location.replace("no-access.html"); return; }
+
+      var lang = stored();
+      if (lang) {
+        window.location.replace(destinationFor(role, lang));
+        return;
+      }
+
+      // First visit: ask once rather than guessing wrong and sending someone
+      // into a language they can't work in.
+      stage("choose");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (btn) {
+        btn.addEventListener("click", function () {
+          var chosen = btn.getAttribute("data-go");
+          remember(chosen);
+          window.location.replace(destinationFor(role, chosen));
+        });
+      });
+    })
+    ["catch"](function () {
+      // No network: say so plainly instead of hanging on a spinner.
+      stage("offline");
+      var retry = document.querySelector("[data-retry]");
+      if (retry) retry.addEventListener("click", function () { window.location.reload(); });
+    });
+})();
+</script>
+<script>
+  /* Caches the shell so the dashboard opens without a signal. Registered only
+     on staff pages — customers browse once and never need it. */
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function () { /* not fatal */ });
+    });
+  }
+</script>
+</body>
+</html>

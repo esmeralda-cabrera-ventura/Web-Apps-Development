@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No access | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard">
+    <a href="index.html" class="authlogo"><img src="assets/logo.png" alt="Menifee Maids" width="900" height="619"></a>
+
+    <h1 data-t="title">You're signed in, but not on the list</h1>
+    <p class="authsub" data-t="sub">
+      This account doesn't have access to the dashboard yet. Access is given by
+      invitation, one person at a time.
+    </p>
+
+    <div class="notice notice--info">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6.5v.5"/></svg>
+      <span><span data-t="ask">If you should have access, ask the owner to send an invitation to</span>
+      <strong data-signed-in-as>this account</strong>.</span>
+    </div>
+
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem">
+      <a class="btn btn--ghost btn--sm" href="/.auth/logout?post_logout_redirect_uri=/index.html" data-t="signout">Sign out</a>
+      <a class="btn btn--ghost btn--sm" href="index.html" data-t="back" data-t-href>Back to the website</a>
+    </div>
+
+    <p class="authback">
+      <span data-t="looking">Looking for a cleaning?</span>
+      <a href="book.html" data-t="bookcta" data-t-book>Book a service</a>
+    </p>
+    <p class="authback authback--lang"><a href="#" data-switch></a></p>
+  </div>
+</main>
+
+<script src="js/errlang.js"></script>
+<script src="js/access.js"></script>
+<script>
+/*
+ * The person most likely to see this page is a helper whose invitation hasn't
+ * been sent yet — and the helper works in Spanish. Showing them an English
+ * error would be exactly the wrong moment for it.
+ *
+ * There is only one 403 page for the whole site, so it can't be pre-rendered in
+ * a language. It picks from the browser instead, and offers a manual switch.
+ */
+(function () {
+  var EN = {
+    title: "You're signed in, but not on the list",
+    sub: "This account doesn't have access to the dashboard yet. Access is given by invitation, one person at a time.",
+    ask: "If you should have access, ask the owner to send an invitation to",
+    signout: "Sign out",
+    back: "Back to the website",
+    looking: "Looking for a cleaning?",
+    bookcta: "Book a service"
+  };
+  var ES = {
+    title: "Iniciaste sesi\u00f3n, pero no tienes acceso",
+    sub: "Esta cuenta a\u00fan no tiene acceso al panel. El acceso se da por invitaci\u00f3n, una persona a la vez.",
+    ask: "Si deber\u00edas tener acceso, p\u00eddele al due\u00f1o que env\u00ede una invitaci\u00f3n a",
+    signout: "Cerrar sesi\u00f3n",
+    back: "Volver al sitio",
+    looking: "\u00bfBuscas una limpieza?",
+    bookcta: "Reservar servicio"
+  };
+
+  function apply(lang) {
+    var dict = lang === "es" ? ES : EN;
+    document.documentElement.lang = lang;
+    Object.keys(dict).forEach(function (k) {
+      var el = document.querySelector('[data-t="' + k + '"]');
+      if (el) el.textContent = dict[k];
+    });
+    var back = document.querySelector("[data-t-href]");
+    if (back) back.setAttribute("href", lang === "es" ? "index-es.html" : "index.html");
+    var book = document.querySelector("[data-t-book]");
+    if (book) book.setAttribute("href", lang === "es" ? "reservar.html" : "book.html");
+    var sw = document.querySelector("[data-switch]");
+    sw.textContent = lang === "es" ? "View in English" : "Ver en espa\u00f1ol";
+    sw.setAttribute("lang", lang === "es" ? "en" : "es");
+    window.MCC.errorLang.remember(lang);
+  }
+
+  // Which site were they on? Stored language, then referrer, then browser.
+  apply(window.MCC.errorLang.detect());
+
+  document.querySelector("[data-switch]").addEventListener("click", function (e) {
+    e.preventDefault();
+    apply(document.documentElement.lang === "es" ? "en" : "es");
+  });
+
+  // Naming the account matters: people usually have two, and are signed into
+  // the wrong one.
+  window.MCC.access.whoAmI().then(function (me) {
+    var el = document.querySelector("[data-signed-in-as]");
+    if (me && me.name && el) el.textContent = me.name;
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pay your invoice | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard authcard--pay" data-pay>
+    <a href="index.html" class="authlogo"><img src="assets/logo.png" alt="Menifee Maids" width="900" height="619"></a>
+    <div data-pay-body>
+      <p style="text-align:center;color:var(--muted)">Loading your invoice&hellip;</p>
+    </div>
+  </div>
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/store.js"></script>
+<script>
+(function () {
+  "use strict";
+  var S = window.MCC.store;
+  var box = document.querySelector("[data-pay-body]");
+
+  // Editing the fragment alone doesn't re-run this script, so re-validate on change.
+  window.addEventListener("hashchange", function () { window.location.reload(); });
+
+  /** Pick a string by page language, read at call time — the language is set
+      from the query string below, after this function is defined. */
+  function t(en, es) {
+    return document.documentElement.lang === "es" ? es : en;
+  }
+
+  function shell(title, body) {
+    box.innerHTML = "<h1>" + title + "</h1>" + body;
+  }
+
+  var qs = new URLSearchParams(window.location.search);
+  var jobParam = qs.get("job") || "";
+  if (qs.get("lang") === "es") document.documentElement.setAttribute("lang", "es");
+  var frag = window.location.hash || "";
+  var m = frag.match(/d=([A-Za-z0-9\-_]+)/);
+  if (!m) {
+    shell(t("This link isn't active", "Este enlace ya no est\u00e1 activo"),
+      '<p class="authsub">' + t("Payment links are sent by email or text after a visit. If yours has expired or you typed it by hand, ask us to send a fresh one.", "Los enlaces de pago se envían por correo o mensaje después de la visita. Si el tuyo venció o lo escribiste a mano, pídenos uno nuevo.") + '</p>' +
+      '<p style="text-align:center"><a class="btn btn--primary" href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+    return;
+  }
+
+  var d = S.readPayload(m[1]);
+  if (!d || !d.a) {
+    shell(t("This link isn't active", "Este enlace ya no está activo"),
+      '<p class="authsub">' + t("We couldn't read that payment link. Ask us to send a new one and we'll get it over to you.", "No pudimos leer ese enlace de pago. Pídenos uno nuevo y te lo enviamos enseguida.") + '</p>' +
+      '<p style="text-align:center"><a class="btn btn--primary" href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+    return;
+  }
+
+  // The job number appears in the query string too; they must agree.
+  if (jobParam && d.r && jobParam !== d.r) {
+    shell(t("This link isn't active", "Este enlace ya no está activo"),
+      '<p class="authsub">' + t("This payment link looks like it was edited. Ask us to send a fresh one and we'll get it right over.", "Parece que este enlace fue modificado. Pídenos uno nuevo y te lo enviamos enseguida.") + '</p>' +
+      '<p style="text-align:center"><a class="btn btn--primary" href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+    return;
+  }
+
+  var expired = d.e && (new Date(d.e + "T23:59:59") < new Date());
+  if (expired) {
+    shell(t("This payment link has expired", "Este enlace de pago ya venci\u00f3"),
+      '<p class="authsub">It was valid until ' + new Date(d.e + "T12:00:00").toLocaleDateString("en-US",
+        { month: "long", day: "numeric", year: "numeric" }) +
+      '. Ask us for a fresh link and we\'ll send one right over.</p>' +
+      '<p style="text-align:center"><a class="btn btn--primary" href="mailto:info.menifeemaids@outlook.com?subject=' +
+      encodeURIComponent("New payment link please - " + d.r) + '">' + t("Request a new link", "Pedir un enlace nuevo") + '</a></p>');
+    return;
+  }
+
+  var settings = S.getSettings();
+
+  /* The Stripe link lives on the server, not in this visitor's browser — a
+     customer has never had a settings screen. Fetch it and upgrade the Pay
+     button in place. Only the public projection comes back: the payment link
+     and the business name, nothing else. */
+  if (window.location.protocol !== "file:") {
+    fetch("/api/settings")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (payload) {
+        var url = payload && payload.settings && payload.settings.stripeUrl;
+        if (!url) return;
+        S.applyRemoteSettings(payload.settings);
+        var btn = document.querySelector("[data-pay-go]");
+        if (!btn) return;
+        var link = document.createElement("a");
+        link.className = btn.className;
+        link.setAttribute("href", url);
+        link.setAttribute("rel", "noopener");
+        link.textContent = btn.textContent;
+        btn.parentNode.replaceChild(link, btn);
+      })["catch"](function () { /* leave the "not switched on" message */ });
+  }
+
+  var payLabel = t("Pay " + S.money(d.a) + " securely",
+                   "Pagar " + S.money(d.a) + " de forma segura");
+  var payBtn = settings.stripeUrl
+    ? '<a class="btn btn--primary btn--block btn--lg" href="' + settings.stripeUrl + '" rel="noopener">' + payLabel + "</a>"
+    : '<button class="btn btn--primary btn--block btn--lg" data-pay-go>' + payLabel + "</button>";
+
+  shell(t("Pay your invoice", "Paga tu factura"),
+    '<p class="authsub">Thanks, ' + (d.n ? String(d.n).split(" ")[0] : "there") + " \u2014 here's what's due for your recent clean.</p>" +
+    '<ul class="summary">' +
+      "<li><span class='k'>" + t("Service", "Servicio") + "</span><span class='v'>" + (d.d || "Cleaning") + "</span></li>" +
+      "<li><span class='k'>" + t("Job number", "N\u00famero de trabajo") + "</span><span class='v'><code class='dbjob'>" + (d.r || "\u2014") + "</code></span></li>" +
+      "<li><span class='k'>" + t("Link valid until", "V\u00e1lido hasta") + "</span><span class='v'>" +
+        new Date(d.e + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" }) + "</span></li>" +
+    "</ul>" +
+    '<div class="paytotal"><span>' + t("Amount due", "Total a pagar") + '</span><strong>' + S.money(d.a) + "</strong></div>" +
+    payBtn +
+    '<p class="paynote"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="8" width="14" height="9" rx="2"/><path d="M7 8V6a3 3 0 0 1 6 0v2"/></svg> ' + t("Card details are handled by our payment provider. We never see or store your card number.", "Los datos de tu tarjeta los maneja nuestro procesador de pagos. Nunca vemos ni guardamos tu n\u00famero de tarjeta.") + '</p>' +
+    '<p class="authback">' + t("Questions about this invoice?", "\u00bfPreguntas sobre esta factura?") + ' <a href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+
+  var go = document.querySelector("[data-pay-go]");
+  if (go) {
+    go.addEventListener("click", function () {
+      window.alert("Card payments aren't switched on yet.\n\nThe business owner needs to paste their Stripe payment link into Dashboard \u2192 Settings. Until then, please pay by cash, check, or call 951-464-8147.");
+    });
+  }
+})();
+</script>
+</body>
+</html>

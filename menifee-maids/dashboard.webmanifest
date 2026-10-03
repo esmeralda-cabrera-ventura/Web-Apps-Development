@@ -1,0 +1,32 @@
+{
+  "name": "Menifee Maids — Dashboard",
+  "short_name": "MM Dashboard",
+  "description": "Schedule, job requests and payments.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "minimal-ui",
+  "orientation": "portrait-primary",
+  "background_color": "#F2FAFC",
+  "theme_color": "#0054B4",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

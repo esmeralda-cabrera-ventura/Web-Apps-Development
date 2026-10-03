@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acceso del dueño | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard">
+    <a href="index-es.html" class="authlogo"><img src="assets/logo.png" alt="Menifee Maids" width="900" height="619"></a>
+    <h1>Acceso del dueño</h1>
+    <p class="authsub">Tu calendario, tus citas y los datos de tus clientes viven detrás de esta página.</p>
+
+    <div class="notice notice--error" data-auth-error role="alert" hidden></div>
+    <div class="notice notice--warn" data-auth-hint hidden></div>
+
+    <form data-login novalidate>
+      <div class="field">
+        <label for="user">Usuario</label>
+        <input class="input" id="user" name="user" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="pass">Contraseña</label>
+        <input class="input" id="pass" name="pass" type="password" autocomplete="current-password">
+      </div>
+      <button class="btn btn--primary btn--block btn--lg" type="submit" data-login-btn>Entrar</button>
+    </form>
+
+    <p class="authback">
+      <a href="#" data-reset>¿Olvidaste tu contraseña?</a>
+      <span aria-hidden="true" style="opacity:.4;margin:0 .5rem">&middot;</span>
+      <a href="index-es.html">Volver al sitio</a>
+    </p>
+    <p class="authback authback--lang">
+      <a class="langswitch langswitch--auth" href="helper-login.html" hreflang="en" lang="en">Sign in in English</a>
+    </p>
+  </div>
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
+<script>
+(function () {
+  "use strict";
+  var A = window.MCC.auth;
+  var form = document.querySelector("[data-login]");
+  var errBox = document.querySelector("[data-auth-error]");
+  var hint = document.querySelector("[data-auth-hint]");
+
+  // Already signed in? Go straight through.
+  if (A.currentSession("helper")) { window.location.replace("admin-es.html"); return; }
+
+  // First run: show the starting credentials so the owner can actually get in.
+  if (A.usingDefaultPassword("helper")) {
+    hint.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg>' +
+      "<div><strong>¿Primera vez?</strong> Entra con <code>" + A.defaultsFor("helper").user +
+      "</code> / <code>" + A.defaultsFor("helper").pass + "</code>, y cámbiala de inmediato en Configuración del panel.</div>";
+    hint.hidden = false;
+  }
+
+  function fail(msg) {
+    errBox.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg><div>' + msg + "</div>";
+    errBox.hidden = false;
+  }
+
+  /* Chrome treats every file:// page as one origin, so a credential saved by an
+     older copy of this site can block the starting password. This clears it. */
+  document.querySelector("[data-reset]").addEventListener("click", function (e) {
+    e.preventDefault();
+    if (!window.confirm(
+      "\u00bfRestablecer el acceso al usuario y contrase\u00f1a iniciales?\n\n" +
+      "Tus trabajos, tu calendario y tus enlaces de pago no se tocan \u2014 s\u00f3lo se reinicia el acceso.")) return;
+    try { window.localStorage.removeItem("mcc.cred.helper.v1"); window.localStorage.removeItem("mcc.lock.helper.v1"); } catch (x) {}
+    window.location.reload();
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    errBox.hidden = true;
+    var u = document.getElementById("user").value;
+    var p = document.getElementById("pass").value;
+    if (!u || !p) { fail("Escribe tu usuario y tu contraseña."); return; }
+    var res = A.signIn(u, p, "helper");
+    if (res.ok) { window.location.replace("admin-es.html"); return; }
+    fail(res.message);
+    document.getElementById("pass").value = "";
+    document.getElementById("pass").focus();
+  });
+})();
+</script>
+</body>
+</html>

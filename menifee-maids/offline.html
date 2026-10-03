@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard" style="text-align:center">
+    <img src="assets/logo.png" alt="Menifee Maids" width="900" height="619" class="authlogo">
+    <h1 style="font-size:1.5rem" data-t="title">You're offline</h1>
+    <p class="authsub" data-t="body">
+      No signal right now. Anything already saved on this phone is still here &mdash;
+      reconnect and it will sync.
+    </p>
+    <button class="btn btn--primary" data-retry data-t="retry">Try again</button>
+    <p class="authback"><a href="tel:+19514648147" data-t="call">Call 951-464-8147</a></p>
+  </div>
+</main>
+<script src="js/errlang.js"></script>
+<script>
+(function () {
+  var COPY = {
+    en: { title: "You're offline",
+          body: "No signal right now. Anything already saved on this phone is still here — reconnect and it will sync.",
+          retry: "Try again", call: "Call 951-464-8147" },
+    es: { title: "Sin conexión",
+          body: "No hay señal ahora mismo. Lo que ya está guardado en este teléfono sigue aquí — al reconectarte se sincroniza.",
+          retry: "Intentar de nuevo", call: "Llámanos al 951-464-8147" }
+  };
+  var d = COPY[window.MCC.errorLang.detect()] || COPY.en;
+  document.documentElement.lang = window.MCC.errorLang.detect();
+  Object.keys(d).forEach(function (k) {
+    var el = document.querySelector('[data-t="' + k + '"]');
+    if (el) el.textContent = d[k];
+  });
+  document.querySelector("[data-retry]").addEventListener("click", function () {
+    window.location.reload();
+  });
+  // Reload by itself the moment the connection comes back.
+  window.addEventListener("online", function () { window.location.reload(); });
+})();
+</script>
+</body>
+</html>

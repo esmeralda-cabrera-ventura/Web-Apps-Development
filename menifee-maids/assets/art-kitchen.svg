@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" role="img" aria-labelledby="kt">
+<title id="kt">A spotless kitchen with a polished marble counter and gleaming stainless sink</title>
+<defs>
+  <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FBFCFD"/><stop offset="1" stop-color="#E9EFF2"/>
+  </linearGradient>
+  <linearGradient id="tileG" x1="0" y1="0" x2="0.3" y2="1">
+    <stop offset="0" stop-color="#F7FAFB"/><stop offset="1" stop-color="#E3EBEF"/>
+  </linearGradient>
+  <linearGradient id="marbleG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/><stop offset="0.35" stop-color="#F3F6F7"/><stop offset="1" stop-color="#DFE7EB"/>
+  </linearGradient>
+  <linearGradient id="marbleEdge" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#D3DDE2"/><stop offset="1" stop-color="#B9C7CE"/>
+  </linearGradient>
+  <linearGradient id="cabG" x1="0" y1="0" x2="0.2" y2="1">
+    <stop offset="0" stop-color="#FDFEFE"/><stop offset="0.6" stop-color="#F1F5F7"/><stop offset="1" stop-color="#E2EAEE"/>
+  </linearGradient>
+  <linearGradient id="steelG" x1="0" y1="0" x2="1" y2="0.4">
+    <stop offset="0" stop-color="#F2F6F8"/><stop offset="0.28" stop-color="#B7C5CC"/>
+    <stop offset="0.5" stop-color="#E6ECEF"/><stop offset="0.75" stop-color="#96A7B0"/>
+    <stop offset="1" stop-color="#CBD6DB"/>
+  </linearGradient>
+  <linearGradient id="sinkG" x1="0" y1="0" x2="0.3" y2="1">
+    <stop offset="0" stop-color="#C2CDD3"/><stop offset="0.45" stop-color="#E4EAEE"/><stop offset="1" stop-color="#A9B7BE"/>
+  </linearGradient>
+  <linearGradient id="glassG" x1="0" y1="0" x2="0.6" y2="1">
+    <stop offset="0" stop-color="#EAF6FB"/><stop offset="0.5" stop-color="#CDE8F3"/><stop offset="1" stop-color="#AFD9EA"/>
+  </linearGradient>
+  <linearGradient id="bottleG" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#3FC9DC"/><stop offset="0.35" stop-color="#00B4CC"/><stop offset="1" stop-color="#00808F"/>
+  </linearGradient>
+  <radialGradient id="daylight" cx="0.72" cy="0.18" r="0.62">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bubG" cx="0.34" cy="0.3" r="0.7">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
+    <stop offset="0.55" stop-color="#DCF2F8" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#BFE6F0" stop-opacity="0.1"/>
+  </radialGradient>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="5"/>
+  </filter>
+  <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="2.2"/>
+  </filter>
+  <clipPath id="frame"><rect width="620" height="420" rx="24"/></clipPath>
+  <clipPath id="marbleClip"><rect x="0" y="243" width="620" height="26"/></clipPath>
+</defs>
+
+<g clip-path="url(#frame)">
+  <rect width="620" height="420" fill="url(#wallG)"/>
+
+  <!-- subway tile backsplash, subtly varied so it doesn't read as flat -->
+  <g>
+    <rect x="0" y="120" width="620" height="124" fill="url(#tileG)"/>
+    <g stroke="#D7E1E6" stroke-width="2">
+      <path d="M0 161 H620 M0 202 H620"/>
+      <path d="M0 120 V244 M76 120 V161 M152 120 V161 M228 120 V161 M304 120 V161 M380 120 V161 M456 120 V161 M532 120 V161 M608 120 V161"/>
+      <path d="M38 161 V202 M114 161 V202 M190 161 V202 M266 161 V202 M342 161 V202 M418 161 V202 M494 161 V202 M570 161 V202"/>
+      <path d="M76 202 V244 M152 202 V244 M228 202 V244 M304 202 V244 M380 202 V244 M456 202 V244 M532 202 V244 M608 202 V244"/>
+    </g>
+    <g fill="#FFFFFF" opacity="0.55">
+      <rect x="80" y="123" width="68" height="35"/><rect x="308" y="123" width="68" height="35"/>
+      <rect x="118" y="164" width="68" height="35"/><rect x="422" y="164" width="68" height="35"/>
+      <rect x="232" y="205" width="68" height="36"/><rect x="536" y="205" width="68" height="36"/>
+    </g>
+    <rect x="0" y="120" width="620" height="10" fill="#0C2A38" opacity="0.05" filter="url(#soft2)"/>
+  </g>
+
+  <!-- window with real daylight falloff -->
+  <rect x="398" y="34" width="182" height="128" rx="4" fill="url(#glassG)"/>
+  <rect x="392" y="28" width="194" height="140" rx="6" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+  <rect x="392" y="28" width="194" height="140" rx="6" fill="none" stroke="#CFDBE1" stroke-width="1.5"/>
+  <path d="M486 34 V162 M398 96 H580" stroke="#FFFFFF" stroke-width="7"/>
+  <path d="M410 158 L572 40" stroke="#FFFFFF" stroke-width="20" opacity="0.42"/>
+  <path d="M430 158 L580 50" stroke="#FFFFFF" stroke-width="7" opacity="0.35"/>
+  <rect x="0" y="0" width="620" height="300" fill="url(#daylight)"/>
+
+  <!-- upper cabinets, shaker style with recessed panels -->
+  <g>
+    <rect x="30" y="26" width="164" height="122" rx="4" fill="url(#cabG)"/>
+    <rect x="30" y="26" width="164" height="122" rx="4" fill="none" stroke="#CFDBE1" stroke-width="1.5"/>
+    <path d="M112 26 V148" stroke="#CFDBE1" stroke-width="1.5"/>
+    <g fill="none" stroke="#D5E0E5" stroke-width="1.5">
+      <rect x="42" y="38" width="58" height="98" rx="2"/>
+      <rect x="124" y="38" width="58" height="98" rx="2"/>
+    </g>
+    <g fill="#E8EFF2">
+      <rect x="46" y="42" width="50" height="90"/><rect x="128" y="42" width="50" height="90"/>
+    </g>
+    <g fill="#B9C7CE">
+      <rect x="100" y="76" width="5" height="26" rx="2.5"/>
+      <rect x="119" y="76" width="5" height="26" rx="2.5"/>
+    </g>
+    <rect x="30" y="148" width="164" height="9" fill="#0C2A38" opacity="0.1" filter="url(#soft2)"/>
+  </g>
+
+  <!-- gooseneck faucet, brushed stainless -->
+  <path d="M300 246 V150 q0-21 21-21 h34 q19 0 19 19 v30"
+        fill="none" stroke="#8C9BA3" stroke-width="15" stroke-linecap="round"/>
+  <path d="M300 246 V150 q0-21 21-21 h34 q19 0 19 19 v30"
+        fill="none" stroke="url(#steelG)" stroke-width="11" stroke-linecap="round"/>
+  <path d="M297 240 V152 q0-17 17-17 h30" fill="none" stroke="#FFFFFF" stroke-width="2.4" opacity="0.75" stroke-linecap="round"/>
+  <ellipse cx="374" cy="180" rx="7" ry="5" fill="#7E8E97"/>
+  <path d="M374 186 v22" stroke="#CFE8F2" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- counter shadow, then marble slab -->
+  <rect x="0" y="266" width="620" height="12" fill="#0C2A38" opacity="0.13" filter="url(#soft)"/>
+  <rect x="0" y="243" width="620" height="26" fill="url(#marbleG)"/>
+  <g clip-path="url(#marbleClip)" stroke="#C3CFD6" fill="none" opacity="0.75">
+    <path d="M-10 258 q60 -8 118 -1 t130 5 t150 -8 t160 3" stroke-width="1.3"/>
+    <path d="M40 250 q40 5 92 1 t120 -4" stroke-width="0.9" opacity="0.7"/>
+    <path d="M330 264 q70 -6 130 -2 t150 -5" stroke-width="0.9" opacity="0.6"/>
+  </g>
+  <rect x="0" y="243" width="620" height="4" fill="#FFFFFF"/>
+  <rect x="0" y="263" width="620" height="6" fill="url(#marbleEdge)"/>
+  <!-- specular reflection along the polished edge -->
+  <rect x="34" y="247" width="214" height="4" rx="2" fill="#FFFFFF" opacity="0.95"/>
+  <rect x="470" y="247" width="96" height="3" rx="1.5" fill="#FFFFFF" opacity="0.7"/>
+
+  <!-- undermount stainless sink -->
+  <rect x="252" y="248" width="180" height="92" rx="8" fill="#85959E"/>
+  <rect x="252" y="248" width="180" height="92" rx="8" fill="url(#sinkG)"/>
+  <rect x="262" y="256" width="160" height="76" rx="6" fill="#B4C1C8"/>
+  <rect x="262" y="256" width="160" height="76" rx="6" fill="url(#sinkG)" opacity="0.55"/>
+  <path d="M268 262 h148" stroke="#FFFFFF" stroke-width="3" opacity="0.85" stroke-linecap="round"/>
+  <ellipse cx="342" cy="322" rx="15" ry="5" fill="#8FA0A9" opacity="0.7"/>
+  <ellipse cx="342" cy="321" rx="9" ry="3" fill="#6F828C" opacity="0.8"/>
+  <rect x="252" y="336" width="180" height="9" fill="#0C2A38" opacity="0.12" filter="url(#soft2)"/>
+
+  <!-- lower cabinets -->
+  <g>
+    <rect x="0" y="269" width="252" height="151" fill="url(#cabG)"/>
+    <rect x="432" y="269" width="188" height="151" fill="url(#cabG)"/>
+    <g fill="none" stroke="#D5E0E5" stroke-width="1.5">
+      <rect x="18" y="286" width="98" height="118" rx="2"/>
+      <rect x="130" y="286" width="98" height="118" rx="2"/>
+      <rect x="452" y="286" width="146" height="118" rx="2"/>
+    </g>
+    <g fill="#E8EFF2">
+      <rect x="24" y="292" width="86" height="106"/>
+      <rect x="136" y="292" width="86" height="106"/>
+      <rect x="458" y="292" width="134" height="106"/>
+    </g>
+    <g fill="#A9B8C0">
+      <rect x="52" y="308" width="30" height="5" rx="2.5"/>
+      <rect x="164" y="308" width="30" height="5" rx="2.5"/>
+      <rect x="510" y="308" width="32" height="5" rx="2.5"/>
+    </g>
+    <path d="M252 269 V420" stroke="#C3CFD6" stroke-width="1.5"/>
+    <path d="M432 269 V420" stroke="#C3CFD6" stroke-width="1.5"/>
+  </g>
+
+  <!-- spray bottle, the one brand-coloured object -->
+  <g>
+    <ellipse cx="212" cy="246" rx="30" ry="5" fill="#0C2A38" opacity="0.16" filter="url(#soft2)"/>
+    <rect x="188" y="180" width="48" height="66" rx="10" fill="url(#bottleG)"/>
+    <rect x="195" y="190" width="11" height="46" rx="5.5" fill="#FFFFFF" opacity="0.5"/>
+    <rect x="224" y="192" width="5" height="40" rx="2.5" fill="#00606D" opacity="0.45"/>
+    <rect x="200" y="156" width="24" height="26" rx="4" fill="#0B5FBE"/>
+    <rect x="203" y="160" width="6" height="18" rx="3" fill="#FFFFFF" opacity="0.35"/>
+    <path d="M224 162 h26 q4 0 3 4 l-4 9 h-25 z" fill="#0B5FBE"/>
+    <rect x="207" y="142" width="13" height="16" rx="3" fill="#0B5FBE"/>
+  </g>
+
+  <!-- suds in the basin -->
+  <g>
+    <circle cx="300" cy="238" r="15" fill="url(#bubG)"/>
+    <circle cx="328" cy="220" r="9" fill="url(#bubG)"/>
+    <circle cx="278" cy="222" r="6.5" fill="url(#bubG)"/>
+    <circle cx="352" cy="240" r="7.5" fill="url(#bubG)"/>
+    <circle cx="316" cy="252" r="5" fill="url(#bubG)"/>
+  </g>
+
+  <!-- restrained brand sparkles -->
+  <g fill="#FFFFFF">
+    <path d="M462 232 l5 17 17 5 -17 5 -5 17 -5 -17 -17 -5 17 -5 Z" opacity="0.9"/>
+    <path d="M156 254 l4 13 13 4 -13 4 -4 13 -4 -13 -13 -4 13 -4 Z" opacity="0.85"/>
+  </g>
+  <path d="M264 118 l6 20 20 6 -20 6 -6 20 -6 -20 -20 -6 20 -6 Z" fill="#FFFFFF" opacity="0.75"/>
+</g>
+</svg>

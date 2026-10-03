@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | Menifee Maids</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main class="wrap" style="min-height:80vh;display:grid;place-items:center;text-align:center;padding-block:3rem">
+  <div style="max-width:46ch">
+    <img src="assets/logo-sm.png" alt="Menifee Maids" style="height:80px;width:auto;margin:0 auto 1.75rem">
+    <p class="eyebrow" style="justify-content:center">404</p>
+    <h1 style="font-size:clamp(2rem,5vw,3rem)" data-t="title">That page isn't here.</h1>
+    <p class="lede" data-t="body">It may have moved. Try the booking page, or call us and we'll sort it out.</p>
+    <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.75rem">
+      <a class="btn btn--primary btn--lg" href="index.html" data-t="home" data-t-href>Go to the homepage</a>
+      <a class="btn btn--ghost btn--lg" href="tel:+19514648147" data-t="call">Call 951-464-8147</a>
+    </div>
+    <p style="margin-top:1.5rem;font-size:.9rem"><a href="#" data-switch></a></p>
+  </div>
+</main>
+<script src="js/bubbles.js"></script>
+<script src="js/errlang.js"></script>
+<script>
+/* A 404 can be reached from either language, and often from a search result or
+   a mistyped address where we have no page context. So the visitor's own
+   browser setting decides, and a link lets them override it. */
+(function () {
+  var ES = {
+    title: "Esta p\u00e1gina no existe.",
+    body: "Puede que se haya movido. Prueba la p\u00e1gina de reservas, o ll\u00e1manos y lo resolvemos.",
+    home: "Ir al inicio",
+    call: "Ll\u00e1manos al 951-464-8147"
+  };
+  var EN = {
+    title: "That page isn't here.",
+    body: "It may have moved. Try the booking page, or call us and we'll sort it out.",
+    home: "Go to the homepage",
+    call: "Call 951-464-8147"
+  };
+
+  function apply(lang) {
+    var dict = lang === "es" ? ES : EN;
+    document.documentElement.lang = lang;
+    Object.keys(dict).forEach(function (k) {
+      var el = document.querySelector('[data-t="' + k + '"]');
+      if (el) el.textContent = dict[k];
+    });
+    var home = document.querySelector("[data-t-href]");
+    if (home) home.setAttribute("href", lang === "es" ? "index-es.html" : "index.html");
+    var sw = document.querySelector("[data-switch]");
+    sw.textContent = lang === "es" ? "View in English" : "Ver en espa\u00f1ol";
+    sw.setAttribute("lang", lang === "es" ? "en" : "es");
+    window.MCC.errorLang.remember(lang);
+  }
+
+  // Which site were they on? Stored language, then referrer, then browser.
+  apply(window.MCC.errorLang.detect());
+
+  document.querySelector("[data-switch]").addEventListener("click", function (e) {
+    e.preventDefault();
+    apply(document.documentElement.lang === "es" ? "en" : "es");
+  });
+})();
+</script>
+</body>
+</html>
