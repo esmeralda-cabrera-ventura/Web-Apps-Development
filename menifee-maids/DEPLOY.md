@@ -4,7 +4,7 @@ Built on the **Cosmos DB free tier** — 1,000 RU/s and 25 GB free for the lifet
 account. Target running cost is **under $2/month**, and $0 of that is compute.
 
 Everything here assumes the domain **menifeemaids.com** and the owner mailbox
-**info.menifeemaids@outlook.com**.
+**inquiry.menifeemaids@outlook.com**.
 
 ---
 
@@ -283,7 +283,7 @@ content, email and domain all say Menifee Maids.
 | Function App | `menifee-cleaningco-jobs` |
 | Static Web App | `menifee-cleaningco-swa` |
 | Communication Services | `menifee-cleaningco-acs` |
-| Owner mailbox | `info.menifeemaids@outlook.com` |
+| Owner mailbox | `inquiry.menifeemaids@outlook.com` |
 | Canonical URL | `https://www.menifeemaids.com` |
 
 ```bash
@@ -389,7 +389,7 @@ photos.
 | `SITE_URL` | `https://www.menifeemaids.com` | Builds payment link URLs |
 | `ACS_CONNECTION_STRING` | from the ACS resource | Email |
 | `ACS_SENDER_ADDRESS` | `DoNotReply@<verified-domain>` | Must match a verified domain |
-| `OWNER_EMAIL` | `info.menifeemaids@outlook.com` | Where new-request alerts go. Accepts a comma-separated list |
+| `OWNER_EMAIL` | `inquiry.menifeemaids@outlook.com` | Where new-request alerts go. Accepts a comma-separated list |
 | `NOTIFY_BCC` | *(optional)* | Comma-separated. Blind-copied on **every** email the app sends |
 | `API_KEY` | random hex | Guards owner routes when not behind SWA |
 | `STRIPE_SECRET_KEY` | `sk_live_...` | Payment verification |
@@ -420,7 +420,7 @@ the Azure portal and take effect on the next restart.
 **`OWNER_EMAIL` accepts a list.** Separate addresses with commas or semicolons:
 
 ```
-info.menifeemaids@outlook.com, esmeralda@example.com, manager@example.com
+inquiry.menifeemaids@outlook.com, esmeralda@example.com, manager@example.com
 ```
 
 Everyone listed receives the four owner-bound notifications: the new-booking alert, contact

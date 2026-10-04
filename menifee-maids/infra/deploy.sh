@@ -28,7 +28,7 @@ FUNC_APP="${FUNC_APP:-menifee-cleaningco-jobs}"
 SWA="${SWA:-menifee-cleaningco-swa}"
 ACS="${ACS:-menifee-cleaningco-acs}"
 
-OWNER_EMAIL="${OWNER_EMAIL:-info.menifeemaids@outlook.com}"
+OWNER_EMAIL="${OWNER_EMAIL:-inquiry.menifeemaids@outlook.com}"
 SITE_URL="${SITE_URL:-https://www.menifeemaids.com}"
 
 echo "==> Selecting subscription: $SUBSCRIPTION"

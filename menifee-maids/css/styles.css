@@ -609,7 +609,10 @@ select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
   display: flex; align-items: center; justify-content: center; }
 .contact-lines .icon-round svg { width: 21px; height: 21px; color: var(--aqua-lite);
   display: block; margin: 0; flex: none; }
-.contact-lines a { color: #fff; font-weight: 700; text-decoration: none; }
+.contact-lines a { color: #fff; font-weight: 700; text-decoration: none; overflow-wrap: anywhere; }
+/* Long email addresses wrap instead of running off the edge of a phone. */
+.contact-lines > li > div, .site-foot li { min-width: 0; }
+.site-foot a { overflow-wrap: anywhere; }
 .contact-lines a:hover { text-decoration: underline; }
 .contact-lines span { display: block; font-size: .85rem; opacity: .78; font-weight: 400; }
 

@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  var BUSINESS_EMAIL = "info.menifeemaids@outlook.com";
+  var BUSINESS_EMAIL = "inquiry.menifeemaids@outlook.com";
 
   /* --- Mobile navigation ------------------------------------------------- */
   var toggle = document.querySelector("[data-nav-toggle]");

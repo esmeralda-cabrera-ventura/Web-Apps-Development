@@ -1810,7 +1810,7 @@
       "<table><thead><tr><th>Job number</th><th>Customer</th><th>Address</th><th>Scheduled</th>" +
       "<th>Status</th><th class='num'>Amount</th><th>Payment</th><th class='num'>Photos</th></tr></thead>" +
       "<tbody>" + rows + "</tbody></table>" +
-      "<footer>Menifee Maids \u00b7 951-464-8147 \u00b7 info.menifeemaids@outlook.com" +
+      "<footer>Menifee Maids \u00b7 951-464-8147 \u00b7 inquiry.menifeemaids@outlook.com" +
       " &nbsp;\u2014&nbsp; records are retained for 3 months and then deleted automatically.</footer>" +
       "</body></html>");
     w.document.close();

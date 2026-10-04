@@ -11,7 +11,7 @@
  *     live; a stale answer to "is this person allowed in" would be a real bug.
  *   - Only GET is cached. A POST is something happening, not something to replay.
  */
-const VERSION = "mcc-v3";
+const VERSION = "mcc-v4";
 const SHELL = VERSION + "-shell";
 
 /* The app shell: enough to render a dashboard from cache with no network. */
