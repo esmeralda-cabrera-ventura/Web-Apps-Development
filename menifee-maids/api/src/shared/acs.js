@@ -41,22 +41,60 @@ function sms() {
 }
 
 /**
+ * Turn "a@x.com, b@y.com; c@z.com" into [{address:"a@x.com"}, ...].
+ *
+ * Any address field — including OWNER_EMAIL — may hold several addresses
+ * separated by commas or semicolons, so a second owner or an office manager can
+ * be added from the Azure portal without touching code. Blank entries and
+ * stray whitespace are dropped, and duplicates are removed so nobody gets the
+ * same alert twice.
+ */
+function recipientList(value) {
+  const seen = new Set();
+  return String(value || "")
+    .split(/[,;]/)
+    .map((a) => a.trim())
+    .filter((a) => {
+      if (!a || seen.has(a.toLowerCase())) return false;
+      seen.add(a.toLowerCase());
+      return true;
+    })
+    .map((address) => ({ address }));
+}
+
+/**
  * Send an email. Never throws — a failed notification must not fail the
  * booking that triggered it.
+ *
+ * `to` accepts one address or a comma-separated list. NOTIFY_BCC, if set, is
+ * blind-copied on every message the app sends, which is how a second inbox gets
+ * a copy of customer-facing mail (confirmations, reminders) as well as the
+ * owner alerts. It is BCC rather than CC so customers never see internal
+ * addresses.
+ *
  * @returns {{sent:boolean, id?:string, error?:string}}
  */
-async function sendEmail({ to, subject, text, html, replyTo }) {
+async function sendEmail({ to, subject, text, html, replyTo, bcc }) {
   const client = email();
   const sender = process.env.ACS_SENDER_ADDRESS;
-  if (!client || !sender || !to) {
+  const recipients = recipientList(to);
+  if (!client || !sender || recipients.length === 0) {
     return { sent: false, error: "email not configured" };
   }
   try {
     const message = {
       senderAddress: sender,
       content: { subject, plainText: text, html: html || undefined },
-      recipients: { to: [{ address: to }] }
+      recipients: { to: recipients }
     };
+
+    // Per-call bcc first, then the standing NOTIFY_BCC list. Anyone already on
+    // the To line is removed so a single address cannot receive two copies.
+    const onTo = new Set(recipients.map((r) => r.address.toLowerCase()));
+    const blind = [...recipientList(bcc), ...recipientList(process.env.NOTIFY_BCC)]
+      .filter((r) => !onTo.has(r.address.toLowerCase()));
+    if (blind.length) message.recipients.bcc = blind;
+
     if (replyTo) message.replyTo = [{ address: replyTo }];
     const poller = await client.beginSend(message);
     const result = await poller.pollUntilDone();
@@ -91,4 +129,4 @@ function normalise(phone) {
   return digits;
 }
 
-module.exports = { sendEmail, sendSms, normalise };
+module.exports = { sendEmail, sendSms, normalise, recipientList };

@@ -389,7 +389,8 @@ photos.
 | `SITE_URL` | `https://www.menifeemaids.com` | Builds payment link URLs |
 | `ACS_CONNECTION_STRING` | from the ACS resource | Email |
 | `ACS_SENDER_ADDRESS` | `DoNotReply@<verified-domain>` | Must match a verified domain |
-| `OWNER_EMAIL` | `info.menifeemaids@outlook.com` | Where new-request alerts go |
+| `OWNER_EMAIL` | `info.menifeemaids@outlook.com` | Where new-request alerts go. Accepts a comma-separated list |
+| `NOTIFY_BCC` | *(optional)* | Comma-separated. Blind-copied on **every** email the app sends |
 | `API_KEY` | random hex | Guards owner routes when not behind SWA |
 | `STRIPE_SECRET_KEY` | `sk_live_...` | Payment verification |
 | `ACS_SMS_FROM` | **leave unset** | Until A2P completes |
@@ -410,6 +411,41 @@ Same Cosmos, storage and ACS values, **minus `COSMOS_KEY` and `STORAGE_CONNECTIO
 | `REMINDER_CRON` | `0 0 17 * * *` | |
 | `RETENTION_DAYS` | `90` | |
 | `ARCHIVE_CRON` | `0 0 3 1 * *` | |
+
+### Sending notifications to more than one person
+
+Two settings control who gets copied, and neither needs a code change — both are edited in
+the Azure portal and take effect on the next restart.
+
+**`OWNER_EMAIL` accepts a list.** Separate addresses with commas or semicolons:
+
+```
+info.menifeemaids@outlook.com, esmeralda@example.com, manager@example.com
+```
+
+Everyone listed receives the four owner-bound notifications: the new-booking alert, contact
+form submissions, the poison-queue alert when a booking exhausts its retries, and the monthly
+archive notice. They appear on the To line and can see each other, which is usually what you
+want for a small team.
+
+**`NOTIFY_BCC` copies everything, including customer mail.** Set it on both apps to blind-copy
+a list of addresses on *every* message the app sends — owner alerts plus the customer-facing
+confirmations, reminders and completion reports:
+
+```
+records@example.com, partner@example.com
+```
+
+It is BCC rather than CC so customers never see your internal addresses, and anyone already on
+the To line is removed automatically so nobody gets two copies of the same message.
+
+⚠️ **`NOTIFY_BCC` means a copy of every customer email lands in those inboxes**, including
+addresses, gate codes and access notes. Use it for a shared business mailbox you control, not
+for someone outside the business. `privacy.html` tells customers their information is shared
+only with the owner, assigned staff and the named service providers — keep that true.
+
+💵 ACS bills per recipient, so three addresses on an alert costs three emails' worth. At a few
+hundred messages a month the difference is cents.
 
 ⚠️ **`WEBSITE_TIME_ZONE` is not optional.** Function Apps run on UTC. Without it the 17:00
 reminder fires at 10:00 Pacific. Nothing errors — the reminders just go out at the wrong
