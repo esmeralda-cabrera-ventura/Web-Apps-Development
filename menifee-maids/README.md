@@ -224,12 +224,21 @@ Availability is stored in Cosmos DB as one document per month and synced to ever
 - **Accept first choice** / **Accept backup** confirms the request.
 - **Change date & time** provides a date picker, time-window selector and note field. **Save as confirmed** locks the slot. **Propose to customer** suggests the new time without confirming it and moves the request to *Awaiting client*.
 
+### Cancelling a job
+
+**Cancel job** appears on every open job: new requests, requests awaiting the customer, and confirmed work. A cancelled job moves to past jobs in the job database, where **Rebook this job** brings it back. In the booked-jobs calendar, **Cancel booking** works differently: it takes the job off the calendar and returns it to the inbox as a new request so it can be rescheduled.
+
 ### Telling the customer
 
-Whenever a job is confirmed, moved, proposed or cancelled, the website emails the customer automatically through `/api/notify`, in the language they booked in, from the business's own domain. Replies go to the business inbox. A panel then opens with a pre-written text message and a **Text** button that opens the phone's messaging app with the message filled in; the message can be edited first. Phones only allow a web page to open the messaging app from a tap, which is why sending the text takes one tap rather than happening on its own.
+Nothing is sent to a customer automatically. After a job is confirmed, moved, proposed or cancelled, a panel opens with a pre-written email (subject and message) and text message in the language the customer booked in. The owner or helper can edit either one, then:
 
-Once SMS registration is complete (`ACS_SMS_FROM` is set), the same confirmations are also texted automatically from the business number to customers who opted in to texts. Customers who declined texts are flagged in the panel.
-- **Send payment link** becomes available once a job is confirmed.
+- **Send email** sends it through `/api/notify` from the business's own domain, with replies going to the business inbox. If it fails, the panel offers to send it from the phone's email app instead.
+- **Text [name] from my phone** opens the phone's messaging app with the text filled in. Phones only allow a web page to open the messaging app from a tap.
+- **Close without sending** leaves the customer unmessaged; the change to the job is still saved.
+
+For a request that is cancelled before it was confirmed, the message explains that the business can't take the request rather than describing a cancellation.
+
+Once SMS registration is complete (`ACS_SMS_FROM` is set), a **Send text from the business number** button also appears for customers who opted in to texts. It sends the edited text and adds the required opt-out line if it was removed. Customers who declined texts are flagged in the panel.
 
 ### Booked jobs calendar
 
@@ -326,7 +335,7 @@ The site launched with email-only notifications. When `ACS_SMS_FROM` and `OWNER_
 
 The compliance requirements for registration are already in place: privacy policy pages in both languages, an SMS opt-in checkbox on both booking forms (with message frequency, rates, STOP/HELP instructions, and a statement that consent is not a condition of purchase), and per-customer consent stored as `smsConsent` and `smsConsentAt` on each job. `sendReminders` texts only customers who opted in.
 
-Text message templates are defined in `js/admin.js` (`msgConfirm`, `msgChanged`, `msgPropose`, `msgCancelText`, `msgReminder`, `msgOnMyWay`). The automatic email wording is in `api/src/functions/notify.js`.
+Text message templates are defined in `js/admin.js` (`msgConfirm`, `msgChanged`, `msgPropose`, `msgCancelText`, `msgDeclined`, `msgReminder`, `msgOnMyWay`). The pre-written email wording is in `api/src/functions/notify.js`.
 
 ---
 

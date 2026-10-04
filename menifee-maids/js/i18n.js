@@ -260,8 +260,32 @@
     "Couldn't reach the website to send the email. Send it from your phone with the button below.":
       "No se pudo conectar con el sitio para enviar el correo. Env\u00edalo desde tu tel\u00e9fono con el bot\u00f3n de abajo.",
     "Send another text from my phone": "Enviar otro mensaje desde mi tel\u00e9fono",
-    "Cancel this booking? It moves back to the inbox as a new request and the customer is told.":
-      "\u00bfCancelar esta reserva? Vuelve a la bandeja como solicitud nueva y se le avisa al cliente.",
+    "Take this job off the calendar? It moves back to the inbox as a new request so you can reschedule it. Next you can choose whether to message the customer.":
+      "\u00bfQuitar este trabajo del calendario? Vuelve a la bandeja como solicitud nueva para reagendarlo. Despu\u00e9s puedes decidir si le escribes al cliente.",
+    "Cancel this job? It moves to past jobs in the job database, where you can rebook it later. Next you can choose whether to message the customer.":
+      "\u00bfCancelar este trabajo? Pasa a trabajos anteriores en la base de datos, donde puedes reagendarlo despu\u00e9s. Luego puedes decidir si le escribes al cliente.",
+    "Cancel job": "Cancelar trabajo",
+    "Nothing has been sent yet. Check the message, edit it if you like, then send it.":
+      "Todav\u00eda no se ha enviado nada. Revisa el mensaje, ed\u00edtalo si quieres y luego env\u00edalo.",
+    "Close without sending": "Cerrar sin enviar",
+    "Subject": "Asunto",
+    "Message": "Mensaje",
+    "Send email": "Enviar correo",
+    "Sending\u2026": "Enviando\u2026",
+    "Sent": "Enviado",
+    "Try again": "Intentar de nuevo",
+    "Send from my phone's email app instead": "Enviar desde la app de correo de mi tel\u00e9fono",
+    "Send text from the business number": "Enviar mensaje desde el n\u00famero del negocio",
+    "The subject and message can't be empty.": "El asunto y el mensaje no pueden estar vac\u00edos.",
+    "The text can't be empty.": "El mensaje no puede estar vac\u00edo.",
+    "The email didn't go out. Try again, or send it from your phone's email app.":
+      "El correo no se envi\u00f3. Int\u00e9ntalo de nuevo o env\u00edalo desde la app de correo de tu tel\u00e9fono.",
+    "You seem to be offline. You can still send it from your phone's email app.":
+      "Parece que no tienes conexi\u00f3n. A\u00fan puedes enviarlo desde la app de correo de tu tel\u00e9fono.",
+    "The text didn't go out. Try again, or text from your phone.":
+      "El mensaje no se envi\u00f3. Int\u00e9ntalo de nuevo o env\u00edalo desde tu tel\u00e9fono.",
+    "You seem to be offline. Text from your phone instead.":
+      "Parece que no tienes conexi\u00f3n. Env\u00edalo desde tu tel\u00e9fono.",
     "Save and notify customer": "Guardar y avisar al cliente",
     /* card + inbox */
     "No Stripe link saved yet, so the Pay button will tell the customer card payments aren\u2019t on.":
@@ -470,7 +494,12 @@
     "Let {name} know about the new time": "Av\u00edsale a {name} del nuevo horario",
     "Ask {name} about the new time": "Preg\u00fantale a {name} por el nuevo horario",
     "Let {name} know it's cancelled": "Av\u00edsale a {name} que se cancel\u00f3",
-    "Text {name}": "Enviar mensaje a {name}",
+    "Text {name} from my phone": "Enviar mensaje a {name} desde mi tel\u00e9fono",
+    "Let {name} know you can't take this request": "Av\u00edsale a {name} que no puedes tomar esta solicitud",
+    "Email to {email}": "Correo para {email}",
+    "Text to {phone}": "Mensaje para {phone}",
+    "\u2713 Email sent to {email}.": "\u2713 Correo enviado a {email}.",
+    "\u2713 Text sent to {phone}.": "\u2713 Mensaje enviado a {phone}.",
     "Emailing {email}\u2026": "Enviando correo a {email}\u2026",
     "\u2713 Emailed to {email} automatically.": "\u2713 Se envi\u00f3 el correo a {email} autom\u00e1ticamente.",
     "\u2713 Texted to {phone} automatically.": "\u2713 Se envi\u00f3 el mensaje a {phone} autom\u00e1ticamente."

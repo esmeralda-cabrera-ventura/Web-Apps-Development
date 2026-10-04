@@ -313,7 +313,8 @@
     if (r.status === "confirmed") {
       actions = payBtn +
         '<button class="btn btn--ghost btn--sm" data-act="reschedule" data-id="' + r.id + '">Change date &amp; time</button>' +
-        '<button class="btn btn--ghost btn--sm" data-act="complete" data-id="' + r.id + '">Mark completed</button>';
+        '<button class="btn btn--ghost btn--sm" data-act="complete" data-id="' + r.id + '">Mark completed</button>' +
+        '<button class="btn btn--ghost btn--sm btn--warn" data-act="cancel-job" data-id="' + r.id + '">Cancel job</button>';
     } else if (r.status === "done") {
       actions = payBtn + photoBtn +
         (paid
@@ -325,7 +326,8 @@
     } else {
       actions = '<button class="btn btn--primary btn--sm" data-act="accept1" data-id="' + r.id + '">Accept first choice</button>' +
         '<button class="btn btn--ghost btn--sm" data-act="accept2" data-id="' + r.id + '">Accept backup</button>' +
-        '<button class="btn btn--ghost btn--sm" data-act="reschedule" data-id="' + r.id + '">Change date &amp; time</button>';
+        '<button class="btn btn--ghost btn--sm" data-act="reschedule" data-id="' + r.id + '">Change date &amp; time</button>' +
+        '<button class="btn btn--ghost btn--sm btn--warn" data-act="cancel-job" data-id="' + r.id + '">Cancel job</button>';
     }
 
     var shots = r.photos || [];
@@ -512,7 +514,18 @@
       slotText(slot, L) + ". Sorry for the short notice. Reply here or call " + BIZ_PHONE +
       " and we'll rebook you. Reference " + r.id + ".";
   }
+  function msgDeclined(r) {
+    if (langOf(r) === "es") {
+      return "Hola " + firstName(r.name) + ", le habla " + BIZ + ". Gracias por su solicitud. " +
+        "Lamentablemente no podemos atenderla esta vez. Si gusta, llame al " + BIZ_PHONE +
+        " y buscamos otra opci\u00f3n. Referencia " + r.id + ".";
+    }
+    return "Hi " + firstName(r.name) + ", this is " + BIZ + ". Thank you for your request. " +
+      "Unfortunately we aren't able to take it this time. If you'd like, call " + BIZ_PHONE +
+      " and we'll look at other options. Reference " + r.id + ".";
+  }
   function textFor(kind, r, slot) {
+    if (kind === "declined") return msgDeclined(r);
     if (kind === "confirmed") return msgConfirm(Object.assign({}, r, { confirmedSlot: slot }));
     if (kind === "changed") return msgChanged(r, slot);
     if (kind === "proposed") return msgPropose(r, slot);
@@ -524,17 +537,19 @@
       confirmed: es ? "Su limpieza est\u00e1 confirmada - " : "Your cleaning is confirmed - ",
       changed: es ? "Nueva fecha para su limpieza - " : "New time for your cleaning - ",
       proposed: es ? "\u00bfLe funciona esta fecha? - " : "Would this time work? - ",
-      cancelled: es ? "Su limpieza fue cancelada - " : "Your cleaning has been cancelled - "
+      cancelled: es ? "Su limpieza fue cancelada - " : "Your cleaning has been cancelled - ",
+      declined: es ? "Sobre su solicitud de limpieza" : "About your cleaning request"
     }[kind];
-    return sub + d + " (" + r.id + ")";
+    return sub + (kind === "declined" ? "" : d) + " (" + r.id + ")";
   }
 
   /* --- Telling the customer ----------------------------------------------
-     After a confirmation, change, proposal or cancellation the website emails
-     the customer automatically (in their language), and this panel offers a
-     one-tap text from the phone with the message already written. Tapping the
-     Text button is what opens Messages: phones only allow that from a tap,
-     which is why it isn't opened automatically. */
+     After a confirmation, change, proposal or cancellation this panel shows
+     the pre-written email and text in the customer's language. Nothing goes
+     out until the owner or helper reviews it, edits it if they like, and
+     presses Send. Texting from a phone opens Messages with the text filled in
+     (phones only allow that from a tap); once SMS is registered, a second
+     button sends it from the business number instead. */
   var sheet = null;
   function sheetEl() {
     if (sheet) return sheet;
@@ -547,15 +562,25 @@
     sheet.innerHTML =
       '<div class="nsheet__panel">' +
         '<h3 id="ns-title" data-ns-title></h3>' +
-        '<p class="nsheet__status" data-ns-email></p>' +
-        '<p class="nsheet__status" data-ns-sms-status hidden></p>' +
-        '<div data-ns-textbox>' +
-          '<label class="field-label" for="ns-text" data-ns-label></label>' +
-          '<textarea class="input" id="ns-text" rows="5" data-ns-text></textarea>' +
+        '<p class="hint" data-ns-intro></p>' +
+        '<section class="nsheet__sec" data-ns-emailsec>' +
+          '<p class="nsheet__head" data-ns-emailhead></p>' +
+          '<label class="field-label" for="ns-subj" data-ns-subjlabel></label>' +
+          '<input class="input" id="ns-subj" data-ns-subj>' +
+          '<label class="field-label" for="ns-body" data-ns-bodylabel></label>' +
+          '<textarea class="input" id="ns-body" rows="8" data-ns-body></textarea>' +
+          '<button type="button" class="btn btn--primary btn--block" data-ns-send-email></button>' +
+          '<p class="nsheet__status" data-ns-email-status hidden></p>' +
+          '<a class="btn btn--ghost btn--block" data-ns-mail href="#" hidden></a>' +
+        "</section>" +
+        '<section class="nsheet__sec" data-ns-textsec>' +
+          '<p class="nsheet__head" data-ns-texthead></p>' +
+          '<textarea class="input" id="ns-text" rows="4" data-ns-text aria-label="Text message"></textarea>' +
           '<p class="hint" data-ns-consent hidden></p>' +
+          '<button type="button" class="btn btn--primary btn--block" data-ns-send-sms hidden></button>' +
           '<a class="btn btn--primary btn--block" data-ns-sms href="#"></a>' +
-        "</div>" +
-        '<a class="btn btn--ghost btn--block" data-ns-mail href="#" hidden></a>' +
+          '<p class="nsheet__status" data-ns-sms-status hidden></p>' +
+        "</section>" +
         '<button type="button" class="btn btn--ghost btn--block" data-ns-done></button>' +
       "</div>";
     document.body.appendChild(sheet);
@@ -568,96 +593,154 @@
 
   /**
    * @param {object} r     the job
-   * @param {string} kind  "confirmed" | "changed" | "proposed" | "cancelled"
+   * @param {string} kind  "confirmed" | "changed" | "proposed" | "cancelled" | "declined"
    * @param {object} slot  { date, window } the message is about
-   * @param {string} note  optional extra line for the email
    */
-  function openNotify(r, kind, slot, note) {
+  function openNotify(r, kind, slot) {
     var el = sheetEl();
     var name = firstName(r.name);
     var phone = String(r.phone || "").replace(/[^0-9+]/g, "");
     var hasPhone = phone.length >= 10;
-    var title = {
+    var live = !ACCESS.isOffline();
+    var job = { id: r.id, name: r.name, email: r.email, phone: r.phone, address: r.address,
+                lang: langOf(r), smsConsent: r.smsConsent, estimate: r.estimate };
+    var $ = function (sel) { return el.querySelector(sel); };
+
+    $("[data-ns-title]").textContent = {
       confirmed: DT("Let {name} know it's confirmed", { name: name }),
       changed: DT("Let {name} know about the new time", { name: name }),
       proposed: DT("Ask {name} about the new time", { name: name }),
-      cancelled: DT("Let {name} know it's cancelled", { name: name })
+      cancelled: DT("Let {name} know it's cancelled", { name: name }),
+      declined: DT("Let {name} know you can't take this request", { name: name })
     }[kind];
-    el.querySelector("[data-ns-title]").textContent = title;
+    $("[data-ns-intro]").textContent = D("Nothing has been sent yet. Check the message, edit it if you like, then send it.");
 
-    var text = el.querySelector("[data-ns-text]");
-    var smsBtn = el.querySelector("[data-ns-sms]");
-    var mailBtn = el.querySelector("[data-ns-mail]");
-    var emailLine = el.querySelector("[data-ns-email]");
-    var smsLine = el.querySelector("[data-ns-sms-status]");
-    var consent = el.querySelector("[data-ns-consent]");
-    var box = el.querySelector("[data-ns-textbox]");
+    var done = $("[data-ns-done]");
+    function markSent() { done.textContent = D("Done"); }
+    done.textContent = D("Close without sending");
 
+    /* Email */
+    var subj = $("[data-ns-subj]"), body = $("[data-ns-body]");
+    var sendEmail = $("[data-ns-send-email]"), emailStatus = $("[data-ns-email-status]"), mailBtn = $("[data-ns-mail]");
+    $("[data-ns-emailsec]").hidden = !r.email;
+    $("[data-ns-emailhead]").textContent = DT("Email to {email}", { email: r.email || "" });
+    $("[data-ns-subjlabel]").textContent = D("Subject");
+    $("[data-ns-bodylabel]").textContent = D("Message");
+    function status(line, cls, text) { line.hidden = false; line.className = "nsheet__status" + (cls ? " nsheet__status--" + cls : ""); line.textContent = text; }
+    function syncMail() { mailBtn.setAttribute("href", mailLink(r.email || "", subj.value, body.value)); }
+    subj.oninput = body.oninput = syncMail;
+    emailStatus.hidden = true;
+    mailBtn.hidden = live;   // offline copy can only use the phone's mail app
+    mailBtn.textContent = D("Send from my phone's email app instead");
+    mailBtn.onclick = markSent;
+    sendEmail.disabled = true;
+    sendEmail.textContent = D("Send email");
+    sendEmail.hidden = !live;
+
+    // Pre-written text, used as-is if the preview can't be loaded.
+    subj.value = subjectFor(kind, r, slot);
+    body.value = textFor(kind, r, slot) + "\n\n" + BIZ + "\n" + BIZ_PHONE;
+    syncMail();
+
+    /* Text */
+    var text = $("[data-ns-text]"), smsBtn = $("[data-ns-sms]"), smsSend = $("[data-ns-send-sms]"), smsStatus = $("[data-ns-sms-status]");
+    $("[data-ns-textsec]").hidden = !hasPhone;
+    $("[data-ns-texthead]").textContent = DT("Text to {phone}", { phone: r.phone || "" });
     text.value = textFor(kind, r, slot);
-    el.querySelector("[data-ns-label]").textContent = D("Text message (you can edit it)");
-    function syncHref() { smsBtn.setAttribute("href", smsLink(phone, text.value)); }
-    text.oninput = syncHref;
-    syncHref();
-    smsBtn.textContent = DT("Text {name}", { name: name });
+    function syncSms() { smsBtn.setAttribute("href", smsLink(phone, text.value)); }
+    text.oninput = syncSms;
+    syncSms();
+    smsBtn.textContent = DT("Text {name} from my phone", { name: name });
     smsBtn.className = "btn btn--primary btn--block";
-    box.hidden = !hasPhone;
-
+    smsBtn.onclick = markSent;
+    smsSend.hidden = true;
+    smsStatus.hidden = true;
+    var consent = $("[data-ns-consent]");
     consent.hidden = r.smsConsent !== false;
     consent.textContent = D("This customer didn't opt in to text messages when booking. Email may be the better choice.");
     if (r.smsConsent === false) smsBtn.className = "btn btn--ghost btn--block";
 
-    mailBtn.hidden = true;
-    mailBtn.textContent = D("Send the email from my phone instead");
-    mailBtn.setAttribute("href", mailLink(r.email || "", subjectFor(kind, r, slot), text.value + (note ? "\n\n" + note : "")));
-    smsLine.hidden = true;
-    el.querySelector("[data-ns-done]").textContent = D("Done");
-
-    if (!r.email) {
-      emailLine.className = "nsheet__status nsheet__status--warn";
-      emailLine.textContent = D("No email on file for this customer.");
-    } else if (ACCESS.isOffline()) {
-      emailLine.className = "nsheet__status";
-      emailLine.textContent = D("Automatic emails work on the live website.");
-      mailBtn.hidden = false;
-    } else {
-      emailLine.className = "nsheet__status";
-      emailLine.textContent = DT("Emailing {email}\u2026", { email: r.email });
-      fetch("/api/notify", {
-        method: "POST",
-        credentials: "include",
+    function post(payload) {
+      return fetch("/api/notify", {
+        method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind: kind, slot: slot, note: note || "",
-          job: { id: r.id, name: r.name, email: r.email, phone: r.phone, address: r.address,
-                 lang: langOf(r), smsConsent: r.smsConsent, estimate: r.estimate }
-        })
-      }).then(function (res) { return res.ok ? res.json() : null; })
-        .then(function (res) {
-          if (res && res.emailed) {
-            emailLine.className = "nsheet__status nsheet__status--ok";
-            emailLine.textContent = DT("\u2713 Emailed to {email} automatically.", { email: r.email });
-          } else {
-            emailLine.className = "nsheet__status nsheet__status--warn";
-            emailLine.textContent = D("The automatic email didn't go out. Send it from your phone with the button below.");
-            mailBtn.hidden = false;
-          }
-          if (res && res.texted) {
-            smsLine.hidden = false;
-            smsLine.className = "nsheet__status nsheet__status--ok";
-            smsLine.textContent = DT("\u2713 Texted to {phone} automatically.", { phone: r.phone });
-            smsBtn.className = "btn btn--ghost btn--block";
-            smsBtn.textContent = D("Send another text from my phone");
-          }
-        }, function () {
-          emailLine.className = "nsheet__status nsheet__status--warn";
-          emailLine.textContent = D("Couldn't reach the website to send the email. Send it from your phone with the button below.");
-          mailBtn.hidden = false;
-        });
+        body: JSON.stringify(Object.assign({ kind: kind, slot: slot, job: job }, payload))
+      }).then(function (res) {
+        return res.json().then(function (j) { j._ok = res.ok; return j; }, function () { return { _ok: false }; });
+      });
     }
+
+    if (live) {
+      // Load the full pre-written email (and whether business texting is on).
+      subj.disabled = body.disabled = true;
+      post({ preview: true }).then(function (p) {
+        subj.disabled = body.disabled = false;
+        sendEmail.disabled = !r.email;
+        if (p && p._ok) {
+          subj.value = p.subject; body.value = p.text; syncMail();
+          if (p.smsAutomatic && r.smsConsent === true && hasPhone) {
+            smsSend.hidden = false;
+            smsSend.textContent = D("Send text from the business number");
+            smsBtn.className = "btn btn--ghost btn--block";
+          }
+        }
+      }, function () {
+        subj.disabled = body.disabled = false;
+        sendEmail.disabled = !r.email;
+        status(emailStatus, "warn", D("You seem to be offline. You can still send it from your phone's email app."));
+        mailBtn.hidden = false;
+      });
+    }
+
+    sendEmail.onclick = function () {
+      if (!subj.value.trim() || !body.value.trim()) { window.alert(D("The subject and message can't be empty.")); return; }
+      sendEmail.disabled = true;
+      sendEmail.textContent = D("Sending\u2026");
+      post({ channel: "email", subject: subj.value, text: body.value }).then(function (res) {
+        if (res && res._ok && res.sent) {
+          status(emailStatus, "ok", DT("\u2713 Email sent to {email}.", { email: r.email }));
+          sendEmail.textContent = D("Sent");
+          markSent();
+        } else {
+          status(emailStatus, "warn", D("The email didn't go out. Try again, or send it from your phone's email app."));
+          sendEmail.disabled = false; sendEmail.textContent = D("Try again");
+          mailBtn.hidden = false;
+        }
+      }, function () {
+        status(emailStatus, "warn", D("You seem to be offline. You can still send it from your phone's email app."));
+        sendEmail.disabled = false; sendEmail.textContent = D("Try again");
+        mailBtn.hidden = false;
+      });
+    };
+
+    smsSend.onclick = function () {
+      if (!text.value.trim()) { window.alert(D("The text can't be empty.")); return; }
+      smsSend.disabled = true;
+      smsSend.textContent = D("Sending\u2026");
+      post({ channel: "sms", text: text.value }).then(function (res) {
+        if (res && res._ok && res.sent) {
+          status(smsStatus, "ok", DT("\u2713 Text sent to {phone}.", { phone: r.phone }));
+          smsSend.textContent = D("Sent");
+          markSent();
+        } else {
+          status(smsStatus, "warn", D("The text didn't go out. Try again, or text from your phone."));
+          smsSend.disabled = false; smsSend.textContent = D("Try again");
+        }
+      }, function () {
+        status(smsStatus, "warn", D("You seem to be offline. Text from your phone instead."));
+        smsSend.disabled = false; smsSend.textContent = D("Try again");
+      });
+    };
+    smsSend.disabled = false;
 
     el.hidden = false;
     document.body.classList.add("has-sheet");
-    (hasPhone ? smsBtn : el.querySelector("[data-ns-done]")).focus();
+    // Start at the top so the title and "nothing sent yet" note are seen first.
+    var panelEl = el.querySelector(".nsheet__panel");
+    panelEl.scrollTop = 0;
+    var titleEl = $("[data-ns-title]");
+    titleEl.setAttribute("tabindex", "-1");
+    try { titleEl.focus({ preventScroll: true }); } catch (e) { titleEl.focus(); }
   }
 
   /** Inline editor for moving a job or proposing a different slot. */
@@ -1256,7 +1339,7 @@
       }
 
       if (act === "cancel") {
-        if (!window.confirm(D("Cancel this booking? It moves back to the inbox as a new request and the customer is told."))) return;
+        if (!window.confirm(D("Take this job off the calendar? It moves back to the inbox as a new request so you can reschedule it. Next you can choose whether to message the customer."))) return;
         var was = req.confirmedSlot;
         S.updateRequest(id, {
           status: "new", confirmedSlot: null,
@@ -1488,7 +1571,18 @@
       refreshAll();
       var wasConfirmed = req.status === "confirmed" && req.confirmedSlot;
       openNotify(req, confirming ? (wasConfirmed ? "changed" : "confirmed") : "proposed",
-                 { date: edit.date, window: edit.window }, edit.note);
+                 { date: edit.date, window: edit.window });
+      return;
+    }
+    if (act === "cancel-job") {
+      if (!window.confirm(D("Cancel this job? It moves to past jobs in the job database, where you can rebook it later. Next you can choose whether to message the customer."))) return;
+      var keptSlot = req.confirmedSlot;
+      S.updateRequest(id, { status: "cancelled", cancelledAt: new Date().toISOString(), proposedSlot: null });
+      if (openEditor === id) openEditor = null;
+      if (openPay === id) openPay = null;
+      if (openDone === id) openDone = null;
+      refreshAll();
+      openNotify(req, keptSlot ? "cancelled" : "declined", keptSlot || req.slot1 || { date: S.iso(S.today()), window: "morning" });
       return;
     }
     if (act === "accept1" || act === "accept2") {

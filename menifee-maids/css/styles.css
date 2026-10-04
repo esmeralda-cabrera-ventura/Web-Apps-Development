@@ -860,7 +860,7 @@ select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
 }
 
 /* --- Notify panel: tell the customer after a confirmation or change ------ */
-.nsheet { position: fixed; inset: 0; z-index: 60; background: rgba(12, 42, 56, .45);
+.nsheet { position: fixed; inset: 0; z-index: 1000; background: rgba(12, 42, 56, .45);
   display: flex; align-items: flex-end; justify-content: center; padding: 0; }
 .nsheet[hidden] { display: none; }
 .nsheet__panel { background: var(--surface); width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
@@ -871,8 +871,11 @@ select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
 .nsheet__status { margin: 0; font-size: .92rem; color: var(--ink-soft); }
 .nsheet__status--ok { color: #14532D; font-weight: 600; }
 .nsheet__status--warn { color: #7A4B00; font-weight: 600; }
-.nsheet [data-ns-textbox] { display: grid; gap: .55rem; }
-.nsheet [data-ns-textbox][hidden] { display: none; }
+.nsheet__sec { display: grid; gap: .5rem; padding: .9rem; border: 1px solid var(--line, #d6e6ee); border-radius: 16px; }
+.nsheet__sec[hidden] { display: none; }
+.nsheet__head { margin: 0; font-weight: 700; color: var(--navy); overflow-wrap: anywhere; }
+.nsheet__panel .field-label { margin: .2rem 0 0; }
+.btn--warn { color: #A3341F; border-color: #E8B4A8; }
 body.has-sheet { overflow: hidden; }
 @media (min-width: 640px) {
   .nsheet { align-items: center; padding: 1rem; }

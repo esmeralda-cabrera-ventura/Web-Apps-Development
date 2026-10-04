@@ -1,17 +1,21 @@
 /**
- * POST /api/notify — tell a customer their appointment was confirmed, moved,
- * proposed or cancelled.
+ * POST /api/notify — messages to a customer about their appointment:
+ * confirmed, moved, proposed, cancelled, or a request that can't be taken.
  *
- * Called by the dashboard right after the owner or helper makes the change.
- * The email goes out from the business's own domain in the language the
- * customer booked in, so nobody has to switch to a mail app. Replies go to
- * the business inbox.
+ * Nothing is sent without a person pressing Send. The dashboard first asks
+ * for a preview (the pre-written email and text in the customer's language),
+ * shows it for editing, and sends only what the owner or helper approves.
  *
- * Texts are sent too once SMS is set up (ACS_SMS_FROM) and only to customers
- * who opted in. Until then the dashboard offers a one-tap text from the phone.
+ *   { preview: true, kind, job, slot }            -> { subject, text, smsText, smsAutomatic }
+ *   { channel: "email", kind, job, slot, subject, text }  -> sends the email
+ *   { channel: "sms",   kind, job, slot, text }   -> texts from the business
+ *                                                    number (needs ACS_SMS_FROM
+ *                                                    and the customer's opt-in)
  *
- * Body: { kind, job: { id, name, email, phone, address, lang, smsConsent,
- *         estimate }, slot: { date, window }, note }
+ * Emails go out from the business's own domain; replies reach the business
+ * inbox.
+ *
+ * job: { id, name, email, phone, address, lang, smsConsent, estimate }
  */
 const { app } = require("@azure/functions");
 const { ok, bad, json, readJson } = require("../shared/http");
@@ -20,7 +24,7 @@ const { sendEmail, sendSms } = require("../shared/acs");
 
 const BIZ = "Menifee Maids";
 const BIZ_PHONE = "951-464-8147";
-const KINDS = new Set(["confirmed", "changed", "proposed", "cancelled"]);
+const KINDS = new Set(["confirmed", "changed", "proposed", "cancelled", "declined"]);
 
 const WINDOWS = {
   en: { morning: "Morning (8:00 – 11:00 AM)", midday: "Midday (11:00 AM – 2:00 PM)",
@@ -73,6 +77,13 @@ function message(kind, job, slot, note) {
           lines: ["We can't make the time you picked.",
                   `Could we do your cleaning on ${t} instead?`,
                   "Reply YES to confirm, or tell us another time that suits you."] },
+    declined: es
+      ? { subject: "Sobre su solicitud de limpieza",
+          lines: ["Gracias por pensar en nosotros. Lamentablemente no podemos atender esta solicitud.",
+                  "Si gusta, responda a este correo o llámenos y con gusto buscamos otra opción."] }
+      : { subject: "About your cleaning request",
+          lines: ["Thank you for thinking of us. Unfortunately, we aren't able to take this request.",
+                  "If you'd like, reply to this email or give us a call and we'll be glad to look at other options."] },
     cancelled: es
       ? { subject: `Su limpieza del ${t} fue cancelada`,
           lines: [`Tuvimos que cancelar su limpieza del ${t}.`,
@@ -97,7 +108,9 @@ function smsText(kind, job, slot) {
     proposed: es ? `¿Podríamos hacer su limpieza el ${t}? Responda SÍ o díganos otro horario.`
                  : `Could we do your cleaning on ${t}? Reply YES or suggest another time.`,
     cancelled: es ? `Tuvimos que cancelar su limpieza del ${t}. Llámenos para reagendar.`
-                  : `We've had to cancel your cleaning on ${t}. Call us to rebook.`
+                  : `We've had to cancel your cleaning on ${t}. Call us to rebook.`,
+    declined: es ? "Lamentablemente no podemos atender su solicitud de limpieza. Llámenos si desea otra opción."
+                 : "Unfortunately we aren't able to take your cleaning request. Call us if you'd like other options."
   }[kind];
   return `${hi} ${body} ${es ? "Ref." : "Ref"} ${job.id}. ${es ? "Responda STOP para no recibir mensajes." : "Reply STOP to opt out."}`;
 }
@@ -117,28 +130,40 @@ app.http("notify", {
     if (!KINDS.has(kind)) return bad("Unknown notification type.");
     if (!job.id || !/^\d{4}-\d{2}-\d{2}$/.test(String(slot.date || ""))) return bad("A job and a date are required.");
 
-    const note = String((body && body.note) || "").slice(0, 1000);
     const replyTo = String(process.env.OWNER_EMAIL || "").split(/[,;]/)[0].trim() || undefined;
+    const smsAutomatic = !!process.env.ACS_SMS_FROM;
+    const OPT_OUT = job.lang === "es" ? "Responda STOP para no recibir mensajes." : "Reply STOP to opt out.";
 
-    let emailed = { sent: false, error: "no email on file" };
-    if (job.email) {
-      const m = message(kind, job, slot, note);
-      emailed = await sendEmail({ to: job.email, subject: m.subject, text: m.text, replyTo });
+    // 1. Preview: the pre-written messages, nothing sent.
+    if (body.preview) {
+      const m = message(kind, job, slot, "");
+      return ok({ subject: m.subject, text: m.text, smsText: smsText(kind, job, slot), smsAutomatic });
     }
 
-    // Automatic texts only once SMS is registered, and only with consent.
-    let texted = { sent: false, error: "sms not configured" };
-    if (process.env.ACS_SMS_FROM && job.phone && job.smsConsent === true) {
-      texted = await sendSms({ to: job.phone, body: smsText(kind, job, slot) });
-    } else if (process.env.ACS_SMS_FROM) {
-      texted = { sent: false, error: job.smsConsent === true ? "no phone on file" : "customer did not opt in to texts" };
+    // 2. Send the email exactly as the owner or helper approved it.
+    if (body.channel === "email") {
+      if (!job.email) return bad("This customer has no email address on file.");
+      const fallback = message(kind, job, slot, "");
+      const subject = String(body.subject || fallback.subject).slice(0, 200);
+      const text = String(body.text || fallback.text).slice(0, 5000);
+      const sent = await sendEmail({ to: job.email, subject, text, replyTo });
+      context.log(`notify email ${kind} ${job.id}: ${sent.sent}`);
+      return ok({ sent: !!sent.sent, error: sent.sent ? null : sent.error });
     }
 
-    context.log(`notify ${kind} ${job.id}: email ${emailed.sent}, sms ${texted.sent}`);
-    return ok({
-      emailed: !!emailed.sent, emailError: emailed.sent ? null : emailed.error,
-      texted: !!texted.sent, textError: texted.sent ? null : texted.error,
-      smsAutomatic: !!process.env.ACS_SMS_FROM
-    });
+    // 3. Text from the business number, once SMS is registered.
+    if (body.channel === "sms") {
+      if (!smsAutomatic) return json(501, { error: "Texting from the business number isn't set up yet." });
+      if (job.smsConsent !== true) return bad("This customer didn't agree to receive texts.");
+      if (!job.phone) return bad("This customer has no phone number on file.");
+      let text = String(body.text || smsText(kind, job, slot)).slice(0, 1000);
+      // Carriers require an opt-out line on business texts; keep it even if edited out.
+      if (!/\bSTOP\b/i.test(text)) text = `${text} ${OPT_OUT}`;
+      const sent = await sendSms({ to: job.phone, body: text });
+      context.log(`notify sms ${kind} ${job.id}: ${sent.sent}`);
+      return ok({ sent: !!sent.sent, error: sent.sent ? null : sent.error });
+    }
+
+    return bad("Ask for a preview, or choose email or sms.");
   }
 });
