@@ -30,106 +30,207 @@
   "use strict";
   var S = window.MCC.store;
   var box = document.querySelector("[data-pay-body]");
+  var LIVE = window.location.protocol !== "file:";
+  var CALL = "tel:+19514648147";
 
   // Editing the fragment alone doesn't re-run this script, so re-validate on change.
   window.addEventListener("hashchange", function () { window.location.reload(); });
 
-  /** Pick a string by page language, read at call time — the language is set
-      from the query string below, after this function is defined. */
-  function t(en, es) {
-    return document.documentElement.lang === "es" ? es : en;
-  }
-
-  function shell(title, body) {
-    box.innerHTML = "<h1>" + title + "</h1>" + body;
-  }
-
   var qs = new URLSearchParams(window.location.search);
-  var jobParam = qs.get("job") || "";
   if (qs.get("lang") === "es") document.documentElement.setAttribute("lang", "es");
-  var frag = window.location.hash || "";
-  var m = frag.match(/d=([A-Za-z0-9\-_]+)/);
-  if (!m) {
+
+  /** Pick a string by page language, read at call time. */
+  function t(en, es) { return document.documentElement.lang === "es" ? es : en; }
+  function esc(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function shell(title, body) { box.innerHTML = "<h1>" + title + "</h1>" + body; }
+  function callBtn() {
+    return '<p style="text-align:center"><a class="btn btn--primary" href="' + CALL + '">' +
+      t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + "</a></p>";
+  }
+  function inactive(msgEn, msgEs) {
     shell(t("This link isn't active", "Este enlace ya no est\u00e1 activo"),
-      '<p class="authsub">' + t("Payment links are sent by email or text after a visit. If yours has expired or you typed it by hand, ask us to send a fresh one.", "Los enlaces de pago se envían por correo o mensaje después de la visita. Si el tuyo venció o lo escribiste a mano, pídenos uno nuevo.") + '</p>' +
-      '<p style="text-align:center"><a class="btn btn--primary" href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+      '<p class="authsub">' + t(msgEn, msgEs) + "</p>" + callBtn());
+  }
+  function longDate(iso) {
+    return new Date(String(iso).slice(0, 10) + "T12:00:00").toLocaleDateString(
+      t("en-US", "es-US"), { month: "long", day: "numeric", year: "numeric" });
+  }
+
+  var jobParam = qs.get("job") || "";
+  var tokenParam = qs.get("token") || "";
+
+  /* --- 1. Back from Stripe: confirm the payment ---------------------------- */
+  var sessionId = qs.get("session_id");
+  if (sessionId && LIVE) {
+    shell(t("Confirming your payment\u2026", "Confirmando tu pago\u2026"),
+      '<div class="spinner" aria-hidden="true" style="margin:1.5rem auto"></div>');
+    var tries = 0;
+    (function confirm() {
+      fetch("/api/checkout?session_id=" + encodeURIComponent(sessionId) +
+            "&job=" + encodeURIComponent(jobParam) + "&token=" + encodeURIComponent(tokenParam))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (res) {
+          if (res && res.paid) {
+            shell(t("Payment received \u2014 thank you!", "\u00a1Pago recibido, gracias!"),
+              '<p class="authsub">' + t("We've received " + S.money(res.amount) + " for job ",
+                                        "Recibimos " + S.money(res.amount) + " por el trabajo ") +
+              "<code class='dbjob'>" + esc(jobParam) + "</code>. " +
+              t("Stripe will email you a receipt. We appreciate your business!",
+                "Stripe te enviar\u00e1 un recibo por correo. \u00a1Gracias por tu preferencia!") + "</p>");
+            return;
+          }
+          // A card can take a moment to settle; check again briefly.
+          if (++tries < 4) { setTimeout(confirm, 2500); return; }
+          shell(t("We're still confirming your payment", "Todav\u00eda estamos confirmando tu pago"),
+            '<p class="authsub">' + t("If your card was charged, there's nothing more to do \u2014 we'll see the payment shortly. Questions? Give us a call.",
+              "Si se cobr\u00f3 a tu tarjeta, no tienes que hacer nada m\u00e1s; veremos el pago en breve. \u00bfPreguntas? Ll\u00e1manos.") +
+            "</p>" + callBtn());
+        })["catch"](function () {
+          if (++tries < 4) { setTimeout(confirm, 2500); return; }
+          shell(t("We couldn't confirm just now", "No pudimos confirmar en este momento"),
+            '<p class="authsub">' + t("If your card was charged, your payment is safe and we'll see it shortly.",
+              "Si se cobr\u00f3 a tu tarjeta, tu pago est\u00e1 seguro y lo veremos en breve.") + "</p>" + callBtn());
+        });
+    })();
     return;
   }
 
-  var d = S.readPayload(m[1]);
-  if (!d || !d.a) {
-    shell(t("This link isn't active", "Este enlace ya no está activo"),
-      '<p class="authsub">' + t("We couldn't read that payment link. Ask us to send a new one and we'll get it over to you.", "No pudimos leer ese enlace de pago. Pídenos uno nuevo y te lo enviamos enseguida.") + '</p>' +
-      '<p style="text-align:center"><a class="btn btn--primary" href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+  /* --- 2. Work out which invoice this is ---------------------------------- */
+  var m = (window.location.hash || "").match(/d=([A-Za-z0-9\-_]+)/);
+  var d = m ? S.readPayload(m[1]) : null;
+
+  if (d && d.a) {
+    // The job number appears in the query string too; they must agree.
+    if (jobParam && d.r && jobParam !== d.r) {
+      inactive("This payment link looks like it was edited. Ask us to send a fresh one and we'll get it right over.",
+               "Parece que este enlace fue modificado. P\u00eddenos uno nuevo y te lo enviamos enseguida.");
+      return;
+    }
+    if (!LIVE) { render(d, null); return; }
+    // Show the amount stored with the invoice, not just what the link says.
+    fetch("/api/checkout?job=" + encodeURIComponent(d.r) + "&token=" + encodeURIComponent(d.t))
+      .then(function (r) { return r.ok ? r.json() : null; }, function () { return null; })
+      .then(function (inv) { render(d, inv); });
     return;
   }
 
-  // The job number appears in the query string too; they must agree.
-  if (jobParam && d.r && jobParam !== d.r) {
-    shell(t("This link isn't active", "Este enlace ya no está activo"),
-      '<p class="authsub">' + t("This payment link looks like it was edited. Ask us to send a fresh one and we'll get it right over.", "Parece que este enlace fue modificado. Pídenos uno nuevo y te lo enviamos enseguida.") + '</p>' +
-      '<p style="text-align:center"><a class="btn btn--primary" href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+  if (jobParam && tokenParam && LIVE) {
+    // Opened without invoice data (for example, coming back from Stripe).
+    fetch("/api/checkout?job=" + encodeURIComponent(jobParam) + "&token=" + encodeURIComponent(tokenParam))
+      .then(function (r) { return r.ok ? r.json() : null; }, function () { return null; })
+      .then(function (inv) {
+        if (!inv) {
+          inactive("We couldn't find that invoice. Ask us to send a fresh link and we'll get it over to you.",
+                   "No encontramos esa factura. P\u00eddenos un enlace nuevo y te lo enviamos enseguida.");
+          return;
+        }
+        if (inv.lang === "es") document.documentElement.setAttribute("lang", "es");
+        render({ t: inv.token, r: inv.job, n: inv.firstName, a: inv.amount, d: inv.description,
+                 e: String(inv.expiresAt || "").slice(0, 10) }, inv);
+      });
     return;
   }
 
-  var expired = d.e && (new Date(d.e + "T23:59:59") < new Date());
-  if (expired) {
-    shell(t("This payment link has expired", "Este enlace de pago ya venci\u00f3"),
-      '<p class="authsub">It was valid until ' + new Date(d.e + "T12:00:00").toLocaleDateString("en-US",
-        { month: "long", day: "numeric", year: "numeric" }) +
-      '. Ask us for a fresh link and we\'ll send one right over.</p>' +
-      '<p style="text-align:center"><a class="btn btn--primary" href="mailto:inquiry.menifeemaids@outlook.com?subject=' +
-      encodeURIComponent("New payment link please - " + d.r) + '">' + t("Request a new link", "Pedir un enlace nuevo") + '</a></p>');
-    return;
-  }
+  inactive("Payment links are sent by email or text after a visit. If yours has expired or you typed it by hand, ask us to send a fresh one.",
+           "Los enlaces de pago se env\u00edan por correo o mensaje despu\u00e9s de la visita. Si el tuyo venci\u00f3 o lo escribiste a mano, p\u00eddenos uno nuevo.");
 
-  var settings = S.getSettings();
+  /* --- 3. Show the invoice ------------------------------------------------- */
+  function render(link, inv) {
+    // The database is the authority on amount and status when it is reachable.
+    if (inv) {
+      if (inv.status === "paid") {
+        shell(t("This invoice is paid", "Esta factura ya est\u00e1 pagada"),
+          '<p class="authsub">' + t("Thank you \u2014 we've already received payment for job ",
+            "Gracias, ya recibimos el pago del trabajo ") + "<code class='dbjob'>" + esc(link.r) + "</code>.</p>");
+        return;
+      }
+      if (inv.status === "replaced") {
+        inactive("A newer payment link was sent for this job. Please use the most recent one, or call us.",
+                 "Enviamos un enlace m\u00e1s reciente para este trabajo. Usa el m\u00e1s nuevo o ll\u00e1manos.");
+        return;
+      }
+      link.a = inv.amount;
+      if (inv.description) link.d = inv.description;
+      if (inv.expiresAt) link.e = String(inv.expiresAt).slice(0, 10);
+    }
 
-  /* The Stripe link lives on the server, not in this visitor's browser — a
-     customer has never had a settings screen. Fetch it and upgrade the Pay
-     button in place. Only the public projection comes back: the payment link
-     and the business name, nothing else. */
-  if (window.location.protocol !== "file:") {
-    fetch("/api/settings")
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (payload) {
-        var url = payload && payload.settings && payload.settings.stripeUrl;
-        if (!url) return;
-        S.applyRemoteSettings(payload.settings);
-        var btn = document.querySelector("[data-pay-go]");
-        if (!btn) return;
-        var link = document.createElement("a");
-        link.className = btn.className;
-        link.setAttribute("href", url);
-        link.setAttribute("rel", "noopener");
-        link.textContent = btn.textContent;
-        btn.parentNode.replaceChild(link, btn);
-      })["catch"](function () { /* leave the "not switched on" message */ });
-  }
+    if (link.e && new Date(link.e + "T23:59:59") < new Date()) {
+      shell(t("This payment link has expired", "Este enlace de pago ya venci\u00f3"),
+        '<p class="authsub">' + t("It was valid until " + longDate(link.e) + ". Ask us for a fresh link and we'll send one right over.",
+          "Era v\u00e1lido hasta el " + longDate(link.e) + ". P\u00eddenos un enlace nuevo y te lo enviamos enseguida.") + "</p>" +
+        '<p style="text-align:center"><a class="btn btn--primary" href="mailto:inquiry.menifeemaids@outlook.com?subject=' +
+        encodeURIComponent("New payment link please - " + link.r) + '">' + t("Request a new link", "Pedir un enlace nuevo") + "</a></p>");
+      return;
+    }
 
-  var payLabel = t("Pay " + S.money(d.a) + " securely",
-                   "Pagar " + S.money(d.a) + " de forma segura");
-  var payBtn = settings.stripeUrl
-    ? '<a class="btn btn--primary btn--block btn--lg" href="' + settings.stripeUrl + '" rel="noopener">' + payLabel + "</a>"
-    : '<button class="btn btn--primary btn--block btn--lg" data-pay-go>' + payLabel + "</button>";
+    var first = link.n ? String(link.n).split(" ")[0] : "";
+    var cancelled = qs.get("cancelled") === "1";
+    shell(t("Pay your invoice", "Paga tu factura"),
+      (cancelled ? '<p class="notice notice--warn">' + t("Checkout was cancelled. Nothing was charged \u2014 you can try again below.",
+        "Se cancel\u00f3 el pago. No se cobr\u00f3 nada; puedes intentarlo de nuevo abajo.") + "</p>" : "") +
+      '<p class="authsub">' + (first ? t("Thanks, " + esc(first) + " \u2014 here's what's due for your recent clean.",
+        "Gracias, " + esc(first) + ". Este es el total de tu limpieza reciente.")
+        : t("Here's what's due for your recent clean.", "Este es el total de tu limpieza reciente.")) + "</p>" +
+      '<ul class="summary">' +
+        "<li><span class='k'>" + t("Service", "Servicio") + "</span><span class='v'>" + esc(link.d || t("Cleaning", "Limpieza")) + "</span></li>" +
+        "<li><span class='k'>" + t("Job number", "N\u00famero de trabajo") + "</span><span class='v'><code class='dbjob'>" + esc(link.r || "\u2014") + "</code></span></li>" +
+        (link.e ? "<li><span class='k'>" + t("Link valid until", "V\u00e1lido hasta") + "</span><span class='v'>" + longDate(link.e) + "</span></li>" : "") +
+      "</ul>" +
+      '<div class="paytotal"><span>' + t("Amount due", "Total a pagar") + "</span><strong>" + S.money(link.a) + "</strong></div>" +
+      '<button class="btn btn--primary btn--block btn--lg" data-pay-go>' +
+        t("Pay " + S.money(link.a) + " securely", "Pagar " + S.money(link.a) + " de forma segura") + "</button>" +
+      '<p class="field-error" data-pay-error></p>' +
+      '<p class="paynote"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="8" width="14" height="9" rx="2"/><path d="M7 8V6a3 3 0 0 1 6 0v2"/></svg> ' +
+        t("Card details are handled by Stripe, our payment provider. We never see or store your card number.",
+          "Los datos de tu tarjeta los maneja Stripe, nuestro procesador de pagos. Nunca vemos ni guardamos tu n\u00famero de tarjeta.") + "</p>" +
+      '<p class="authback">' + t("Questions about this invoice?", "\u00bfPreguntas sobre esta factura?") +
+        ' <a href="' + CALL + '">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + "</a></p>");
 
-  shell(t("Pay your invoice", "Paga tu factura"),
-    '<p class="authsub">Thanks, ' + (d.n ? String(d.n).split(" ")[0] : "there") + " \u2014 here's what's due for your recent clean.</p>" +
-    '<ul class="summary">' +
-      "<li><span class='k'>" + t("Service", "Servicio") + "</span><span class='v'>" + (d.d || "Cleaning") + "</span></li>" +
-      "<li><span class='k'>" + t("Job number", "N\u00famero de trabajo") + "</span><span class='v'><code class='dbjob'>" + (d.r || "\u2014") + "</code></span></li>" +
-      "<li><span class='k'>" + t("Link valid until", "V\u00e1lido hasta") + "</span><span class='v'>" +
-        new Date(d.e + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" }) + "</span></li>" +
-    "</ul>" +
-    '<div class="paytotal"><span>' + t("Amount due", "Total a pagar") + '</span><strong>' + S.money(d.a) + "</strong></div>" +
-    payBtn +
-    '<p class="paynote"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="8" width="14" height="9" rx="2"/><path d="M7 8V6a3 3 0 0 1 6 0v2"/></svg> ' + t("Card details are handled by our payment provider. We never see or store your card number.", "Los datos de tu tarjeta los maneja nuestro procesador de pagos. Nunca vemos ni guardamos tu n\u00famero de tarjeta.") + '</p>' +
-    '<p class="authback">' + t("Questions about this invoice?", "\u00bfPreguntas sobre esta factura?") + ' <a href="tel:+19514648147">' + t("Call 951-464-8147", "Ll\u00e1manos al 951-464-8147") + '</a></p>');
+    var go = document.querySelector("[data-pay-go]");
+    var err = document.querySelector("[data-pay-error]");
+    function fail(msg) { err.textContent = msg; err.classList.add("is-shown"); go.disabled = false; go.textContent = label; }
+    var label = go.textContent;
 
-  var go = document.querySelector("[data-pay-go]");
-  if (go) {
     go.addEventListener("click", function () {
-      window.alert("Card payments aren't switched on yet.\n\nThe business owner needs to paste their Stripe payment link into Dashboard \u2192 Settings. Until then, please pay by cash, check, or call 951-464-8147.");
+      if (!LIVE) {
+        window.alert(t("Card payments only work on the live website.", "Los pagos con tarjeta solo funcionan en el sitio en l\u00ednea."));
+        return;
+      }
+      err.classList.remove("is-shown");
+      go.disabled = true;
+      go.textContent = t("Opening secure checkout\u2026", "Abriendo el pago seguro\u2026");
+      fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job: link.r, token: link.t })
+      }).then(function (r) {
+        return r.json().then(function (body) { return { status: r.status, body: body }; },
+                             function () { return { status: r.status, body: {} }; });
+      }).then(function (res) {
+        if (res.body && res.body.url) { window.location.href = res.body.url; return; }
+        if (res.body && res.body.paid) { window.location.reload(); return; }
+        var e = res.body && res.body.error;
+        if (e === "cards_off") {
+          fail(t("Card payments aren't switched on yet. Please pay by cash or check, or call 951-464-8147.",
+                 "Los pagos con tarjeta a\u00fan no est\u00e1n activos. Paga en efectivo o con cheque, o ll\u00e1manos al 951-464-8147."));
+        } else if (e === "not_found") {
+          fail(t("We couldn't find this invoice yet. If you just received the link, try again in a minute, or call 951-464-8147.",
+                 "A\u00fan no encontramos esta factura. Si acabas de recibir el enlace, int\u00e9ntalo en un minuto o ll\u00e1manos al 951-464-8147."));
+        } else if (e === "expired" || e === "replaced") {
+          fail(t("This link is no longer active. Please ask us for a new one.",
+                 "Este enlace ya no est\u00e1 activo. P\u00eddenos uno nuevo."));
+        } else {
+          fail(t("We couldn't open checkout just now. Please try again in a minute, or call 951-464-8147.",
+                 "No pudimos abrir el pago en este momento. Int\u00e9ntalo en un minuto o ll\u00e1manos al 951-464-8147."));
+        }
+      })["catch"](function () {
+        fail(t("You appear to be offline. Check your connection and try again.",
+               "Parece que no tienes conexi\u00f3n. Revisa tu conexi\u00f3n e int\u00e9ntalo de nuevo."));
+      });
     });
   }
 })();

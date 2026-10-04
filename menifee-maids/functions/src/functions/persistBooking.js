@@ -23,6 +23,16 @@ app.storageQueue("persistBooking", {
     }
 
     const r = payload.record;
+
+    // The website now saves bookings directly and only queues them when that
+    // fails. A queued copy must never overwrite a job that already exists: by
+    // the time it is processed the owner may have confirmed or rescheduled it.
+    const existing = await cosmos.readJob(r.id);
+    if (existing) {
+      context.log(`Booking ${r.id} is already in Cosmos; queued copy skipped.`);
+      return;
+    }
+
     const doc = {
       id: r.id,
       type: "job",
@@ -58,7 +68,10 @@ app.storageQueue("persistBooking", {
       // Carriers expect proof of opt-in per recipient, so the timestamp is kept.
       smsConsent: r.smsConsent === true,
       smsConsentAt: r.smsConsent === true ? (r.createdAt || new Date().toISOString()) : null,
-      createdAt: r.createdAt || new Date().toISOString()
+      createdAt: r.createdAt || new Date().toISOString(),
+      source: r.source || "web",
+      // The dashboard's own copy, so every staff device reads it back intact.
+      record: { ...r, photos: [] }
     };
 
     // Throwing sends the message back to the queue with its own backoff, so a

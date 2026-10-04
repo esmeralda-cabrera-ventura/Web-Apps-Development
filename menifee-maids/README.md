@@ -32,8 +32,8 @@ The architecture and design decisions below follow from these requirements.
                     │  + Microsoft sign-in for staff        │
                     └───────┬──────────────────────┬────────┘
                             │                      │
-                   accepted │                      │ reads/writes
-                   booking  ▼                      ▼
+                 fallback │                      │ bookings, sync
+                 only     ▼                      ▼
                     ┌───────────────┐     ┌────────────────────┐
                     │ Storage Queue │     │  Cosmos DB (free)  │
                     │ booking-writes│     │  database: menifee │
@@ -57,7 +57,9 @@ The architecture and design decisions below follow from these requirements.
 
 ### Key design decisions
 
-**The customer request path does not write to the database.** A booking is accepted as soon as it is placed on a Storage Queue, and the confirmation email is sent immediately. The `persistBooking` queue function writes it to Cosmos DB shortly afterward. This keeps the customer's response time independent of the database, and a temporary database outage delays a booking instead of losing it. If a message exhausts all retries, `persistBookingPoison` emails the full booking details to the owner.
+**Bookings are written directly to the database, with a queue as a fallback.** The booking API saves each request to Cosmos DB and then sends the confirmation emails. If the database write fails, the booking is placed on a Storage Queue instead, and the `persistBooking` function writes it once the database is reachable. A queued copy never overwrites a job that already exists, so a late write cannot undo changes the owner has made. If a queued message exhausts all retries, `persistBookingPoison` emails the full booking details to the owner. The reference number shown to the customer is the one stored and quoted in both emails.
+
+**Every staff device works from the same data.** The dashboard keeps a working copy in the browser so it stays fast and usable on a weak connection, and `js/sync.js` keeps that copy in step with Cosmos DB through the `/api` routes. Jobs, payment links, photos and the availability calendar are pulled when the dashboard opens, every 45 seconds while it is visible, and whenever the phone reconnects. Local changes are pushed within a couple of seconds. A record edited on two devices at once resolves to the most recent edit. As a safeguard, if more than three jobs disappear from a device at once (for example, because the browser cleared its storage), they are restored from the cloud rather than deleted. A status indicator in the corner of the dashboard shows whether the device is synced.
 
 **The back end is split across two function apps.** The Static Web Apps managed API supports HTTP triggers only, so the queue and timer functions run in a separate Function App. The two apps also authenticate differently. The managed API has no managed identity and uses connection keys, while the Function App uses its system-assigned managed identity. DEPLOY.md describes this in detail, since it is the most common source of deployment problems.
 
@@ -77,7 +79,7 @@ The architecture and design decisions below follow from these requirements.
 | `admin.html` | Owner dashboard (English, includes Settings) |
 | `helper.html` | Helper dashboard (English, no Settings) |
 | `admin-es.html` | Helper dashboard (Spanish, no Settings) |
-| `pay.html` | Customer invoice page opened from a payment link |
+| `pay.html` | Customer invoice page opened from a payment link; starts Stripe checkout |
 | `login.html` / `helper-login.html` / `acceso.html` | Redirect to Microsoft sign-in on the deployed site |
 | `404.html` / `no-access.html` / `offline.html` | Error and offline pages |
 | `sw.js` | Service worker providing an offline shell for the dashboard |
@@ -87,6 +89,7 @@ The architecture and design decisions below follow from these requirements.
 | `js/booking.js` | Booking flow |
 | `js/admin.js` | Dashboard |
 | `js/db.js` | Job data layer: status model, search, local and REST adapters |
+| `js/sync.js` | Keeps each dashboard's working copy in step with Cosmos DB |
 | `js/i18n.js` | All translated strings for the site and dashboard |
 | `js/auth.js` | Offline-only sign-in; not used on the deployed site |
 | `js/access.js` | Reads the platform identity and enforces roles on the client |
@@ -214,12 +217,18 @@ Access is revoked by deleting the user's role assignment in the portal. No passw
 - **Apply to every Tuesday this month** copies one day's hours to every matching weekday.
 - Customers only see days with at least one open window.
 
-Availability is stored in Cosmos DB as one document per month, so it is consistent across devices.
+Availability is stored in Cosmos DB as one document per month and synced to every staff device. The booking page reads the same calendar, so customers only see days the owner has opened.
 
 ### Request inbox
 
-- **Accept first choice** / **Accept backup** confirms the request and opens a pre-written confirmation email.
-- **Change date & time** provides a date picker, time-window selector and note field. **Save as confirmed** locks the slot and notifies the customer. **Propose to customer** suggests the new time without confirming it and moves the request to *Awaiting client*.
+- **Accept first choice** / **Accept backup** confirms the request.
+- **Change date & time** provides a date picker, time-window selector and note field. **Save as confirmed** locks the slot. **Propose to customer** suggests the new time without confirming it and moves the request to *Awaiting client*.
+
+### Telling the customer
+
+Whenever a job is confirmed, moved, proposed or cancelled, the website emails the customer automatically through `/api/notify`, in the language they booked in, from the business's own domain. Replies go to the business inbox. A panel then opens with a pre-written text message and a **Text** button that opens the phone's messaging app with the message filled in; the message can be edited first. Phones only allow a web page to open the messaging app from a tap, which is why sending the text takes one tap rather than happening on its own.
+
+Once SMS registration is complete (`ACS_SMS_FROM` is set), the same confirmations are also texted automatically from the business number to customers who opted in to texts. Customers who declined texts are flagged in the panel.
 - **Send payment link** becomes available once a job is confirmed.
 
 ### Booked jobs calendar
@@ -234,7 +243,7 @@ The booked jobs calendar is populated automatically from accepted requests. Days
 
 1. **Upload photos** opens the device camera or photo library. Up to seven photos can be attached per job.
 2. Photos are resized to 1400px and re-encoded as JPEG on the device before upload. This reduces file size and removes EXIF metadata, including the GPS coordinates phones embed in each image, so a customer's location is never stored in a photo.
-3. The browser uploads directly to Blob Storage using a short-lived signed URL from `/api/photos`. The job record stores only the file path.
+3. The dashboard uploads each photo directly to Blob Storage using a short-lived signed URL from `/api/photos`. The job record stores only the file path, and other devices receive a signed link to view it.
 4. After writing a message to the customer, the user selects **Complete & send photos**, **Complete & email**, or **Complete without sending**.
 
 Photos cannot be attached to an email automatically from a desktop browser, because browsers do not allow web pages to pass files to a mail client. On a phone, the native share sheet handles attachments, which makes the phone the preferred device for closing out a job.
@@ -285,21 +294,23 @@ On a confirmed job, **Send payment link** opens a panel to set the amount (pre-f
 https://www.menifeemaids.com/pay.html?job=MCC-260824-V1DS#d=eyJ0IjoiUjlmYlBac...
 ```
 
-The job reference, customer name, amount, description and expiration date are encoded in the URL fragment after the `#`. Browsers do not send the fragment to the server, so the invoice renders without a database lookup. The job number appears both in the readable part of the URL and inside the encoded data, and `pay.html` compares the two. A link that has been altered is rejected.
+The job reference, customer name, amount, description and expiration date are encoded in the URL fragment after the `#`, so the invoice can be displayed even before the page has contacted the server. When the server is reachable, `pay.html` shows the amount and status stored in Cosmos DB instead, so an edited link cannot change the amount displayed or charged.
 
-Generating a new link for a job invalidates the previous one, so each job has at most one active link. Expired, altered or incomplete links display a notice with the business phone number. Invoices appear in the language the customer booked in (the link includes `&lang=es` for Spanish).
+Generating a new link for a job invalidates the previous one, so each job has at most one active link. Expired, replaced or altered links display a notice with the business phone number. Invoices appear in the language the customer booked in (the link includes `&lang=es` for Spanish).
 
-### Stripe integration
+### Card payments with Stripe
 
-1. Create a **Payment Link** in Stripe.
-2. Enter it under **Dashboard → Settings → Stripe payment link**.
-3. Add a metadata field named `job_number` to the Stripe link, or enable a custom field that captures it. This associates each charge with its job.
+Each invoice is charged through its own **Stripe Checkout Session**, created by `/api/checkout` for the exact amount stored on that payment link. No Stripe products or Payment Links need to be set up in the Stripe dashboard, and every customer can be charged a different amount.
 
-Until a Stripe link is configured, the Pay button informs the customer that card payments are not yet available and provides the business phone number.
+1. The customer opens their payment link and selects **Pay**.
+2. `/api/checkout` reads the invoice from Cosmos DB, creates a Checkout Session for that amount (in Spanish for Spanish-language customers, with their email prefilled), and redirects the customer to Stripe.
+3. After payment, Stripe returns the customer to `pay.html`, which confirms the payment with the server and shows a receipt notice.
+4. Independently, Stripe calls `/api/stripe-webhook`. The webhook marks the invoice paid even if the customer closes the browser before returning. Webhook requests are verified with the signing secret, so they cannot be forged.
+5. The paid status syncs to every staff dashboard, and the job closes once it is both completed and paid.
 
-`/api/verify-payment` checks payment status with Stripe using the secret key, which remains on the server and is never exposed to the browser. **Check with Stripe** verifies a single job, and **Check payments with Stripe** checks every outstanding link at once.
+Each session carries the job number and link token as metadata, so every Stripe payment can be traced to its job. **Check with Stripe** (`/api/verify-payment`) remains available as a manual backup.
 
-**Known limitation:** the invoice amount is currently stored in the URL and could be edited by a customer. Stripe always charges the amount configured on the Stripe side, so the exposure is limited to an underpayment that would be visible during reconciliation. Before relying on this for regular payments, I intend to either use fixed-price Stripe Payment Links per service or move link generation to a server that signs the payload.
+Card payments are switched on by adding two environment variables to the Static Web App: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Until the secret key is set, the Pay button tells customers that card payments are not yet available and offers the business phone number. The Settings panel shows whether card payments and the webhook are active.
 
 ---
 
@@ -315,7 +326,7 @@ The site launched with email-only notifications. When `ACS_SMS_FROM` and `OWNER_
 
 The compliance requirements for registration are already in place: privacy policy pages in both languages, an SMS opt-in checkbox on both booking forms (with message frequency, rates, STOP/HELP instructions, and a statement that consent is not a condition of purchase), and per-customer consent stored as `smsConsent` and `smsConsentAt` on each job. `sendReminders` texts only customers who opted in.
 
-Message templates are defined in `js/admin.js` (`msgConfirm`, `msgReminder`, `msgOnMyWay`, `msgCancel`).
+Text message templates are defined in `js/admin.js` (`msgConfirm`, `msgChanged`, `msgPropose`, `msgCancelText`, `msgReminder`, `msgOnMyWay`). The automatic email wording is in `api/src/functions/notify.js`.
 
 ---
 

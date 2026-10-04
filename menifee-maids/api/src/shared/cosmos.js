@@ -162,9 +162,18 @@ async function readAvailability(monthKeys) {
   return merged;
 }
 
-async function writeAvailability(map) {
+/**
+ * `months` lists every month the caller is speaking for. Each of those months
+ * is rewritten in full, so a month whose open days were all removed is cleared
+ * rather than left holding stale days.
+ */
+async function writeAvailability(map, months) {
   const byMonth = {};
+  for (const m of months || []) {
+    if (/^\d{4}-\d{2}$/.test(m)) byMonth[m] = {};
+  }
   for (const [day, windows] of Object.entries(map || {})) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) continue;
     if (!Array.isArray(windows) || !windows.length) continue;
     const m = monthKeyOf(day);
     (byMonth[m] = byMonth[m] || {})[day] = windows;

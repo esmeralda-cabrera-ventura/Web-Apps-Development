@@ -2,14 +2,18 @@
  * POST /api/bookings
  *
  * The customer path, and the one that must never fail. It validates the
- * request, puts it on a durable queue, then emails the owner and confirms to
- * the customer through ACS. Postgres is not involved: a booking taken while the
- * database is stopped still succeeds, and the queue drains into the database
- * when it next wakes.
+ * request, saves it straight to Cosmos so it appears on every staff device,
+ * then emails the owner and confirms to the customer through ACS.
+ *
+ * If the database write fails, the booking goes onto the durable queue
+ * instead and the Function App writes it later. Only if both fail is the
+ * customer asked to call.
  */
 const { app } = require("@azure/functions");
 const { ok, bad, oops, readJson } = require("../shared/http");
 const { enqueue } = require("../shared/queue");
+const cosmos = require("../shared/cosmos");
+const { toDoc } = require("../shared/jobdoc");
 const { sendEmail, sendSms, normalise } = require("../shared/acs");
 
 const BIZ = "Menifee Maids";
@@ -149,7 +153,14 @@ app.http("bookings", {
       return bad("Some required details are missing or invalid.", problems);
     }
 
-    const ref = reference();
+    // Use the reference the customer's browser already showed them, so the
+    // screen, the emails and the dashboard all quote the same number. A new one
+    // is issued only if it is malformed or already taken.
+    let ref = /^MCC-\d{6}-[A-Z0-9]{4}$/.test(String(body.id || "")) ? body.id : reference();
+    try {
+      for (let i = 0; i < 5 && await cosmos.readJob(ref); i++) ref = reference();
+    } catch { /* database unreachable: the queue path below still works */ }
+
     const record = {
       ...body,
       id: ref,
@@ -161,12 +172,25 @@ app.http("bookings", {
       source: "web"
     };
 
-    // Durability first: if this fails, tell the customer to call rather than
-    // pretending the booking landed.
-    const queued = await enqueue({ type: "booking", record });
-    if (!queued.queued) {
-      context.error("Could not queue booking", queued.error);
-      return oops("We couldn't save that just now. Please call 951-464-8147 and we'll book you in.");
+    delete record.serverRef;
+    delete record.confirmationSent;
+    if (record.smsConsent === true && !record.smsConsentAt) record.smsConsentAt = record.createdAt;
+
+    // Durability first. The database is the normal path; the queue is the
+    // fallback. Only if both fail is the customer told to call.
+    let savedTo = null;
+    try {
+      await cosmos.upsertJob(toDoc(record, ref));
+      savedTo = "database";
+    } catch (err) {
+      context.error(`Booking ${ref}: database write failed, queueing instead:`, err.message);
+      const queued = await enqueue({ type: "booking", record });
+      if (queued.queued) {
+        savedTo = "queue";
+      } else {
+        context.error("Could not queue booking either", queued.error);
+        return oops("We couldn't save that just now. Please call 951-464-8147 and we'll book you in.");
+      }
     }
 
     // Notifications are best effort and run in parallel; a failed text must
@@ -194,7 +218,7 @@ app.http("bookings", {
     ]);
 
     const delivered = notify.map((r) => (r.status === "fulfilled" ? r.value.sent : false));
-    context.log(`Booking ${ref} queued; notifications sent: ${JSON.stringify(delivered)}`);
+    context.log(`Booking ${ref} saved to ${savedTo}; notifications sent: ${JSON.stringify(delivered)}`);
 
     return ok({
       reference: ref,

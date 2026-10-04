@@ -21,6 +21,7 @@ const { app } = require("@azure/functions");
 const { ok, unauthorised, oops, json, readJson } = require("../shared/http");
 const { requireOwner, principal } = require("../shared/auth");
 const cosmos = require("../shared/cosmos");
+const { cardPaymentsOn } = require("../shared/stripe");
 
 const DEFAULTS = {
   stripeUrl: "",
@@ -41,7 +42,9 @@ function project(settings, role) {
       stripeVerifyUrl: s.stripeVerifyUrl,
       businessName: s.businessName,
       payExpiryDays: s.payExpiryDays,
-      monthResetAt: s.monthResetAt
+      monthResetAt: s.monthResetAt,
+      cardPayments: cardPaymentsOn(),
+      cardWebhook: !!process.env.STRIPE_WEBHOOK_SECRET
     };
   }
 
@@ -52,13 +55,14 @@ function project(settings, role) {
       payExpiryDays: s.payExpiryDays,
       monthResetAt: s.monthResetAt,
       // A yes/no, not the address. Enough to word the payment panel correctly.
-      paymentsConfigured: !!s.stripeUrl,
+      paymentsConfigured: cardPaymentsOn() || !!s.stripeUrl,
+      cardPayments: cardPaymentsOn(),
       stripeUrl: s.stripeUrl        // public Stripe link; the helper hands it to customers
     };
   }
 
   // Anonymous: only what the customer's invoice page needs.
-  return { role: "anonymous", businessName: s.businessName, stripeUrl: s.stripeUrl };
+  return { role: "anonymous", businessName: s.businessName, cardPayments: cardPaymentsOn() };
 }
 
 function roleOf(request) {

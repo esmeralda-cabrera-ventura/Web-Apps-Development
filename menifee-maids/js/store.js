@@ -181,6 +181,9 @@
 
   /** First-run demo availability so the calendar isn't empty on day one. */
   function seedIfEmpty() {
+    // The demo calendar is only for exploring a file:// copy. Deployed, open
+    // days come from the owner's real calendar in the cloud.
+    if (window.location.protocol !== "file:") return;
     if (read(KEYS.seeded, false)) return;
     var map = getAvailability();
     if (Object.keys(map).length === 0) {
@@ -329,11 +332,17 @@
   }
 
   function getSettings() {
+    var out;
     if (sessionSettings) {
-      return Object.assign({}, DEFAULT_SETTINGS, sessionSettings);
+      out = Object.assign({}, DEFAULT_SETTINGS, sessionSettings);
+    } else {
+      out = Object.assign({}, DEFAULT_SETTINGS, read(KEYS.settings, {}));
     }
-    var v = read(KEYS.settings, {});
-    return Object.assign({}, DEFAULT_SETTINGS, v);
+    // Live, the Stripe check is always this site's own endpoint.
+    if (!out.stripeVerifyUrl && window.location.protocol !== "file:") {
+      out.stripeVerifyUrl = "/api/verify-payment";
+    }
+    return out;
   }
   function saveSettings(patch) {
     var next = Object.assign(getSettings(), patch || {});

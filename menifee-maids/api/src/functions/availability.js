@@ -27,13 +27,14 @@ app.http("availability", {
   handler: async (request, context) => {
     if (request.method === "GET") {
       try {
-        const map = await cosmos.readAvailability(monthsAhead(3));
-        return ok({ availability: map });
+        const months = monthsAhead(3);
+        const map = await cosmos.readAvailability(months);
+        return ok({ availability: map, months });
       } catch (err) {
         // Never block a customer on infrastructure: an empty calendar still
         // lets the booking page load and tell them to call.
         context.error("availability read failed:", err.message);
-        return ok({ availability: {}, stale: true });
+        return ok({ availability: {}, months: monthsAhead(3), stale: true });
       }
     }
 
@@ -46,7 +47,7 @@ app.http("availability", {
     }
 
     try {
-      const months = await cosmos.writeAvailability(body.availability);
+      const months = await cosmos.writeAvailability(body.availability, body.months);
       return ok({ saved: true, months });
     } catch (err) {
       context.error("availability write failed:", err.message);

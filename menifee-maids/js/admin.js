@@ -478,18 +478,186 @@
       r.address + " now. See you shortly.";
   }
 
-  function msgCancel(r, slot) {
+  /* --- Short texts for the other appointment changes --------------------- */
+  function msgChanged(r, slot) {
     var L = langOf(r);
     if (L === "es") {
-      return "Hola " + firstName(r.name) + ",\n\nTuvimos que cancelar su limpieza del " +
-        slotText(slot, L) + " en " + r.address + ".\n\nUna disculpa por el aviso tan corto. " +
-        "Responda a este correo o llame al " + BIZ_PHONE + " y le reagendamos en un horario que le acomode.\n\n" +
-        "Referencia: " + r.id + "\n\nGracias,\n" + BIZ + "\n" + BIZ_PHONE;
+      return "Hola " + firstName(r.name) + ", le habla " + BIZ + ". Cambiamos su limpieza al " +
+        slotText(slot, L) + " en " + r.address + ". Si no le funciona, responda aqu\u00ed o llame al " +
+        BIZ_PHONE + ". Referencia " + r.id + ".";
     }
-    return "Hi " + firstName(r.name) + ",\n\nWe've had to cancel your cleaning scheduled for " +
-      slotText(slot, L) + " at " + r.address + ".\n\nWe're sorry for the short notice. Reply to this " +
-      "email or call " + BIZ_PHONE + " and we'll get you rebooked at a time that works.\n\n" +
-      "Reference: " + r.id + "\n\nThank you,\n" + BIZ + "\n" + BIZ_PHONE;
+    return "Hi " + firstName(r.name) + ", this is " + BIZ + ". Your cleaning has moved to " +
+      slotText(slot, L) + " at " + r.address + ". If that doesn't work, reply here or call " +
+      BIZ_PHONE + ". Reference " + r.id + ".";
+  }
+  function msgPropose(r, slot) {
+    var L = langOf(r);
+    if (L === "es") {
+      return "Hola " + firstName(r.name) + ", le habla " + BIZ + ". No podemos en el horario que eligi\u00f3. " +
+        "\u00bfPodr\u00edamos hacer su limpieza el " + slotText(slot, L) + "? Responda S\u00cd para confirmar " +
+        "o d\u00edganos otro horario. Referencia " + r.id + ".";
+    }
+    return "Hi " + firstName(r.name) + ", this is " + BIZ + ". We can't make the time you picked. " +
+      "Could we do your cleaning on " + slotText(slot, L) + " instead? Reply YES to confirm or " +
+      "suggest another time. Reference " + r.id + ".";
+  }
+  function msgCancelText(r, slot) {
+    var L = langOf(r);
+    if (L === "es") {
+      return "Hola " + firstName(r.name) + ", le habla " + BIZ + ". Tuvimos que cancelar su limpieza del " +
+        slotText(slot, L) + ". Una disculpa. Responda aqu\u00ed o llame al " + BIZ_PHONE +
+        " y le reagendamos. Referencia " + r.id + ".";
+    }
+    return "Hi " + firstName(r.name) + ", this is " + BIZ + ". We've had to cancel your cleaning on " +
+      slotText(slot, L) + ". Sorry for the short notice. Reply here or call " + BIZ_PHONE +
+      " and we'll rebook you. Reference " + r.id + ".";
+  }
+  function textFor(kind, r, slot) {
+    if (kind === "confirmed") return msgConfirm(Object.assign({}, r, { confirmedSlot: slot }));
+    if (kind === "changed") return msgChanged(r, slot);
+    if (kind === "proposed") return msgPropose(r, slot);
+    return msgCancelText(r, slot);
+  }
+  function subjectFor(kind, r, slot) {
+    var es = langOf(r) === "es", d = S.prettyDate(slot.date, langOf(r));
+    var sub = {
+      confirmed: es ? "Su limpieza est\u00e1 confirmada - " : "Your cleaning is confirmed - ",
+      changed: es ? "Nueva fecha para su limpieza - " : "New time for your cleaning - ",
+      proposed: es ? "\u00bfLe funciona esta fecha? - " : "Would this time work? - ",
+      cancelled: es ? "Su limpieza fue cancelada - " : "Your cleaning has been cancelled - "
+    }[kind];
+    return sub + d + " (" + r.id + ")";
+  }
+
+  /* --- Telling the customer ----------------------------------------------
+     After a confirmation, change, proposal or cancellation the website emails
+     the customer automatically (in their language), and this panel offers a
+     one-tap text from the phone with the message already written. Tapping the
+     Text button is what opens Messages: phones only allow that from a tap,
+     which is why it isn't opened automatically. */
+  var sheet = null;
+  function sheetEl() {
+    if (sheet) return sheet;
+    sheet = document.createElement("div");
+    sheet.className = "nsheet";
+    sheet.hidden = true;
+    sheet.setAttribute("role", "dialog");
+    sheet.setAttribute("aria-modal", "true");
+    sheet.setAttribute("aria-labelledby", "ns-title");
+    sheet.innerHTML =
+      '<div class="nsheet__panel">' +
+        '<h3 id="ns-title" data-ns-title></h3>' +
+        '<p class="nsheet__status" data-ns-email></p>' +
+        '<p class="nsheet__status" data-ns-sms-status hidden></p>' +
+        '<div data-ns-textbox>' +
+          '<label class="field-label" for="ns-text" data-ns-label></label>' +
+          '<textarea class="input" id="ns-text" rows="5" data-ns-text></textarea>' +
+          '<p class="hint" data-ns-consent hidden></p>' +
+          '<a class="btn btn--primary btn--block" data-ns-sms href="#"></a>' +
+        "</div>" +
+        '<a class="btn btn--ghost btn--block" data-ns-mail href="#" hidden></a>' +
+        '<button type="button" class="btn btn--ghost btn--block" data-ns-done></button>' +
+      "</div>";
+    document.body.appendChild(sheet);
+    sheet.querySelector("[data-ns-done]").addEventListener("click", closeNotify);
+    sheet.addEventListener("click", function (e) { if (e.target === sheet) closeNotify(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !sheet.hidden) closeNotify(); });
+    return sheet;
+  }
+  function closeNotify() { if (sheet) sheet.hidden = true; document.body.classList.remove("has-sheet"); }
+
+  /**
+   * @param {object} r     the job
+   * @param {string} kind  "confirmed" | "changed" | "proposed" | "cancelled"
+   * @param {object} slot  { date, window } the message is about
+   * @param {string} note  optional extra line for the email
+   */
+  function openNotify(r, kind, slot, note) {
+    var el = sheetEl();
+    var name = firstName(r.name);
+    var phone = String(r.phone || "").replace(/[^0-9+]/g, "");
+    var hasPhone = phone.length >= 10;
+    var title = {
+      confirmed: DT("Let {name} know it's confirmed", { name: name }),
+      changed: DT("Let {name} know about the new time", { name: name }),
+      proposed: DT("Ask {name} about the new time", { name: name }),
+      cancelled: DT("Let {name} know it's cancelled", { name: name })
+    }[kind];
+    el.querySelector("[data-ns-title]").textContent = title;
+
+    var text = el.querySelector("[data-ns-text]");
+    var smsBtn = el.querySelector("[data-ns-sms]");
+    var mailBtn = el.querySelector("[data-ns-mail]");
+    var emailLine = el.querySelector("[data-ns-email]");
+    var smsLine = el.querySelector("[data-ns-sms-status]");
+    var consent = el.querySelector("[data-ns-consent]");
+    var box = el.querySelector("[data-ns-textbox]");
+
+    text.value = textFor(kind, r, slot);
+    el.querySelector("[data-ns-label]").textContent = D("Text message (you can edit it)");
+    function syncHref() { smsBtn.setAttribute("href", smsLink(phone, text.value)); }
+    text.oninput = syncHref;
+    syncHref();
+    smsBtn.textContent = DT("Text {name}", { name: name });
+    smsBtn.className = "btn btn--primary btn--block";
+    box.hidden = !hasPhone;
+
+    consent.hidden = r.smsConsent !== false;
+    consent.textContent = D("This customer didn't opt in to text messages when booking. Email may be the better choice.");
+    if (r.smsConsent === false) smsBtn.className = "btn btn--ghost btn--block";
+
+    mailBtn.hidden = true;
+    mailBtn.textContent = D("Send the email from my phone instead");
+    mailBtn.setAttribute("href", mailLink(r.email || "", subjectFor(kind, r, slot), text.value + (note ? "\n\n" + note : "")));
+    smsLine.hidden = true;
+    el.querySelector("[data-ns-done]").textContent = D("Done");
+
+    if (!r.email) {
+      emailLine.className = "nsheet__status nsheet__status--warn";
+      emailLine.textContent = D("No email on file for this customer.");
+    } else if (ACCESS.isOffline()) {
+      emailLine.className = "nsheet__status";
+      emailLine.textContent = D("Automatic emails work on the live website.");
+      mailBtn.hidden = false;
+    } else {
+      emailLine.className = "nsheet__status";
+      emailLine.textContent = DT("Emailing {email}\u2026", { email: r.email });
+      fetch("/api/notify", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: kind, slot: slot, note: note || "",
+          job: { id: r.id, name: r.name, email: r.email, phone: r.phone, address: r.address,
+                 lang: langOf(r), smsConsent: r.smsConsent, estimate: r.estimate }
+        })
+      }).then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (res) {
+          if (res && res.emailed) {
+            emailLine.className = "nsheet__status nsheet__status--ok";
+            emailLine.textContent = DT("\u2713 Emailed to {email} automatically.", { email: r.email });
+          } else {
+            emailLine.className = "nsheet__status nsheet__status--warn";
+            emailLine.textContent = D("The automatic email didn't go out. Send it from your phone with the button below.");
+            mailBtn.hidden = false;
+          }
+          if (res && res.texted) {
+            smsLine.hidden = false;
+            smsLine.className = "nsheet__status nsheet__status--ok";
+            smsLine.textContent = DT("\u2713 Texted to {phone} automatically.", { phone: r.phone });
+            smsBtn.className = "btn btn--ghost btn--block";
+            smsBtn.textContent = D("Send another text from my phone");
+          }
+        }, function () {
+          emailLine.className = "nsheet__status nsheet__status--warn";
+          emailLine.textContent = D("Couldn't reach the website to send the email. Send it from your phone with the button below.");
+          mailBtn.hidden = false;
+        });
+    }
+
+    el.hidden = false;
+    document.body.classList.add("has-sheet");
+    (hasPhone ? smsBtn : el.querySelector("[data-ns-done]")).focus();
   }
 
   /** Inline editor for moving a job or proposing a different slot. */
@@ -550,12 +718,12 @@
           : "");
     }
 
-    var warn = (settings.stripeUrl || settings.paymentsConfigured) ? "" :
+    var warn = (settings.cardPayments || settings.paymentsConfigured || settings.stripeUrl) ? "" :
       '<div class="notice notice--warn" style="margin:.9rem 0 0"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v5M10 13.5v.4"/></svg><span>' +
       (document.getElementById("set-stripe")
-        ? D("No Stripe link saved yet, so the Pay button will tell the customer card payments aren\u2019t on.") +
-          ' <a href="#settings">' + D("Add it in Settings.") + "</a>"
-        : D("No Stripe link saved yet, so the Pay button will tell the customer card payments aren\u2019t on. Ask the owner to add it.")) +
+        ? D("Card payments aren\u2019t switched on yet, so the Pay button will ask the customer to pay another way.") +
+          ' <a href="#settings">' + D("See Settings.") + "</a>"
+        : D("Card payments aren\u2019t switched on yet, so the Pay button will ask the customer to pay another way. Ask the owner to switch them on.")) +
       "</span></div>";
 
     return '<div class="resched">' +
@@ -1026,7 +1194,7 @@
           (r.ownerNotes || "") + "</textarea></div>" +
           '<div class="req__actions">' +
             '<button class="btn btn--primary btn--sm" data-bk="save" data-id="' + r.id + '">Save changes</button>' +
-            '<button class="btn btn--ghost btn--sm" data-bk="notify" data-id="' + r.id + '">Save and email customer</button>' +
+            '<button class="btn btn--ghost btn--sm" data-bk="notify" data-id="' + r.id + '">Save and notify customer</button>' +
             '<button class="btn btn--ghost btn--sm" data-bk="cancel" data-id="' + r.id + '">Cancel booking</button>' +
           "</div>" +
           '<div class="comms">' +
@@ -1088,7 +1256,7 @@
       }
 
       if (act === "cancel") {
-        if (!window.confirm(D("Cancel this booking? It moves back to the inbox as a new request and opens a cancellation email."))) return;
+        if (!window.confirm(D("Cancel this booking? It moves back to the inbox as a new request and the customer is told."))) return;
         var was = req.confirmedSlot;
         S.updateRequest(id, {
           status: "new", confirmedSlot: null,
@@ -1096,9 +1264,7 @@
         });
         selected2 = null;
         refreshAll();
-        window.location.href = mailLink(req.email,
-          "Your cleaning on " + S.prettyDate(was.date) + " has been cancelled",
-          msgCancel(req, was));
+        if (was) openNotify(req, "cancelled", was);
         return;
       }
 
@@ -1108,20 +1274,20 @@
       var notes = li.querySelector("[data-bk-note]").value.trim();
       if (!newDate) { window.alert(D("Pick a date for this job.")); return; }
 
+      var prevSlot = req.confirmedSlot || {};
+      var moved = prevSlot.date !== newDate || prevSlot.window !== newWin;
       S.updateRequest(id, {
         confirmedSlot: { date: newDate, window: newWin },
         ownerNotes: notes
       });
       if (selected2 !== newDate) selected2 = newDate;
 
-      if (act === "notify") {
-        window.location.href = "mailto:" + req.email +
-          "?subject=" + encodeURIComponent("Updated cleaning appointment - " + S.prettyDate(newDate)) +
-          "&body=" + encodeURIComponent(
-            "Hi " + req.name.split(" ")[0] + ",\n\n" +
-            "Your cleaning is now set for " + S.prettyDate(newDate) + ", " + S.windowLabel(newWin) + ".\n\n" +
-            "Address: " + req.address + "\n" +
-            "Reference: " + req.id + "\n\nThank you,\nMenifee Maids\n951-464-8147");
+      // Moving a confirmed job always tells the customer; "Save and notify"
+      // tells them even when only the notes changed.
+      if (moved || act === "notify") {
+        refreshAll();
+        openNotify(req, "changed", { date: newDate, window: newWin });
+        return;
       }
       refreshAll();
     });
@@ -1319,37 +1485,18 @@
         proposedSlot: confirming ? null : { date: edit.date, window: edit.window }
       });
       openEditor = null;
-      var line = confirming
-        ? "Your cleaning is confirmed for " + S.prettyDate(edit.date) + ", " + S.windowLabel(edit.window) + "."
-        : "We'd like to move your cleaning to " + S.prettyDate(edit.date) + ", " + S.windowLabel(edit.window) +
-          ". Just reply to let us know if that works.";
-      window.location.href = "mailto:" + req.email +
-        "?subject=" + encodeURIComponent((confirming ? "Your cleaning is confirmed - " : "About your cleaning - ") + S.prettyDate(edit.date)) +
-        "&body=" + encodeURIComponent(
-          "Hi " + req.name.split(" ")[0] + ",\n\n" + line + "\n\n" +
-          (edit.note ? edit.note + "\n\n" : "") +
-          "Address: " + req.address + "\nReference: " + req.id +
-          "\n\nThank you,\nMenifee Maids\n951-464-8147");
       refreshAll();
+      var wasConfirmed = req.status === "confirmed" && req.confirmedSlot;
+      openNotify(req, confirming ? (wasConfirmed ? "changed" : "confirmed") : "proposed",
+                 { date: edit.date, window: edit.window }, edit.note);
       return;
     }
     if (act === "accept1" || act === "accept2") {
       var slot = act === "accept1" ? req.slot1 : req.slot2;
-      S.updateRequest(id, { status: "confirmed", confirmedSlot: slot });
-      window.setTimeout(function () {
-        if (window.confirm(D("Confirmation email opened.\n\nAlso text the confirmation to " + req.phone + "?"))) {
-          var fresh = S.getRequests().filter(function (x) { return x.id === id; })[0];
-          window.location.href = smsLink(fresh.phone, msgConfirm(fresh));
-        }
-      }, 900);
-      var body = "Hi " + req.name.split(" ")[0] + ",\n\n" +
-        "You're confirmed for " + S.prettyDate(slot.date) + ", " + S.windowLabel(slot.window) + ".\n\n" +
-        "Address: " + req.address + "\n" +
-        (req.estimate ? "Estimated total: $" + req.estimate + "\n" : "") +
-        "\nReference: " + req.id + "\n\nThank you,\nMenifee Maids\n951-464-8147";
-      window.location.href = "mailto:" + req.email +
-        "?subject=" + encodeURIComponent("Your cleaning is confirmed - " + S.prettyDate(slot.date)) +
-        "&body=" + encodeURIComponent(body);
+      S.updateRequest(id, { status: "confirmed", confirmedSlot: slot, proposedSlot: null });
+      refreshAll();
+      openNotify(req, "confirmed", slot);
+      return;
     } else if (act === "awaiting") {
       S.updateRequest(id, { status: "awaiting" });
       window.location.href = "mailto:" + req.email +
@@ -1407,6 +1554,11 @@
   });
 
   /* --- Sample request so the inbox isn't empty on first look -------------- */
+  // Live, a sample would sync to every staff phone as if it were a real
+  // customer, so the button only exists in the offline demo copy.
+  if (!ACCESS.isOffline()) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-demo]"), function (b) { b.hidden = true; });
+  }
   document.querySelector("[data-demo]").addEventListener("click", function () {
     var open = S.openDates(30);
     if (open.length < 2) { window.alert(D("Open a couple of days on the calendar first.")); return; }
@@ -1885,6 +2037,36 @@
     var keyEl = document.getElementById("set-apikey");
     var modeBox = document.querySelector("[data-db-mode]");
     var cur = S.getSettings();
+
+    if (!ACCESS.isOffline()) {
+      // Live, jobs sync through this site's own /api, so there is nothing to enter.
+      var dbBlock = apiEl.closest(".setblock");
+      if (dbBlock) dbBlock.hidden = true;
+      // Stripe is configured with keys on the server; no link to paste.
+      [stripeEl, verifyEl].forEach(function (el) {
+        var f = el.closest(".field"); if (f) f.hidden = true;
+      });
+      var col = stripeEl.closest(".setcol");
+      var head = col && col.querySelector("h3");
+      var lead = col && col.querySelector("h3 + p");
+      if (head) head.textContent = "Card payments";
+      var title = document.querySelector("#settings h2");
+      if (title) title.textContent = "Payments";
+      var paintCards = function (cfg) {
+        if (!lead) return;
+        if (cfg && cfg.cardPayments) {
+          lead.innerHTML = '<span class="notice notice--ok" style="display:block">Card payments are on. Each payment link opens a secure Stripe checkout for the exact amount on that invoice.' +
+            (cfg.cardWebhook ? " Payments are marked paid here automatically." :
+              " <strong>The Stripe webhook isn\u2019t set up yet</strong>, so use \u201cCheck with Stripe\u201d to mark payments as paid.") + "</span>";
+        } else {
+          lead.innerHTML = '<span class="notice notice--warn" style="display:block">Card payments are off. They switch on once the Stripe secret key is added to the website\u2019s environment variables in Azure.</span>';
+        }
+      };
+      paintCards(cur);
+      fetch("/api/settings", { credentials: "include" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (p) { if (p && p.settings) paintCards(p.settings); })["catch"](function () {});
+    }
     stripeEl.value = cur.stripeUrl || "";
     verifyEl.value = cur.stripeVerifyUrl || "";
     apiEl.value = cur.apiBaseUrl || "";
@@ -1935,9 +2117,9 @@
         })["catch"](function () { /* saved locally regardless */ });
       }
       showMode();
-      okBox.textContent = url
-        ? "Saved. New payment links will send customers to your Stripe checkout."
-        : "Saved. Add a Stripe link when you're ready to take cards.";
+      okBox.textContent = ACCESS.isOffline() && !url
+        ? "Saved. Add a Stripe link when you're ready to take cards."
+        : "Saved.";
       okBox.hidden = false;
       refreshAll();
     });
@@ -2016,6 +2198,11 @@
     return loadSettings();
   }).then(function () {
     refreshAll();
+    // Shared data: pull jobs, payment links and the calendar from the cloud,
+    // and redraw whenever another device or a customer changes something.
+    if (window.MCC.cloud) {
+      window.MCC.cloud.start(function () { refreshAll(); renderRequests(); renderMonthStats(); });
+    }
   })["catch"](function () { /* redirecting */ });
 
   READY.then(function (who) {

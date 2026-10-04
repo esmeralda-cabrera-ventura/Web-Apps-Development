@@ -16,7 +16,7 @@ const { DefaultAzureCredential } = require("@azure/identity");
 
 const CONTAINER = process.env.PHOTO_CONTAINER || "job-photos";
 const UPLOAD_MINUTES = 10;
-const READ_MINUTES = 30;
+const READ_MINUTES = 12 * 60;   // long enough for a working day of looking at photos
 
 let service = null;
 let sharedKey;            // undefined = not resolved, null = none configured

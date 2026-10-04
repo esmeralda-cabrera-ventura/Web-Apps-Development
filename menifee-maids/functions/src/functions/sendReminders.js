@@ -77,7 +77,9 @@ app.timer("sendReminders", {
 
       // Stamp it whatever happened, so a bad phone number can't cause a daily
       // retry loop. The owner can still send one by hand from the dashboard.
-      await cosmos.upsertJob({ ...j, remindedAt: new Date().toISOString() });
+      // Update the dashboard's copy too, so every staff phone shows it was sent.
+      const at = new Date().toISOString();
+      await cosmos.upsertJob({ ...j, remindedAt: at, record: j.record ? { ...j.record, remindedAt: at } : j.record });
     }
 
     context.log(`Reminders for ${date}: ${jobs.length} job(s), ${texted} texted, ${emailed} emailed.`);

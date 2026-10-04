@@ -46,6 +46,27 @@
       ]
     },
     {
+      "route": "/api/checkout",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/stripe-webhook",
+      "methods": [
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
+    },
+    {
       "route": "/api/health",
       "methods": [
         "GET"
@@ -105,6 +126,16 @@
     },
     {
       "route": "/api/photos",
+      "allowedRoles": [
+        "owner",
+        "helper"
+      ]
+    },
+    {
+      "route": "/api/notify",
+      "methods": [
+        "POST"
+      ],
       "allowedRoles": [
         "owner",
         "helper"

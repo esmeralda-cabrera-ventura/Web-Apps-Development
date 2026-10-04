@@ -13,6 +13,20 @@
 
   S.seedIfEmpty();
 
+  /**
+   * Open days are the owner's real calendar from the cloud. Whatever this
+   * browser held before (including old demo days) is replaced, and if the
+   * calendar can't be loaded no days are offered, so nobody books a day the
+   * owner never opened.
+   */
+  var calendarReady = (window.location.protocol === "file:")
+    ? Promise.resolve()
+    : fetch("/api/availability", { headers: { "Accept": "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : { availability: {} }; })
+        .then(function (res) { S.setAvailability((res && res.availability) || {}); },
+              function () { S.setAvailability({}); })
+        .then(function () { if (current && current() === "when") renderSlots(); });
+
   /* --- State ------------------------------------------------------------- */
   var state = {
     kind: null,            // "residential" | "commercial"

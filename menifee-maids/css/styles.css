@@ -858,3 +858,23 @@ select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
   .site-head, .site-foot, .flow__nav, .btn, #bubbles { display: none; }
   body { background: #fff; }
 }
+
+/* --- Notify panel: tell the customer after a confirmation or change ------ */
+.nsheet { position: fixed; inset: 0; z-index: 60; background: rgba(12, 42, 56, .45);
+  display: flex; align-items: flex-end; justify-content: center; padding: 0; }
+.nsheet[hidden] { display: none; }
+.nsheet__panel { background: var(--surface); width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
+  border-radius: 22px 22px 0 0; padding: 1.4rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -10px 40px rgba(12, 42, 56, .25); display: grid; gap: .75rem; }
+.nsheet__panel h3 { font-size: 1.2rem; margin: 0; }
+.nsheet__panel textarea { min-height: 120px; }
+.nsheet__status { margin: 0; font-size: .92rem; color: var(--ink-soft); }
+.nsheet__status--ok { color: #14532D; font-weight: 600; }
+.nsheet__status--warn { color: #7A4B00; font-weight: 600; }
+.nsheet [data-ns-textbox] { display: grid; gap: .55rem; }
+.nsheet [data-ns-textbox][hidden] { display: none; }
+body.has-sheet { overflow: hidden; }
+@media (min-width: 640px) {
+  .nsheet { align-items: center; padding: 1rem; }
+  .nsheet__panel { border-radius: 22px; }
+}

@@ -243,6 +243,26 @@
      same functions, same behaviour, only the words change.
      ======================================================================= */
   var DASH_ES = {
+    "Card payments aren\u2019t switched on yet, so the Pay button will ask the customer to pay another way.":
+      "Los pagos con tarjeta a\u00fan no est\u00e1n activos, as\u00ed que el bot\u00f3n Pagar le pedir\u00e1 al cliente otra forma de pago.",
+    "Card payments aren\u2019t switched on yet, so the Pay button will ask the customer to pay another way. Ask the owner to switch them on.":
+      "Los pagos con tarjeta a\u00fan no est\u00e1n activos, as\u00ed que el bot\u00f3n Pagar le pedir\u00e1 al cliente otra forma de pago. P\u00eddele al due\u00f1o que los active.",
+    "See Settings.": "Ver Configuraci\u00f3n.",
+    "Text message (you can edit it)": "Mensaje de texto (puedes editarlo)",
+    "This customer didn't opt in to text messages when booking. Email may be the better choice.":
+      "Este cliente no acept\u00f3 recibir mensajes de texto al reservar. Quiz\u00e1 sea mejor el correo.",
+    "Send the email from my phone instead": "Enviar el correo desde mi tel\u00e9fono",
+    "Done": "Listo",
+    "No email on file for this customer.": "Este cliente no tiene correo registrado.",
+    "Automatic emails work on the live website.": "Los correos autom\u00e1ticos funcionan en el sitio en l\u00ednea.",
+    "The automatic email didn't go out. Send it from your phone with the button below.":
+      "El correo autom\u00e1tico no se envi\u00f3. Env\u00edalo desde tu tel\u00e9fono con el bot\u00f3n de abajo.",
+    "Couldn't reach the website to send the email. Send it from your phone with the button below.":
+      "No se pudo conectar con el sitio para enviar el correo. Env\u00edalo desde tu tel\u00e9fono con el bot\u00f3n de abajo.",
+    "Send another text from my phone": "Enviar otro mensaje desde mi tel\u00e9fono",
+    "Cancel this booking? It moves back to the inbox as a new request and the customer is told.":
+      "\u00bfCancelar esta reserva? Vuelve a la bandeja como solicitud nueva y se le avisa al cliente.",
+    "Save and notify customer": "Guardar y avisar al cliente",
     /* card + inbox */
     "No Stripe link saved yet, so the Pay button will tell the customer card payments aren\u2019t on.":
       "A\u00fan no hay enlace de Stripe, as\u00ed que el bot\u00f3n de pago le dir\u00e1 al cliente que no se aceptan tarjetas.",
@@ -445,7 +465,15 @@
     "{n} of {max}": "{n} de {max}",
     "Show {n} more ({left} remaining)": "Mostrar {n} m\u00e1s (quedan {left})",
     "{n} job booked": "{n} trabajo agendado",
-    "{n} jobs booked": "{n} trabajos agendados"
+    "{n} jobs booked": "{n} trabajos agendados",
+    "Let {name} know it's confirmed": "Av\u00edsale a {name} que est\u00e1 confirmado",
+    "Let {name} know about the new time": "Av\u00edsale a {name} del nuevo horario",
+    "Ask {name} about the new time": "Preg\u00fantale a {name} por el nuevo horario",
+    "Let {name} know it's cancelled": "Av\u00edsale a {name} que se cancel\u00f3",
+    "Text {name}": "Enviar mensaje a {name}",
+    "Emailing {email}\u2026": "Enviando correo a {email}\u2026",
+    "\u2713 Emailed to {email} automatically.": "\u2713 Se envi\u00f3 el correo a {email} autom\u00e1ticamente.",
+    "\u2713 Texted to {phone} automatically.": "\u2713 Se envi\u00f3 el mensaje a {phone} autom\u00e1ticamente."
   };
 
   /** Exact-match lookup for a whole string (alerts, labels, textContent). */

@@ -1,9 +1,12 @@
 /**
  * /api/payments — payment links, stored in Cosmos partitioned by job.
  *
+ *   GET  /api/payments               every link, in the dashboard's record shape
  *   GET  /api/payments?job=MCC-...   the links for one job
  *   POST /api/payments               create a link for a job
- *   PUT  /api/payments/{token}       mark paid, unpaid or replaced
+ *   PUT  /api/payments/{token}       save the dashboard's copy of a link
+ *                                    ({ jobId, record }), or just change its
+ *                                    status ({ jobId, status })
  *
  * The link itself is generated exactly as the browser does it, so an owner who
  * is offline and one who is online produce the same URL shape.
@@ -23,6 +26,18 @@ function token() {
   return out;
 }
 
+/** Cosmos payment document -> the dashboard's payment record. */
+function toRecord(doc) {
+  if (doc.record) return { ...doc.record, token: doc.id, requestId: doc.jobId };
+  return {
+    token: doc.id, requestId: doc.jobId, jobNumber: doc.jobId,
+    amount: doc.amountCents, description: doc.description,
+    createdAt: doc.createdAt, expiresAt: doc.expiresAt,
+    status: doc.status, url: doc.url, paidAt: doc.paidAt || null,
+    stripeRef: doc.stripeRef || null, verifiedAt: doc.verifiedAt || null
+  };
+}
+
 const b64url = (s) =>
   Buffer.from(s, "utf8").toString("base64")
     .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -38,7 +53,10 @@ app.http("payments", {
     try {
       if (request.method === "GET") {
         const jobId = request.query.get("job");
-        if (!jobId) return bad("Pass ?job=<job number>.");
+        if (!jobId) {
+          const all = await cosmos.allPayments();
+          return ok({ payments: all.map(toRecord), at: new Date().toISOString() });
+        }
         return ok({ payments: await cosmos.paymentsForJob(jobId) });
       }
 
@@ -93,6 +111,31 @@ app.http("payments", {
       const body = await readJson(request);
       const jobId = body && body.jobId;
       if (!jobId) return bad("The jobId is required (it is the partition key).");
+
+      // A full record from a dashboard device: store it as-is, creating the link
+      // if this is the first time the cloud has seen it.
+      if (body.record && typeof body.record === "object") {
+        const r = body.record;
+        const prior = await cosmos.readOne("payments", id, jobId);
+        const doc = {
+          ...(prior || {}),
+          id, jobId,
+          amountCents: Number(r.amount) || (prior && prior.amountCents) || 0,
+          description: r.description || null,
+          status: r.status || "sent",
+          url: r.url || null,
+          createdAt: r.createdAt || (prior && prior.createdAt) || new Date().toISOString(),
+          expiresAt: r.expiresAt || null,
+          paidAt: r.paidAt || null,
+          amountPaidCents: r.amountPaid ? Math.round(Number(r.amountPaid)) : null,
+          stripeRef: r.stripeRef || null,
+          verifiedAt: r.verifiedAt || null,
+          record: { ...r, token: id, requestId: jobId },
+          updatedAt: new Date().toISOString()
+        };
+        await cosmos.upsertPayment(doc);
+        return ok({ saved: true, token: id, updatedAt: doc.updatedAt });
+      }
 
       const existing = await cosmos.readOne("payments", id, jobId);
       if (!existing) return json(404, { error: "No such payment link." });
