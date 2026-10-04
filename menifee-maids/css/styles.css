@@ -68,6 +68,9 @@ body {
   overflow-x: hidden;
 }
 img, svg { max-width: 100%; display: block; }
+/* Keep the real shape when max-width shrinks an image that has width/height
+   attributes; otherwise the height attribute wins and the image is squashed. */
+img { height: auto; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 
