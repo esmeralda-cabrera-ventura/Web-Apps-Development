@@ -418,6 +418,17 @@ a { color: var(--blue); text-underline-offset: 3px; }
 .input:focus { border-color: var(--aqua); box-shadow: 0 0 0 4px var(--tint-aqua); outline: none; }
 .input[aria-invalid="true"] { border-color: var(--danger); background: var(--tint-danger); }
 textarea.input { min-height: 100px; resize: vertical; }
+/* Fields set their own text color. With `color: inherit` alone they picked up
+   the pale text of dark sections (the contact form) and became unreadable. */
+.input, select.input, textarea.input { color: var(--ink); }
+.input::placeholder { color: var(--ink-soft); opacity: 1; }
+select.input option { color: var(--ink); background: var(--surface); }
+/* An unpicked "Choose a city" reads as a prompt, but still clearly legible. */
+select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
+/* A solid white card inside a dark section goes back to normal dark text,
+   otherwise its heading turns white-on-white. Glass cards keep light text. */
+.section--deep .card:not(.card--glass) { color: var(--ink); }
+.section--deep .card:not(.card--glass) h3 { color: var(--navy); }
 .field-error { color: var(--danger); font-size: .86rem; font-weight: 600; margin-top: .35rem; display: none; }
 .field-error.is-shown { display: block; }
 .field-row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); }
