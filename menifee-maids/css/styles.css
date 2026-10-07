@@ -885,6 +885,10 @@ select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
 .nsheet__sec[hidden] { display: none; }
 .nsheet__thumbs { display: flex; gap: .4rem; overflow-x: auto; padding-bottom: .2rem; }
 .nsheet__thumbs img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); flex: none; }
+.nsheet__qr { display: grid; gap: .5rem; justify-items: center; text-align: center; }
+.nsheet__qr[hidden] { display: none; }
+.nsheet__qrcode { width: min(240px, 100%); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .4rem; }
+.nsheet__qrcode svg { display: block; width: 100%; height: auto; }
 .nsheet__head { margin: 0; font-weight: 700; color: var(--navy); overflow-wrap: anywhere; }
 .nsheet__panel .field-label { margin: .2rem 0 0; }
 .btn--warn { color: #A3341F; border-color: #E8B4A8; }

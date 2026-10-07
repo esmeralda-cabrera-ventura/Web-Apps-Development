@@ -436,6 +436,72 @@
      itself stays in English. */
   function langOf(r) { return r && r.lang === "es" ? "es" : "en"; }
 
+  /* Texts can only be sent from a phone. On a phone (or iPad) the Text button
+     opens Messages with the number and message filled in. On a computer there
+     is no reliable way to do that (the share menu can't choose a contact, and
+     Phone Link doesn't accept a ready-made message), so the computer shows a
+     QR code instead: scanning it with the phone's camera opens the phone's
+     Messages app with the customer's number and the message ready to send. */
+  var IS_PHONE = (function () {
+    var ua = navigator.userAgent || "";
+    if (navigator.userAgentData && navigator.userAgentData.mobile) return true;
+    if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
+    return /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;   // iPad
+  })();
+
+  function renderQr(el, text) {
+    if (!window.qrcode) { el.innerHTML = ""; return false; }
+    try {
+      window.qrcode.stringToBytes = window.qrcode.stringToBytesFuncs["UTF-8"];
+      var qr = window.qrcode(0, "L");
+      qr.addData(text, "Byte");
+      qr.make();
+      el.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 3, scalable: true, alt: "QR code" });
+      return true;
+    } catch (e) {
+      el.innerHTML = "";   // message too long for a code
+      return false;
+    }
+  }
+
+  /**
+   * Wire the text-message area of the notify panel for this device.
+   * @returns {{update:function}} call update() after changing the text in code
+   */
+  function textOut(el, phone, textEl, smsBtn, name, onUsed) {
+    var box = el.querySelector("[data-ns-qr]");
+    var code = el.querySelector("[data-ns-qrcode]");
+    var hint = el.querySelector("[data-ns-qrhint]");
+    var copy = el.querySelector("[data-ns-copy]");
+    var timer = null;
+
+    function update() {
+      smsBtn.setAttribute("href", smsLink(phone, textEl.value));
+      if (IS_PHONE) return;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        var ok = renderQr(code, "SMSTO:" + phone + ":" + textEl.value);
+        hint.textContent = ok
+          ? DT("Texts go out from your phone. Scan this code with your phone's camera: Messages opens with {name}'s number and this message, ready to send.", { name: name })
+          : D("This message is too long for a code. Copy it and paste it into a text on your phone.");
+      }, 250);
+    }
+
+    smsBtn.hidden = !IS_PHONE;
+    box.hidden = IS_PHONE;
+    copy.textContent = D("Copy message");
+    copy.onclick = function () {
+      var done = function () { copy.textContent = D("Copied"); setTimeout(function () { copy.textContent = D("Copy message"); }, 1800); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textEl.value).then(done, function () { textEl.select(); document.execCommand("copy"); done(); });
+      } else { textEl.select(); document.execCommand("copy"); done(); }
+      if (onUsed) onUsed();
+    };
+    textEl.oninput = update;
+    update();
+    return { update: update };
+  }
+
   function smsLink(phone, body) {
     var num = String(phone || "").replace(/[^0-9+]/g, "");
     return "sms:" + num + "?&body=" + encodeURIComponent(body);
@@ -578,9 +644,14 @@
           '<p class="nsheet__head" data-ns-texthead></p>' +
           '<textarea class="input" id="ns-text" rows="4" data-ns-text aria-label="Text message"></textarea>' +
           '<p class="hint" data-ns-consent hidden></p>' +
-          '<button type="button" class="btn btn--primary btn--block" data-ns-share hidden></button>' +
           '<button type="button" class="btn btn--primary btn--block" data-ns-send-sms hidden></button>' +
+          '<div class="nsheet__qr" data-ns-qr hidden>' +
+            '<div class="nsheet__qrcode" data-ns-qrcode></div>' +
+            '<p class="hint" data-ns-qrhint></p>' +
+            '<button type="button" class="btn btn--ghost btn--block" data-ns-copy></button>' +
+          "</div>" +
           '<a class="btn btn--primary btn--block" data-ns-sms href="#"></a>' +
+          '<button type="button" class="btn btn--ghost btn--block" data-ns-share hidden></button>' +
           '<p class="nsheet__status" data-ns-sms-status hidden></p>' +
         "</section>" +
         '<button type="button" class="btn btn--ghost btn--block" data-ns-done></button>' +
@@ -651,9 +722,6 @@
     $("[data-ns-textsec]").hidden = !hasPhone;
     $("[data-ns-texthead]").textContent = DT("Text to {phone}", { phone: r.phone || "" });
     text.value = textFor(kind, r, slot);
-    function syncSms() { smsBtn.setAttribute("href", smsLink(phone, text.value)); }
-    text.oninput = syncSms;
-    syncSms();
     smsBtn.textContent = DT("Text {name} from my phone", { name: name });
     smsBtn.className = "btn btn--primary btn--block";
     smsBtn.onclick = markSent;
@@ -663,6 +731,7 @@
     consent.hidden = r.smsConsent !== false;
     consent.textContent = D("This customer didn't opt in to text messages when booking. Email may be the better choice.");
     if (r.smsConsent === false) smsBtn.className = "btn btn--ghost btn--block";
+    textOut(el, phone, text, smsBtn, name, markSent);
 
     function post(payload) {
       return fetch("/api/notify", {
@@ -835,9 +904,6 @@
     var baseText = (es ? "Hola " + name + ", le habla " + BIZ + ". " : "Hi " + name + ", this is " + BIZ + ". ") +
       note + (es ? " Referencia " : " Reference ") + r.id + ".";
     text.value = baseText;
-    function syncSms() { smsBtn.setAttribute("href", smsLink(phone, text.value)); }
-    text.oninput = syncSms;
-    syncSms();
     smsBtn.textContent = DT("Text {name} from my phone", { name: name });
     smsBtn.className = "btn btn--primary btn--block";
     smsBtn.onclick = markSent;
@@ -846,14 +912,19 @@
     consent.hidden = r.smsConsent !== false;
     consent.textContent = D("This customer didn't opt in to text messages when booking. Email may be the better choice.");
 
-    // On phones, the share sheet can attach the photos to a text.
+    var out = textOut(el, phone, text, smsBtn, name, markSent);
+
+    // The text carries the private photo link, so the customer gets the photos
+    // either way. On a phone, the share menu is offered as an extra for
+    // attaching the photo files themselves; it can't choose a contact, so the
+    // person picks the customer in the app that opens. Not shown on computers,
+    // where the share menu can't reach a phone's messages.
     var canShareFiles = false;
-    try { canShareFiles = n > 0 && !!navigator.canShare && navigator.canShare({ files: files }); } catch (e) { canShareFiles = false; }
+    try { canShareFiles = IS_PHONE && n > 0 && !!navigator.canShare && navigator.canShare({ files: files }); } catch (e) { canShareFiles = false; }
     share.hidden = !(canShareFiles && hasPhone);
     if (!share.hidden) {
-      share.textContent = D("Send photos & message from my phone");
-      smsBtn.className = "btn btn--ghost btn--block";
-      smsBtn.textContent = DT("Text {name} without the photos", { name: name });
+      share.textContent = D("Share the photo files to another app (you pick the contact)");
+      share.className = "btn btn--ghost btn--block";
       share.onclick = function () {
         navigator.share({ files: files, text: text.value }).then(markSent, function () {});
       };
@@ -875,7 +946,7 @@
         if (!p || !p._ok) return;
         if (n && p.photoLink && text.value === baseText) {
           text.value = baseText + (es ? " Vea las fotos: " : " See your photos: ") + p.photoLink;
-          syncSms();
+          out.update();
         }
         if (p.smsAutomatic && r.smsConsent === true && hasPhone) {
           smsSend.hidden = false;

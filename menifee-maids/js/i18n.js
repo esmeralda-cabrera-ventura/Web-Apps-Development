@@ -265,6 +265,12 @@
     "Cancel this job? It moves to past jobs in the job database, where you can rebook it later. Next you can choose whether to message the customer.":
       "\u00bfCancelar este trabajo? Pasa a trabajos anteriores en la base de datos, donde puedes reagendarlo despu\u00e9s. Luego puedes decidir si le escribes al cliente.",
     "Cancel job": "Cancelar trabajo",
+    "This message is too long for a code. Copy it and paste it into a text on your phone.":
+      "Este mensaje es demasiado largo para un c\u00f3digo. C\u00f3pialo y p\u00e9galo en un mensaje desde tu tel\u00e9fono.",
+    "Copy message": "Copiar mensaje",
+    "Copied": "Copiado",
+    "Share the photo files to another app (you pick the contact)":
+      "Compartir las fotos con otra app (t\u00fa eliges el contacto)",
     "1 photo of the finished work": "1 foto del trabajo terminado",
     "Send from my phone's email app instead (attach the photos yourself)":
       "Enviar desde la app de correo de mi tel\u00e9fono (adjunta t\u00fa las fotos)",
@@ -502,6 +508,8 @@
     "Ask {name} about the new time": "Preg\u00fantale a {name} por el nuevo horario",
     "Let {name} know it's cancelled": "Av\u00edsale a {name} que se cancel\u00f3",
     "Text {name} from my phone": "Enviar mensaje a {name} desde mi tel\u00e9fono",
+    "Texts go out from your phone. Scan this code with your phone's camera: Messages opens with {name}'s number and this message, ready to send.":
+      "Los mensajes se env\u00edan desde tu tel\u00e9fono. Escanea este c\u00f3digo con la c\u00e1mara: se abre Mensajes con el n\u00famero de {name} y este mensaje, listo para enviar.",
     "Send {name} the finished-job message": "Env\u00edale a {name} el mensaje del trabajo terminado",
     "{n} photos of the finished work": "{n} fotos del trabajo terminado",
     "Send email with {n} photos": "Enviar correo con {n} fotos",

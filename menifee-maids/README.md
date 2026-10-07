@@ -259,8 +259,11 @@ The booked jobs calendar is populated automatically from accepted requests. Days
 **Complete & send to customer** opens a review panel; nothing is sent until a Send button is pressed:
 
 - **Send email with N photos** sends the email from the business's own domain through `/api/notify`, with the photos attached (resized to 1280px on the device first).
-- **Send photos & message from my phone** appears on phones that support it. It opens the share sheet with the photos attached, so they can go out by text message.
-- **Text [name] from my phone** opens the messaging app with the text filled in. Because web pages can't attach files to a text, the message includes a private link to `photos.html`, where the customer can view and save the photos. The link contains a key derived from the job number with a server secret (`shared/photolink.js`), so it can't be guessed or altered to show another job.
+- **Text [name] from my phone** (on a phone) opens the messaging app with the customer's number and the message filled in. Web pages can't attach files to a text, so the message includes a private link to `photos.html`, where the customer can view and save the photos. The link contains a key derived from the job number with a server secret (`shared/photolink.js`), so it can't be guessed or altered to show another job.
+- **On a computer**, texts can't be sent directly: the browser's share menu can't choose a contact, and Phone Link doesn't accept a ready-made message. The panel shows a QR code instead. Scanning it with the phone's camera opens the phone's Messages app with the customer's number and the message ready to send. **Copy message** is offered as a fallback. The QR code is drawn locally with the MIT-licensed `js/vendor/qrcode.js`.
+- **Share the photo files to another app** appears on phones as an optional extra, for attaching the photo files themselves. The share menu can't choose a contact, so the contact is picked in the app that opens.
+
+The same QR hand-off is used on computers for confirmation, change, proposal and cancellation texts.
 
 ### Job records
 
