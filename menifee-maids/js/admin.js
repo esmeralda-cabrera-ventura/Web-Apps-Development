@@ -563,6 +563,7 @@
       '<div class="nsheet__panel">' +
         '<h3 id="ns-title" data-ns-title></h3>' +
         '<p class="hint" data-ns-intro></p>' +
+        '<div class="nsheet__photos" data-ns-photos hidden></div>' +
         '<section class="nsheet__sec" data-ns-emailsec>' +
           '<p class="nsheet__head" data-ns-emailhead></p>' +
           '<label class="field-label" for="ns-subj" data-ns-subjlabel></label>' +
@@ -577,6 +578,7 @@
           '<p class="nsheet__head" data-ns-texthead></p>' +
           '<textarea class="input" id="ns-text" rows="4" data-ns-text aria-label="Text message"></textarea>' +
           '<p class="hint" data-ns-consent hidden></p>' +
+          '<button type="button" class="btn btn--primary btn--block" data-ns-share hidden></button>' +
           '<button type="button" class="btn btn--primary btn--block" data-ns-send-sms hidden></button>' +
           '<a class="btn btn--primary btn--block" data-ns-sms href="#"></a>' +
           '<p class="nsheet__status" data-ns-sms-status hidden></p>' +
@@ -614,6 +616,8 @@
       declined: DT("Let {name} know you can't take this request", { name: name })
     }[kind];
     $("[data-ns-intro]").textContent = D("Nothing has been sent yet. Check the message, edit it if you like, then send it.");
+    $("[data-ns-photos]").hidden = true;
+    $("[data-ns-share]").hidden = true;
 
     var done = $("[data-ns-done]");
     function markSent() { done.textContent = D("Done"); }
@@ -743,6 +747,201 @@
     try { titleEl.focus({ preventScroll: true }); } catch (e) { titleEl.focus(); }
   }
 
+  /* --- Sending the finished-job message ----------------------------------
+     Web pages can't attach files to an email or text opened in the phone's
+     own apps, so the photos travel two other ways:
+       - Email: the website sends it, with the photos attached.
+       - Text: on a phone, the share sheet attaches the photos to a message;
+         otherwise the text carries a private link to a page with the photos.
+     As with every other customer message, nothing is sent until the owner or
+     helper reviews it and presses a Send button. */
+  function reencode(dataUrl, maxPx, quality) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+        var c = document.createElement("canvas");
+        c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = function () { resolve(dataUrl); };
+      img.src = dataUrl;
+    });
+  }
+
+  function openCompletionSheet(r, note, shots) {
+    var el = sheetEl();
+    var $ = function (sel) { return el.querySelector(sel); };
+    var es = langOf(r) === "es";
+    var name = firstName(r.name);
+    var phone = String(r.phone || "").replace(/[^0-9+]/g, "");
+    var hasPhone = phone.length >= 10;
+    var live = !ACCESS.isOffline();
+    var n = (shots || []).length;
+    var job = { id: r.id, name: r.name, email: r.email, phone: r.phone, address: r.address,
+                lang: langOf(r), smsConsent: r.smsConsent, estimate: r.estimate };
+    var slot = r.confirmedSlot || {};
+    var files = (shots || []).map(function (p, i) { return dataUrlToFile(p.dataUrl, r.id + "-" + (i + 1) + ".jpg"); });
+
+    $("[data-ns-title]").textContent = DT("Send {name} the finished-job message", { name: name });
+    $("[data-ns-intro]").textContent = D("Nothing has been sent yet. Check the message, edit it if you like, then send it.");
+    var done = $("[data-ns-done]");
+    function markSent() { done.textContent = D("Done"); }
+    done.textContent = D("Close without sending");
+
+    // Photo strip
+    var strip = $("[data-ns-photos]");
+    strip.hidden = !n;
+    strip.innerHTML = n
+      ? '<div class="nsheet__thumbs">' + shots.map(function (p) {
+          return '<img src="' + p.dataUrl + '" alt="">';
+        }).join("") + "</div>" +
+        '<p class="hint" style="margin:.35rem 0 0">' + (n === 1 ? D("1 photo of the finished work") : DT("{n} photos of the finished work", { n: n })) + "</p>"
+      : "";
+
+    /* Email */
+    var subj = $("[data-ns-subj]"), body = $("[data-ns-body]");
+    var sendEmail = $("[data-ns-send-email]"), emailStatus = $("[data-ns-email-status]"), mailBtn = $("[data-ns-mail]");
+    $("[data-ns-emailsec]").hidden = !r.email;
+    $("[data-ns-emailhead]").textContent = DT("Email to {email}", { email: r.email || "" });
+    $("[data-ns-subjlabel]").textContent = D("Subject");
+    $("[data-ns-bodylabel]").textContent = D("Message");
+    subj.disabled = body.disabled = false;
+    subj.value = (es ? "Su limpieza est\u00e1 terminada \u2014 " : "Your cleaning is complete \u2014 ") + r.id;
+    body.value = (es ? "Hola " : "Hi ") + name + ",\n\n" + note + "\n\n" +
+      (n ? (es ? "Le adjuntamos fotos del trabajo terminado." : "Photos of the finished work are attached.") + "\n\n" : "") +
+      (es ? "N\u00famero de trabajo: " : "Job number: ") + r.id + "\n\n" +
+      (es ? "Gracias,\n" : "Thank you,\n") + BIZ + "\n" + BIZ_PHONE;
+    function status(line, cls, text) { line.hidden = false; line.className = "nsheet__status" + (cls ? " nsheet__status--" + cls : ""); line.textContent = text; }
+    function syncMail() { mailBtn.setAttribute("href", mailLink(r.email || "", subj.value, body.value)); }
+    subj.oninput = body.oninput = syncMail;
+    syncMail();
+    emailStatus.hidden = true;
+    mailBtn.hidden = live;
+    mailBtn.textContent = n ? D("Send from my phone's email app instead (attach the photos yourself)")
+                            : D("Send from my phone's email app instead");
+    mailBtn.onclick = markSent;
+    sendEmail.hidden = !live;
+    sendEmail.disabled = !r.email;
+    sendEmail.textContent = n ? (n === 1 ? D("Send email with 1 photo") : DT("Send email with {n} photos", { n: n })) : D("Send email");
+    var sendLabel = sendEmail.textContent;
+
+    /* Text */
+    var text = $("[data-ns-text]"), smsBtn = $("[data-ns-sms]"), smsSend = $("[data-ns-send-sms]"),
+        smsStatus = $("[data-ns-sms-status]"), share = $("[data-ns-share]");
+    $("[data-ns-textsec]").hidden = !hasPhone;
+    $("[data-ns-texthead]").textContent = DT("Text to {phone}", { phone: r.phone || "" });
+    var baseText = (es ? "Hola " + name + ", le habla " + BIZ + ". " : "Hi " + name + ", this is " + BIZ + ". ") +
+      note + (es ? " Referencia " : " Reference ") + r.id + ".";
+    text.value = baseText;
+    function syncSms() { smsBtn.setAttribute("href", smsLink(phone, text.value)); }
+    text.oninput = syncSms;
+    syncSms();
+    smsBtn.textContent = DT("Text {name} from my phone", { name: name });
+    smsBtn.className = "btn btn--primary btn--block";
+    smsBtn.onclick = markSent;
+    smsSend.hidden = true; smsStatus.hidden = true;
+    var consent = $("[data-ns-consent]");
+    consent.hidden = r.smsConsent !== false;
+    consent.textContent = D("This customer didn't opt in to text messages when booking. Email may be the better choice.");
+
+    // On phones, the share sheet can attach the photos to a text.
+    var canShareFiles = false;
+    try { canShareFiles = n > 0 && !!navigator.canShare && navigator.canShare({ files: files }); } catch (e) { canShareFiles = false; }
+    share.hidden = !(canShareFiles && hasPhone);
+    if (!share.hidden) {
+      share.textContent = D("Send photos & message from my phone");
+      smsBtn.className = "btn btn--ghost btn--block";
+      smsBtn.textContent = DT("Text {name} without the photos", { name: name });
+      share.onclick = function () {
+        navigator.share({ files: files, text: text.value }).then(markSent, function () {});
+      };
+    }
+
+    function post(payload) {
+      return fetch("/api/notify", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ kind: "completed", slot: slot, job: job }, payload))
+      }).then(function (res) {
+        return res.json().then(function (j) { j._ok = res.ok; return j; }, function () { return { _ok: false }; });
+      });
+    }
+
+    if (live) {
+      // Fetch the private photo link (for texts) and whether business texting is on.
+      post({ preview: true }).then(function (p) {
+        if (!p || !p._ok) return;
+        if (n && p.photoLink && text.value === baseText) {
+          text.value = baseText + (es ? " Vea las fotos: " : " See your photos: ") + p.photoLink;
+          syncSms();
+        }
+        if (p.smsAutomatic && r.smsConsent === true && hasPhone) {
+          smsSend.hidden = false;
+          smsSend.textContent = D("Send text from the business number");
+        }
+      }, function () {});
+    }
+
+    sendEmail.onclick = function () {
+      if (!subj.value.trim() || !body.value.trim()) { window.alert(D("The subject and message can't be empty.")); return; }
+      sendEmail.disabled = true;
+      sendEmail.textContent = D("Sending\u2026");
+      Promise.all((shots || []).map(function (p) { return reencode(p.dataUrl, 1280, 0.72); }))
+        .then(function (urls) {
+          var attachments = urls.map(function (u, i) {
+            return { name: r.id + "-" + (i + 1) + ".jpg", contentType: "image/jpeg", contentInBase64: u.split(",")[1] };
+          });
+          return post({ channel: "email", subject: subj.value, text: body.value, attachments: attachments });
+        })
+        .then(function (res) {
+          if (res && res._ok && res.sent) {
+            status(emailStatus, "ok", n ? DT("\u2713 Email sent to {email} with the photos attached.", { email: r.email })
+                                        : DT("\u2713 Email sent to {email}.", { email: r.email }));
+            sendEmail.textContent = D("Sent");
+            markSent();
+          } else {
+            status(emailStatus, "warn", (res && res.error) ? res.error
+              : D("The email didn't go out. Try again, or send it from your phone's email app."));
+            sendEmail.disabled = false; sendEmail.textContent = D("Try again");
+            mailBtn.hidden = false;
+          }
+        }, function () {
+          status(emailStatus, "warn", D("You seem to be offline. You can still send it from your phone's email app."));
+          sendEmail.disabled = false; sendEmail.textContent = sendLabel;
+          mailBtn.hidden = false;
+        });
+    };
+
+    smsSend.onclick = function () {
+      if (!text.value.trim()) { window.alert(D("The text can't be empty.")); return; }
+      smsSend.disabled = true;
+      smsSend.textContent = D("Sending\u2026");
+      post({ channel: "sms", text: text.value }).then(function (res) {
+        if (res && res._ok && res.sent) {
+          status(smsStatus, "ok", DT("\u2713 Text sent to {phone}.", { phone: r.phone }));
+          smsSend.textContent = D("Sent"); markSent();
+        } else {
+          status(smsStatus, "warn", D("The text didn't go out. Try again, or text from your phone."));
+          smsSend.disabled = false; smsSend.textContent = D("Try again");
+        }
+      }, function () {
+        status(smsStatus, "warn", D("You seem to be offline. Text from your phone instead."));
+        smsSend.disabled = false; smsSend.textContent = D("Try again");
+      });
+    };
+    smsSend.disabled = false;
+
+    el.hidden = false;
+    document.body.classList.add("has-sheet");
+    var panelEl = el.querySelector(".nsheet__panel");
+    panelEl.scrollTop = 0;
+    var titleEl = $("[data-ns-title]");
+    titleEl.setAttribute("tabindex", "-1");
+    try { titleEl.focus({ preventScroll: true }); } catch (e) { titleEl.focus(); }
+  }
+
   /** Inline editor for moving a job or proposing a different slot. */
   function rescheduleEditor(r) {
     var cur = r.confirmedSlot || r.slot1 || {};
@@ -864,8 +1063,7 @@
       "</textarea></div>" +
 
       '<div class="req__actions">' +
-        '<button class="btn btn--primary btn--sm" data-act="done-share" data-id="' + r.id + '">Complete &amp; send photos</button>' +
-        '<button class="btn btn--ghost btn--sm" data-act="done-email" data-id="' + r.id + '">Complete &amp; email</button>' +
+        '<button class="btn btn--primary btn--sm" data-act="done-share" data-id="' + r.id + '">Complete &amp; send to customer</button>' +
         '<button class="btn btn--ghost btn--sm" data-act="done-save" data-id="' + r.id + '">Complete without sending</button>' +
         '<button class="btn btn--ghost btn--sm" data-act="done-cancel" data-id="' + r.id + '">Cancel</button>' +
       "</div></div>";
@@ -1462,13 +1660,10 @@
       var note = noteEl ? noteEl.value.trim() : "";
       var shotsForShare = (draftPhotos[id] || []).slice();
 
-      if (act === "done-share") {
-        finishJob(req, note, "none");
-        openSendDialog(req, note, shotsForShare);
-        return;
+      finishJob(req, note, "none");
+      if (act === "done-share" || act === "done-email") {
+        openCompletionSheet(req, note, shotsForShare);
       }
-
-      finishJob(req, note, act === "done-email" ? "email" : "none");
       return;
     }
 

@@ -74,7 +74,7 @@ function recipientList(value) {
  *
  * @returns {{sent:boolean, id?:string, error?:string}}
  */
-async function sendEmail({ to, subject, text, html, replyTo, bcc }) {
+async function sendEmail({ to, subject, text, html, replyTo, bcc, attachments }) {
   const client = email();
   const sender = process.env.ACS_SENDER_ADDRESS;
   const recipients = recipientList(to);
@@ -96,6 +96,8 @@ async function sendEmail({ to, subject, text, html, replyTo, bcc }) {
     if (blind.length) message.recipients.bcc = blind;
 
     if (replyTo) message.replyTo = [{ address: replyTo }];
+    // Files sent with the message: [{ name, contentType, contentInBase64 }].
+    if (Array.isArray(attachments) && attachments.length) message.attachments = attachments;
     const poller = await client.beginSend(message);
     const result = await poller.pollUntilDone();
     return { sent: true, id: result.id };

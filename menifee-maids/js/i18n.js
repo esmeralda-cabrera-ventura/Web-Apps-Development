@@ -265,6 +265,11 @@
     "Cancel this job? It moves to past jobs in the job database, where you can rebook it later. Next you can choose whether to message the customer.":
       "\u00bfCancelar este trabajo? Pasa a trabajos anteriores en la base de datos, donde puedes reagendarlo despu\u00e9s. Luego puedes decidir si le escribes al cliente.",
     "Cancel job": "Cancelar trabajo",
+    "1 photo of the finished work": "1 foto del trabajo terminado",
+    "Send from my phone's email app instead (attach the photos yourself)":
+      "Enviar desde la app de correo de mi tel\u00e9fono (adjunta t\u00fa las fotos)",
+    "Send email with 1 photo": "Enviar correo con 1 foto",
+    "Send photos & message from my phone": "Enviar fotos y mensaje desde mi tel\u00e9fono",
     "Nothing has been sent yet. Check the message, edit it if you like, then send it.":
       "Todav\u00eda no se ha enviado nada. Revisa el mensaje, ed\u00edtalo si quieres y luego env\u00edalo.",
     "Close without sending": "Cerrar sin enviar",
@@ -376,6 +381,8 @@
       "A\u00fan no hay fotos. Toca el bot\u00f3n de arriba para tomarlas o elegirlas de tu tel\u00e9fono.",
     "Message to the customer": "Mensaje para el cliente",
     "Complete &amp; send photos": "Terminar y enviar fotos",
+    "Complete &amp; send to customer": "Terminar y enviar al cliente",
+    "Complete & send to customer": "Terminar y enviar al cliente",
     "Complete &amp; email": "Terminar y enviar correo",
     "Complete without sending": "Terminar sin enviar",
     "Remove this photo": "Quitar esta foto",
@@ -495,6 +502,11 @@
     "Ask {name} about the new time": "Preg\u00fantale a {name} por el nuevo horario",
     "Let {name} know it's cancelled": "Av\u00edsale a {name} que se cancel\u00f3",
     "Text {name} from my phone": "Enviar mensaje a {name} desde mi tel\u00e9fono",
+    "Send {name} the finished-job message": "Env\u00edale a {name} el mensaje del trabajo terminado",
+    "{n} photos of the finished work": "{n} fotos del trabajo terminado",
+    "Send email with {n} photos": "Enviar correo con {n} fotos",
+    "Text {name} without the photos": "Enviar mensaje a {name} sin las fotos",
+    "\u2713 Email sent to {email} with the photos attached.": "\u2713 Correo enviado a {email} con las fotos adjuntas.",
     "Let {name} know you can't take this request": "Av\u00edsale a {name} que no puedes tomar esta solicitud",
     "Email to {email}": "Correo para {email}",
     "Text to {phone}": "Mensaje para {phone}",

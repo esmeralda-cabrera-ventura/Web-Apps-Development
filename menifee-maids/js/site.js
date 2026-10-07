@@ -7,6 +7,8 @@
   var BUSINESS_EMAIL = "inquiry.menifeemaids@outlook.com";
 
   /* --- Mobile navigation ------------------------------------------------- */
+  // The menu is always visible now (no menu button on any page). This stays
+  // only so an older cached page that still has the button keeps working.
   var toggle = document.querySelector("[data-nav-toggle]");
   var nav = document.querySelector("[data-nav]");
   if (toggle && nav) {

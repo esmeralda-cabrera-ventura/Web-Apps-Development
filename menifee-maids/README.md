@@ -80,6 +80,7 @@ The architecture and design decisions below follow from these requirements.
 | `helper.html` | Helper dashboard (English, no Settings) |
 | `admin-es.html` | Helper dashboard (Spanish, no Settings) |
 | `pay.html` | Customer invoice page opened from a payment link; starts Stripe checkout |
+| `photos.html` | Customer page showing a job's completion photos, opened from a private link |
 | `login.html` / `helper-login.html` / `acceso.html` | Redirect to Microsoft sign-in on the deployed site |
 | `404.html` / `no-access.html` / `offline.html` | Error and offline pages |
 | `sw.js` | Service worker providing an offline shell for the dashboard |
@@ -253,9 +254,13 @@ The booked jobs calendar is populated automatically from accepted requests. Days
 1. **Upload photos** opens the device camera or photo library. Up to seven photos can be attached per job.
 2. Photos are resized to 1400px and re-encoded as JPEG on the device before upload. This reduces file size and removes EXIF metadata, including the GPS coordinates phones embed in each image, so a customer's location is never stored in a photo.
 3. The dashboard uploads each photo directly to Blob Storage using a short-lived signed URL from `/api/photos`. The job record stores only the file path, and other devices receive a signed link to view it.
-4. After writing a message to the customer, the user selects **Complete & send photos**, **Complete & email**, or **Complete without sending**.
+4. After writing a message to the customer, the user selects **Complete & send to customer** or **Complete without sending**.
 
-Photos cannot be attached to an email automatically from a desktop browser, because browsers do not allow web pages to pass files to a mail client. On a phone, the native share sheet handles attachments, which makes the phone the preferred device for closing out a job.
+**Complete & send to customer** opens a review panel; nothing is sent until a Send button is pressed:
+
+- **Send email with N photos** sends the email from the business's own domain through `/api/notify`, with the photos attached (resized to 1280px on the device first).
+- **Send photos & message from my phone** appears on phones that support it. It opens the share sheet with the photos attached, so they can go out by text message.
+- **Text [name] from my phone** opens the messaging app with the text filled in. Because web pages can't attach files to a text, the message includes a private link to `photos.html`, where the customer can view and save the photos. The link contains a key derived from the job number with a server secret (`shared/photolink.js`), so it can't be guessed or altered to show another job.
 
 ### Job records
 
@@ -363,7 +368,7 @@ To set a star rating, repeat the full-star `<svg>` once per star. For a half sta
 
 ### 2. Service-area ZIP codes
 
-`js/store.js` maps each ZIP code to its city in `ZIPS`, and `CITIES` holds the list of fifteen cities served. Adding a city requires updates in four places: `js/store.js`, the `.cities` list and `areaServed` JSON-LD in `index.html`, the `areaServed` array and FAQ answer in `services.html`, and the "Serving…" line in the footer.
+`js/store.js` maps each ZIP code to its city in `ZIPS`, and `CITIES` holds the list of fifteen cities served. Adding a city requires updates in three places, in both languages: `js/store.js`, the `.cities` list and `areaServed` JSON-LD on the home page, and the `areaServed` array and FAQ answer on the services page.
 
 Note that **92587 is Canyon Lake, not Menifee.** This is a common local mix-up, since Sun City (92586) is part of Menifee.
 
@@ -400,7 +405,7 @@ To improve ranking in specific cities later, the right approach is a dedicated p
 
 ## Accessibility and browser support
 
-The site supports full keyboard navigation with visible focus indicators, labeled form fields, a skip link and responsive layouts down to small phones. It respects the reduced-motion preference by disabling the bubble animation and other transitions. It supports current versions of Chrome, Safari, Firefox and Edge.
+The site supports full keyboard navigation with visible focus indicators, labeled form fields, a skip link and responsive layouts down to small phones. On phones the full navigation menu stays visible at the top right instead of collapsing behind a menu button. It respects the reduced-motion preference by disabling the bubble animation and other transitions. It supports current versions of Chrome, Safari, Firefox and Edge.
 
 ---
 

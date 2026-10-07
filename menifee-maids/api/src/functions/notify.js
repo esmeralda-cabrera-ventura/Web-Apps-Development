@@ -21,10 +21,16 @@ const { app } = require("@azure/functions");
 const { ok, bad, json, readJson } = require("../shared/http");
 const { requireStaff } = require("../shared/auth");
 const { sendEmail, sendSms } = require("../shared/acs");
+const { linkFor } = require("../shared/photolink");
+
+const MAX_ATTACHMENTS = 7;
+const MAX_ATTACHMENT_BYTES = 3 * 1024 * 1024;      // each photo, decoded
+const MAX_TOTAL_BYTES = 8 * 1024 * 1024;           // all photos together
 
 const BIZ = "Menifee Maids";
 const BIZ_PHONE = "951-464-8147";
-const KINDS = new Set(["confirmed", "changed", "proposed", "cancelled", "declined"]);
+const KINDS = new Set(["confirmed", "changed", "proposed", "cancelled", "declined", "completed"]);
+const NEEDS_DATE = new Set(["confirmed", "changed", "proposed", "cancelled"]);
 
 const WINDOWS = {
   en: { morning: "Morning (8:00 – 11:00 AM)", midday: "Midday (11:00 AM – 2:00 PM)",
@@ -34,6 +40,7 @@ const WINDOWS = {
 };
 
 function when(slot, es) {
+  if (!slot || !slot.date) return "";
   const day = new Date(slot.date + "T12:00:00").toLocaleDateString(es ? "es-US" : "en-US", {
     weekday: "long", month: "long", day: "numeric"
   });
@@ -77,6 +84,11 @@ function message(kind, job, slot, note) {
           lines: ["We can't make the time you picked.",
                   `Could we do your cleaning on ${t} instead?`,
                   "Reply YES to confirm, or tell us another time that suits you."] },
+    completed: es
+      ? { subject: "Su limpieza está terminada",
+          lines: ["Terminamos su limpieza. ¡Gracias por elegirnos!"] }
+      : { subject: "Your cleaning is complete",
+          lines: ["Your cleaning is complete. Thank you for choosing us!"] },
     declined: es
       ? { subject: "Sobre su solicitud de limpieza",
           lines: ["Gracias por pensar en nosotros. Lamentablemente no podemos atender esta solicitud.",
@@ -110,7 +122,8 @@ function smsText(kind, job, slot) {
     cancelled: es ? `Tuvimos que cancelar su limpieza del ${t}. Llámenos para reagendar.`
                   : `We've had to cancel your cleaning on ${t}. Call us to rebook.`,
     declined: es ? "Lamentablemente no podemos atender su solicitud de limpieza. Llámenos si desea otra opción."
-                 : "Unfortunately we aren't able to take your cleaning request. Call us if you'd like other options."
+                 : "Unfortunately we aren't able to take your cleaning request. Call us if you'd like other options.",
+    completed: es ? "Terminamos su limpieza. ¡Gracias por elegirnos!" : "Your cleaning is complete. Thank you for choosing us!"
   }[kind];
   return `${hi} ${body} ${es ? "Ref." : "Ref"} ${job.id}. ${es ? "Responda STOP para no recibir mensajes." : "Reply STOP to opt out."}`;
 }
@@ -128,7 +141,10 @@ app.http("notify", {
     const job = (body && body.job) || {};
     const slot = (body && body.slot) || {};
     if (!KINDS.has(kind)) return bad("Unknown notification type.");
-    if (!job.id || !/^\d{4}-\d{2}-\d{2}$/.test(String(slot.date || ""))) return bad("A job and a date are required.");
+    if (!job.id) return bad("A job is required.");
+    if (NEEDS_DATE.has(kind) && !/^\d{4}-\d{2}-\d{2}$/.test(String(slot.date || ""))) {
+      return bad("A date is required for this message.");
+    }
 
     const replyTo = String(process.env.OWNER_EMAIL || "").split(/[,;]/)[0].trim() || undefined;
     const smsAutomatic = !!process.env.ACS_SMS_FROM;
@@ -137,7 +153,12 @@ app.http("notify", {
     // 1. Preview: the pre-written messages, nothing sent.
     if (body.preview) {
       const m = message(kind, job, slot, "");
-      return ok({ subject: m.subject, text: m.text, smsText: smsText(kind, job, slot), smsAutomatic });
+      return ok({
+        subject: m.subject, text: m.text, smsText: smsText(kind, job, slot), smsAutomatic,
+        // A private link to the job's photos, for texts (phones can't attach
+        // files to a text opened from a web page).
+        photoLink: kind === "completed" ? linkFor(job.id, job.lang) : null
+      });
     }
 
     // 2. Send the email exactly as the owner or helper approved it.
@@ -146,8 +167,30 @@ app.http("notify", {
       const fallback = message(kind, job, slot, "");
       const subject = String(body.subject || fallback.subject).slice(0, 200);
       const text = String(body.text || fallback.text).slice(0, 5000);
-      const sent = await sendEmail({ to: job.email, subject, text, replyTo });
-      context.log(`notify email ${kind} ${job.id}: ${sent.sent}`);
+
+      // Completion photos, attached to the email itself.
+      let attachments;
+      if (Array.isArray(body.attachments) && body.attachments.length) {
+        if (body.attachments.length > MAX_ATTACHMENTS) return bad(`Attach at most ${MAX_ATTACHMENTS} photos.`);
+        let total = 0;
+        attachments = [];
+        for (const [i, a] of body.attachments.entries()) {
+          const type = String((a && a.contentType) || "");
+          const data = String((a && a.contentInBase64) || "");
+          if (!/^image\/(jpeg|png)$/.test(type) || !/^[A-Za-z0-9+/=]+$/.test(data)) {
+            return bad("Only JPEG or PNG photos can be attached.");
+          }
+          const bytes = Math.floor(data.length * 3 / 4);
+          if (bytes > MAX_ATTACHMENT_BYTES) return bad("One of the photos is too large to attach.");
+          total += bytes;
+          const name = String((a && a.name) || `${job.id}-${i + 1}.jpg`).replace(/[^\w.\-]/g, "_").slice(0, 80);
+          attachments.push({ name, contentType: type, contentInBase64: data });
+        }
+        if (total > MAX_TOTAL_BYTES) return bad("The photos are too large to send together.");
+      }
+
+      const sent = await sendEmail({ to: job.email, subject, text, replyTo, attachments });
+      context.log(`notify email ${kind} ${job.id}: ${sent.sent}${attachments ? ` with ${attachments.length} photo(s)` : ""}`);
       return ok({ sent: !!sent.sent, error: sent.sent ? null : sent.error });
     }
 

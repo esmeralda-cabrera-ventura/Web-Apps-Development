@@ -115,6 +115,14 @@ async function ensureContainer() {
   try { await client().getContainerClient(CONTAINER).createIfNotExists(); } catch { /* exists */ }
 }
 
+/** Every photo stored for a job, oldest name first. */
+async function listPhotos(jobId) {
+  const c = client().getContainerClient(CONTAINER);
+  const names = [];
+  for await (const b of c.listBlobsFlat({ prefix: `${jobId}/` })) names.push(b.name);
+  return names.sort();
+}
+
 async function deletePhotos(jobId) {
   const c = client().getContainerClient(CONTAINER);
   let removed = 0;
@@ -125,4 +133,4 @@ async function deletePhotos(jobId) {
   return removed;
 }
 
-module.exports = { CONTAINER, uploadUrl, readUrl, blobUrl, ensureContainer, deletePhotos };
+module.exports = { CONTAINER, uploadUrl, readUrl, blobUrl, ensureContainer, deletePhotos, listPhotos };

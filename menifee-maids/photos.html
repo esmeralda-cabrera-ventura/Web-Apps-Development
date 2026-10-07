@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your cleaning photos | Menifee Maids</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#00B4CC">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .authcard--photos { max-width: 760px; }
+  .photogrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; margin: 1.2rem 0 1rem; }
+  .photogrid a { display: block; border-radius: 14px; overflow: hidden; border: 1px solid var(--line);
+    aspect-ratio: 1 / 1; background: var(--paper); }
+  .photogrid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photohint { text-align: center; color: var(--muted); font-size: .88rem; margin: 0; }
+</style>
+</head>
+<body class="authpage">
+<main class="authwrap">
+  <div class="authcard authcard--photos">
+    <a href="index.html" class="authlogo"><img src="assets/logo.png" alt="Menifee Maids" width="900" height="619"></a>
+    <div data-photos-body>
+      <p style="text-align:center;color:var(--muted)" data-loading>Loading your photos&hellip;</p>
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  "use strict";
+  var qs = new URLSearchParams(window.location.search);
+  var ES = qs.get("lang") === "es";
+  if (ES) document.documentElement.setAttribute("lang", "es");
+  function t(en, es) { return ES ? es : en; }
+  function esc(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  var box = document.querySelector("[data-photos-body]");
+  var job = qs.get("job") || "", key = qs.get("k") || "";
+  var CALL = '<p style="text-align:center;margin-top:1rem"><a class="btn btn--primary" href="tel:+19514648147">' +
+             t("Call 951-464-8147", "Ll\u00e1menos al 951-464-8147") + "</a></p>";
+  document.title = t("Your cleaning photos | Menifee Maids", "Fotos de su limpieza | Menifee Maids");
+
+  function show(title, html) { box.innerHTML = "<h1>" + title + "</h1>" + html; }
+
+  if (!job || !key) {
+    show(t("This link isn't complete", "Este enlace est\u00e1 incompleto"),
+      '<p class="authsub">' + t("Please open the link exactly as we sent it, or give us a call.",
+        "Abra el enlace tal como se lo enviamos, o ll\u00e1menos.") + "</p>" + CALL);
+    return;
+  }
+
+  var tries = 0;
+  (function load() {
+    fetch("/api/job-photos?job=" + encodeURIComponent(job) + "&k=" + encodeURIComponent(key))
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (res) {
+        var list = (res && res.photos) || [];
+        if (!list.length) {
+          // Photos taken moments ago may still be uploading from the phone.
+          if (++tries < 4) { setTimeout(load, 5000); return; }
+          show(t("Your photos are on their way", "Sus fotos est\u00e1n en camino"),
+            '<p class="authsub">' + t("They're still uploading from our phone. Please check this link again in a few minutes.",
+              "Todav\u00eda se est\u00e1n subiendo desde nuestro tel\u00e9fono. Vuelva a abrir este enlace en unos minutos.") + "</p>");
+          return;
+        }
+        show(t("Your cleaning photos", "Fotos de su limpieza"),
+          '<p class="authsub">' + t("Here's the finished work for job ", "Este es el trabajo terminado del servicio ") +
+            "<code class='dbjob'>" + esc(job) + "</code>. " +
+            t("Thank you for choosing Menifee Maids!", "\u00a1Gracias por elegir a Menifee Maids!") + "</p>" +
+          '<div class="photogrid">' + list.map(function (p, i) {
+            return '<a href="' + esc(p.url) + '" target="_blank" rel="noopener"><img src="' + esc(p.url) +
+              '" alt="' + t("Photo ", "Foto ") + (i + 1) + '" loading="lazy"></a>';
+          }).join("") + "</div>" +
+          '<p class="photohint">' + t("Tap a photo to open it full size. You can save it from there.",
+            "Toque una foto para verla en tama\u00f1o completo. Desde ah\u00ed puede guardarla.") + "</p>");
+      })["catch"](function (status) {
+        if (status === 404) {
+          show(t("We couldn't find these photos", "No encontramos estas fotos"),
+            '<p class="authsub">' + t("This link may have been typed by hand or changed. Give us a call and we'll send it again.",
+              "Es posible que el enlace se haya escrito a mano o modificado. Ll\u00e1menos y se lo enviamos de nuevo.") + "</p>" + CALL);
+        } else {
+          show(t("We couldn't load your photos just now", "No pudimos cargar sus fotos en este momento"),
+            '<p class="authsub">' + t("Please try again in a minute.", "Int\u00e9ntelo de nuevo en un minuto.") + "</p>" + CALL);
+        }
+      });
+  })();
+})();
+</script>
+</body>
+</html>
