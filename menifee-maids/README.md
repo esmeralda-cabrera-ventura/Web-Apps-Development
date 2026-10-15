@@ -265,6 +265,14 @@ The booked jobs calendar is populated automatically from accepted requests. Days
 
 The same QR hand-off is used on computers for confirmation, change, proposal and cancellation texts.
 
+### Booking times
+
+Open days and time windows are judged in Pacific time, wherever the visitor is. A window stops being offered once it has started or is less than an hour away (`LEAD_MINUTES` in `js/store.js`), so a visitor at 9 PM never sees that morning's 8–11 window. The booking page refreshes the times every minute and re-checks the chosen times just before sending, and `/api/bookings` rejects any time whose window has already started.
+
+### Payment links
+
+Owners and helpers can both send payment links. Completed, unpaid jobs have a **Payment link** button directly on their row in the job database. Creating a link opens the same review panel as other customer messages: the invoice email is sent by the website from the business domain, and texts use the phone's Messages app (or a QR code on a computer). A link shows **Link not sent yet** until it has actually reached the customer by email, text or a copied link, then **Link sent**, and that status syncs to every device.
+
 ### Job records
 
 Each job has a status that determines whether it appears in current or past work. **A job is closed only when the work is complete and payment has been received.**

@@ -56,6 +56,7 @@
       "err.slot1window": "Pick a time window for your first choice.",
       "err.slot2date": "Pick a backup date.",
       "err.slot2window": "Pick a time window for your backup.",
+      "err.slotPast": "One of the times you picked has already passed or starts too soon. Please choose another.",
       "err.name": "Add your full name.",
       "err.phoneMissing": "Add a mobile number.",
       "err.phoneShort": "That number looks short \u2014 we need all 10 digits.",
@@ -152,6 +153,7 @@
       "err.slot1window": "Elija el horario de su primera opci\u00f3n.",
       "err.slot2date": "Elija la fecha de su segunda opci\u00f3n.",
       "err.slot2window": "Elija el horario de su segunda opci\u00f3n.",
+      "err.slotPast": "Uno de los horarios que eligi\u00f3 ya pas\u00f3 o empieza muy pronto. Por favor elija otro.",
       "err.name": "Escriba su nombre completo.",
       "err.phoneMissing": "Escriba un n\u00famero de celular.",
       "err.phoneShort": "Ese n\u00famero est\u00e1 incompleto \u2014 necesitamos los 10 d\u00edgitos.",
@@ -265,9 +267,24 @@
     "Cancel this job? It moves to past jobs in the job database, where you can rebook it later. Next you can choose whether to message the customer.":
       "\u00bfCancelar este trabajo? Pasa a trabajos anteriores en la base de datos, donde puedes reagendarlo despu\u00e9s. Luego puedes decidir si le escribes al cliente.",
     "Cancel job": "Cancelar trabajo",
+    "The work is finished but this job stays open until the payment is in. Mark it paid to close it.":
+      "El trabajo est\u00e1 terminado, pero queda abierto hasta que se reciba el pago. M\u00e1rcalo como pagado para cerrarlo.",
+    "No live jobs right now. New requests land here, and completed ones move down to the":
+      "No hay trabajos activos por ahora. Las solicitudes nuevas aparecen aqu\u00ed y los trabajos terminados pasan a la",
+    "Link not sent yet": "Enlace a\u00fan no enviado",
+    "Ready, not sent to the customer yet": "Listo, a\u00fan no enviado al cliente",
+    "Send to customer": "Enviar al cliente",
+    "Send again": "Enviar de nuevo",
+    "by email": "por correo",
+    "by text": "por mensaje de texto",
+    "as a copied link": "como enlace copiado",
+    "Link copied. It's marked as sent; paste it into your message to the customer.":
+      "Enlace copiado. Se marc\u00f3 como enviado; p\u00e9galo en tu mensaje al cliente.",
     "This message is too long for a code. Copy it and paste it into a text on your phone.":
       "Este mensaje es demasiado largo para un c\u00f3digo. C\u00f3pialo y p\u00e9galo en un mensaje desde tu tel\u00e9fono.",
     "Copy message": "Copiar mensaje",
+    "Viewing this on your phone? Tap here to open the text instead.":
+      "\u00bfLo est\u00e1s viendo en tu tel\u00e9fono? Toca aqu\u00ed para abrir el mensaje.",
     "Copied": "Copiado",
     "Share the photo files to another app (you pick the contact)":
       "Compartir las fotos con otra app (t\u00fa eliges el contacto)",
@@ -479,6 +496,10 @@
 
   /* Composed strings: the template is translated, then values are slotted in. */
   var DASH_TPL_ES = {
+    "Sent {when} {via}, unpaid": "Enviado el {when} {via}, sin pagar",
+    "Send {name} the payment link": "Env\u00edale a {name} el enlace de pago",
+    "Invoice for {amount}. Nothing has been sent yet. Check the message, edit it if you like, then send it.":
+      "Factura por {amount}. A\u00fan no se ha enviado nada. Revisa el mensaje, ed\u00edtalo si quieres y luego env\u00edalo.",
     "Too many failed attempts. Try again in {n} minute.": "Demasiados intentos fallidos. Int\u00e9ntalo en {n} minuto.",
     "Too many failed attempts. Try again in {n} minutes.": "Demasiados intentos fallidos. Int\u00e9ntalo en {n} minutos.",
     "That username and password don't match.": "Ese usuario y contrase\u00f1a no coinciden.",

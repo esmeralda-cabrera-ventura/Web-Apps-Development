@@ -17,12 +17,57 @@
   };
 
   /* --- Time windows the business offers --------------------------------- */
+  // start: the hour (24-hour clock, Pacific time) the window begins.
   var WINDOWS = [
-    { id: "morning",   label: "Morning",   time: "8:00 – 11:00 AM" },
-    { id: "midday",    label: "Midday",    time: "11:00 AM – 2:00 PM" },
-    { id: "afternoon", label: "Afternoon", time: "2:00 – 5:00 PM" },
-    { id: "evening",   label: "Evening",   time: "5:00 – 8:00 PM" }
+    { id: "morning",   label: "Morning",   time: "8:00 – 11:00 AM",    start: 8 },
+    { id: "midday",    label: "Midday",    time: "11:00 AM – 2:00 PM", start: 11 },
+    { id: "afternoon", label: "Afternoon", time: "2:00 – 5:00 PM",     start: 14 },
+    { id: "evening",   label: "Evening",   time: "5:00 – 8:00 PM",     start: 17 }
   ];
+
+  /* --- Business time --------------------------------------------------------
+     Open days and windows are always judged in Pacific time, wherever the
+     visitor is. A window stops being offered once it has started or is less
+     than LEAD_MINUTES away, so nobody can book a time that has already gone
+     (or that the team couldn't reach in time). */
+  var BIZ_TZ = "America/Los_Angeles";
+  var LEAD_MINUTES = 60;
+
+  /** Now, in business time: { date: "YYYY-MM-DD", minutes: minutes since midnight }. */
+  function bizNow(at) {
+    var d = at ? new Date(at) : new Date();
+    try {
+      var parts = {};
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: BIZ_TZ, year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+      }).formatToParts(d).forEach(function (p) { parts[p.type] = p.value; });
+      var hh = Number(parts.hour) % 24;
+      return { date: parts.year + "-" + parts.month + "-" + parts.day, minutes: hh * 60 + Number(parts.minute) };
+    } catch (e) {
+      // Very old browsers without time-zone support: fall back to device time.
+      var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+      return { date: d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()),
+               minutes: d.getHours() * 60 + d.getMinutes() };
+    }
+  }
+
+  /** Can this window on this date still be booked? */
+  function windowOpen(dateISO, windowId, now) {
+    now = now || bizNow();
+    if (!dateISO) return false;
+    if (dateISO < now.date) return false;
+    if (dateISO > now.date) return true;
+    var w = null;
+    for (var i = 0; i < WINDOWS.length; i++) if (WINDOWS[i].id === windowId) w = WINDOWS[i];
+    if (!w) return false;
+    return w.start * 60 > now.minutes + LEAD_MINUTES;
+  }
+
+  /** A chosen { date, window } that is still bookable. */
+  function slotOpen(slot, now) {
+    return !!(slot && slot.date && slot.window && windowOpen(slot.date, slot.window, now));
+  }
 
   /* --- Service area ------------------------------------------------------ */
   var CITIES = [
@@ -170,11 +215,15 @@
 
   /** Upcoming open dates, soonest first. */
   function openDates(limitDays) {
-    var map = getAvailability(), start = today(), out = [];
+    var map = getAvailability(), now = bizNow(), out = [];
+    var start = parseISO(now.date);               // today in Pacific time
     var days = limitDays || 60;
     for (var i = 0; i < days; i++) {
       var key = iso(addDays(start, i));
-      if (map[key] && map[key].length) out.push({ date: key, windows: map[key].slice() });
+      if (!map[key] || !map[key].length) continue;
+      // Drop windows that have started (or are too close) today.
+      var wins = map[key].filter(function (w) { return windowOpen(key, w, now); });
+      if (wins.length) out.push({ date: key, windows: wins });
     }
     return out;
   }
@@ -481,6 +530,26 @@
     return list;
   }
 
+  /**
+   * Record that a payment link actually reached the customer (by email, text
+   * or a copied link). Until this is set the dashboard says the link is ready
+   * but not sent, so nobody assumes a customer was billed when they weren't.
+   */
+  function markPaymentSent(token, via) {
+    var list = getPayments();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].token === token) {
+        var at = new Date().toISOString();
+        list[i].sentAt = list[i].sentAt || at;
+        list[i].lastSentAt = at;
+        list[i].sentVia = via || "email";
+        list[i].updatedAt = at;
+        break;
+      }
+    }
+    write(KEYS.payments, list);
+  }
+
   function activePaymentFor(requestId) {
     return getPayments().filter(function (p) {
       return p.requestId === requestId && p.status !== "replaced";
@@ -522,6 +591,8 @@
     frequencyLabel: frequencyLabel, addonLabel: addonLabel,
     getAvailability: getAvailability, setAvailability: setAvailability,
     getDay: getDay, setDay: setDay, openDates: openDates, seedIfEmpty: seedIfEmpty,
+    markPaymentSent: markPaymentSent,
+    bizNow: bizNow, windowOpen: windowOpen, slotOpen: slotOpen, LEAD_MINUTES: LEAD_MINUTES,
     getRequests: getRequests, addRequest: addRequest, updateRequest: updateRequest,
     saveRequests: saveRequests, makeRef: makeRef,
     estimate: estimate, exportAll: exportAll, importAll: importAll,

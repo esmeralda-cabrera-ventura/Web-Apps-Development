@@ -889,6 +889,7 @@ select.input:has(option[value=""]:checked) { color: var(--ink-soft); }
 .nsheet__qr[hidden] { display: none; }
 .nsheet__qrcode { width: min(240px, 100%); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .4rem; }
 .nsheet__qrcode svg { display: block; width: 100%; height: auto; }
+.nsheet__direct { font-size: .85rem; font-weight: 600; color: var(--blue); }
 .nsheet__head { margin: 0; font-weight: 700; color: var(--navy); overflow-wrap: anywhere; }
 .nsheet__panel .field-label { margin: .2rem 0 0; }
 .btn--warn { color: #A3341F; border-color: #E8B4A8; }
@@ -897,3 +898,8 @@ body.has-sheet { overflow: hidden; }
   .nsheet { align-items: center; padding: 1rem; }
   .nsheet__panel { border-radius: 22px; }
 }
+
+/* Job database: row actions sit side by side and wrap on small screens. */
+.dbacts { white-space: nowrap; }
+.dbacts .btn + .btn { margin-left: .35rem; }
+@media (max-width: 700px) { .dbacts { white-space: normal; } .dbacts .btn { margin: .15rem 0; } }

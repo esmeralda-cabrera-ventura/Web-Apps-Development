@@ -34,6 +34,29 @@ function reference() {
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || ""));
 const isPhone = (v) => String(v || "").replace(/\D/g, "").length >= 10;
 
+/* Window start hours in Pacific time, matching js/store.js. */
+const WINDOW_START = { morning: 8, midday: 11, afternoon: 14, evening: 17 };
+
+/** Now in Pacific time: { date: "YYYY-MM-DD", minutes }. */
+function pacificNow() {
+  const parts = {};
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  }).formatToParts(new Date()).forEach((p) => { parts[p.type] = p.value; });
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, minutes: (Number(parts.hour) % 24) * 60 + Number(parts.minute) };
+}
+
+/** True once a slot's window has started (or its date is in the past). */
+function slotPast(slot) {
+  if (!slot || !/^\d{4}-\d{2}-\d{2}$/.test(String(slot.date || ""))) return false;
+  const now = pacificNow();
+  if (slot.date < now.date) return true;
+  if (slot.date > now.date) return false;
+  const start = WINDOW_START[slot.window];
+  return start == null ? false : start * 60 <= now.minutes;
+}
+
 function validate(b) {
   const problems = [];
   if (!b) return ["No booking data was sent."];
@@ -43,7 +66,9 @@ function validate(b) {
   if (!b.street) problems.push("street");
   if (!b.addressZip || !CITY_BY_ZIP[b.addressZip]) problems.push("zip");
   if (!b.slot1 || !b.slot1.date || !b.slot1.window) problems.push("slot1");
+  else if (slotPast(b.slot1)) problems.push("slot1_past");
   if (!b.slot2 || !b.slot2.date || !b.slot2.window) problems.push("slot2");
+  else if (slotPast(b.slot2)) problems.push("slot2_past");
   if (b.kind === "commercial" && !b.company) problems.push("company");
   return problems;
 }

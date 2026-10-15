@@ -421,8 +421,10 @@
     if (key === "when") {
       if (!state.slot1.date) out.push(["slots", T("err.slot1date")]);
       else if (!state.slot1.window) out.push(["slots", T("err.slot1window")]);
+      else if (!S.slotOpen(state.slot1)) out.push(["slots", T("err.slotPast")]);
       if (!state.slot2.date) out.push(["slots", T("err.slot2date")]);
       else if (!state.slot2.window) out.push(["slots", T("err.slot2window")]);
+      else if (!S.slotOpen(state.slot2) && S.slotOpen(state.slot1)) out.push(["slots", T("err.slotPast")]);
     }
 
     if (key === "contact") {
@@ -672,7 +674,19 @@
     var errors = collectErrors();
     if (errors.length) { showErrors(errors); return; }
     hideErrorBanner();
-    if (current() === "review") { submit(); return; }
+    if (current() === "review") {
+      // Time may have passed while the visitor filled in the form: re-check
+      // both chosen times right before sending.
+      if (!S.slotOpen(state.slot1) || !S.slotOpen(state.slot2)) {
+        dropPastChoices();
+        idx = steps().indexOf("when");
+        show();
+        showErrors([["slots", T("err.slotPast")]]);
+        return;
+      }
+      submit();
+      return;
+    }
     idx++;
     show();
   });
@@ -682,6 +696,28 @@
     if (idx > 0) idx--;
     show();
   });
+
+  /** Clear any chosen time that can no longer be booked. */
+  function dropPastChoices() {
+    ["slot1", "slot2"].forEach(function (k) {
+      if (state[k].date && state[k].window && !S.slotOpen(state[k])) {
+        state[k].window = null;
+        var still = S.openDates(60).some(function (d) { return d.date === state[k].date; });
+        if (!still) state[k].date = null;
+      }
+    });
+  }
+
+  /* Keep the calendar honest while the page stays open: once a minute, drop
+     windows that have started and redraw the date step if it's showing. */
+  setInterval(function () {
+    var before = JSON.stringify([state.slot1, state.slot2]);
+    dropPastChoices();
+    if (current() === "when") {
+      renderSlots();
+      if (before !== JSON.stringify([state.slot1, state.slot2])) showErrors([["slots", T("err.slotPast")]]);
+    }
+  }, 60000);
 
   /* --- Go ------------------------------------------------------------------ */
   renderEstimate();

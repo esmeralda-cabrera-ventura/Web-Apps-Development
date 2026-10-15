@@ -302,7 +302,9 @@
     var live = S.activePaymentFor(r.id);
     var payFlag = paid
       ? '<span class="pill pill--conf">Paid</span>'
-      : (live ? '<span class="pill pill--wait">Link sent</span>' : "");
+      : (live ? (live.sentAt
+          ? '<span class="pill pill--wait">Link sent</span>'
+          : '<span class="pill pill--new">Link not sent yet</span>') : "");
 
     var payBtn = '<button class="btn btn--ghost btn--sm" data-act="payopen" data-id="' + r.id + '">' +
       (live ? "Payment link" : "Send payment link") + "</button>";
@@ -446,7 +448,15 @@
     var ua = navigator.userAgent || "";
     if (navigator.userAgentData && navigator.userAgentData.mobile) return true;
     if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
-    return /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;   // iPad
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;   // iPad
+    // A phone in "Desktop site" mode reports itself as a computer, but it
+    // still has a small touch screen.
+    try {
+      var touch = navigator.maxTouchPoints > 0 && window.matchMedia("(pointer: coarse)").matches;
+      var small = Math.min(screen.width, screen.height) <= 820;
+      if (touch && small) return true;
+    } catch (e) { /* older browsers */ }
+    return false;
   })();
 
   function renderQr(el, text) {
@@ -475,8 +485,13 @@
     var copy = el.querySelector("[data-ns-copy]");
     var timer = null;
 
+    var direct = el.querySelector("[data-ns-direct]");
+    direct.textContent = D("Viewing this on your phone? Tap here to open the text instead.");
+    direct.onclick = function () { if (onUsed) onUsed(); };
+
     function update() {
       smsBtn.setAttribute("href", smsLink(phone, textEl.value));
+      direct.setAttribute("href", smsLink(phone, textEl.value));
       if (IS_PHONE) return;
       clearTimeout(timer);
       timer = setTimeout(function () {
@@ -649,6 +664,7 @@
             '<div class="nsheet__qrcode" data-ns-qrcode></div>' +
             '<p class="hint" data-ns-qrhint></p>' +
             '<button type="button" class="btn btn--ghost btn--block" data-ns-copy></button>' +
+            '<a class="nsheet__direct" data-ns-direct href="#"></a>' +
           "</div>" +
           '<a class="btn btn--primary btn--block" data-ns-sms href="#"></a>' +
           '<button type="button" class="btn btn--ghost btn--block" data-ns-share hidden></button>' +
@@ -837,6 +853,138 @@
       img.onerror = function () { resolve(dataUrl); };
       img.src = dataUrl;
     });
+  }
+
+  /* --- Sending a payment link ---------------------------------------------
+     Same review panel as every other customer message, for owners and
+     helpers alike. The invoice email is sent by the platform from the
+     business domain; texts open the phone's Messages (or a QR code on a
+     computer). The link only counts as sent once one of those happens. */
+  function openPaymentSheet(r, pay) {
+    if (!pay) return;
+    var el = sheetEl();
+    var $ = function (sel) { return el.querySelector(sel); };
+    var es = langOf(r) === "es";
+    var name = firstName(r.name);
+    var phone = String(r.phone || "").replace(/[^0-9+]/g, "");
+    var hasPhone = phone.length >= 10;
+    var live = !ACCESS.isOffline();
+    var job = { id: r.id, name: r.name, email: r.email, phone: r.phone, address: r.address,
+                lang: langOf(r), smsConsent: r.smsConsent, estimate: r.estimate };
+
+    $("[data-ns-title]").textContent = DT("Send {name} the payment link", { name: name });
+    $("[data-ns-intro]").textContent = DT("Invoice for {amount}. Nothing has been sent yet. Check the message, edit it if you like, then send it.", { amount: S.money(pay.amount) });
+    $("[data-ns-photos]").hidden = true;
+    $("[data-ns-share]").hidden = true;
+    var done = $("[data-ns-done]");
+    done.textContent = D("Close without sending");
+    function markSent(via) {
+      S.markPaymentSent(pay.token, via);
+      done.textContent = D("Done");
+      refreshAll();
+    }
+
+    /* Email */
+    var subj = $("[data-ns-subj]"), body = $("[data-ns-body]");
+    var sendEmail = $("[data-ns-send-email]"), emailStatus = $("[data-ns-email-status]"), mailBtn = $("[data-ns-mail]");
+    $("[data-ns-emailsec]").hidden = !r.email;
+    $("[data-ns-emailhead]").textContent = DT("Email to {email}", { email: r.email || "" });
+    $("[data-ns-subjlabel]").textContent = D("Subject");
+    $("[data-ns-bodylabel]").textContent = D("Message");
+    subj.disabled = body.disabled = false;
+    subj.value = (es ? "Su factura de " : "Your invoice from ") + BIZ + " \u2014 " + S.money(pay.amount) + " (" + r.id + ")";
+    body.value = payMessage(r, pay, false);
+    function status(line, cls, text) { line.hidden = false; line.className = "nsheet__status" + (cls ? " nsheet__status--" + cls : ""); line.textContent = text; }
+    function syncMail() { mailBtn.setAttribute("href", mailLink(r.email || "", subj.value, body.value)); }
+    subj.oninput = body.oninput = syncMail;
+    syncMail();
+    emailStatus.hidden = true;
+    mailBtn.hidden = live;
+    mailBtn.textContent = D("Send from my phone's email app instead");
+    mailBtn.onclick = function () { markSent("email"); };
+    sendEmail.hidden = !live;
+    sendEmail.disabled = !r.email;
+    sendEmail.textContent = D("Send email");
+
+    /* Text */
+    var text = $("[data-ns-text]"), smsBtn = $("[data-ns-sms]"), smsSend = $("[data-ns-send-sms]"),
+        smsStatus = $("[data-ns-sms-status]");
+    $("[data-ns-textsec]").hidden = !hasPhone;
+    $("[data-ns-texthead]").textContent = DT("Text to {phone}", { phone: r.phone || "" });
+    text.value = payMessage(r, pay, true);
+    smsBtn.textContent = DT("Text {name} from my phone", { name: name });
+    smsBtn.className = "btn btn--primary btn--block";
+    smsBtn.onclick = function () { markSent("text"); };
+    smsSend.hidden = true; smsStatus.hidden = true; smsSend.disabled = false;
+    var consent = $("[data-ns-consent]");
+    consent.hidden = r.smsConsent !== false;
+    consent.textContent = D("This customer didn't opt in to text messages when booking. Email may be the better choice.");
+    textOut(el, phone, text, smsBtn, name, function () { markSent("text"); });
+
+    function post(payload) {
+      return fetch("/api/notify", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ kind: "payment", slot: r.confirmedSlot || {}, job: job }, payload))
+      }).then(function (res) {
+        return res.json().then(function (j) { j._ok = res.ok; return j; }, function () { return { _ok: false }; });
+      });
+    }
+    if (live) {
+      post({ preview: true }).then(function (p) {
+        if (p && p._ok && p.smsAutomatic && r.smsConsent === true && hasPhone) {
+          smsSend.hidden = false;
+          smsSend.textContent = D("Send text from the business number");
+        }
+      }, function () {});
+    }
+
+    sendEmail.onclick = function () {
+      if (!subj.value.trim() || !body.value.trim()) { window.alert(D("The subject and message can't be empty.")); return; }
+      sendEmail.disabled = true;
+      sendEmail.textContent = D("Sending\u2026");
+      post({ channel: "email", subject: subj.value, text: body.value }).then(function (res) {
+        if (res && res._ok && res.sent) {
+          status(emailStatus, "ok", DT("\u2713 Email sent to {email}.", { email: r.email }));
+          sendEmail.textContent = D("Sent");
+          markSent("email");
+        } else {
+          status(emailStatus, "warn", (res && res.error) ? res.error
+            : D("The email didn't go out. Try again, or send it from your phone's email app."));
+          sendEmail.disabled = false; sendEmail.textContent = D("Try again");
+          mailBtn.hidden = false;
+        }
+      }, function () {
+        status(emailStatus, "warn", D("You seem to be offline. You can still send it from your phone's email app."));
+        sendEmail.disabled = false; sendEmail.textContent = D("Send email");
+        mailBtn.hidden = false;
+      });
+    };
+
+    smsSend.onclick = function () {
+      if (!text.value.trim()) { window.alert(D("The text can't be empty.")); return; }
+      smsSend.disabled = true;
+      smsSend.textContent = D("Sending\u2026");
+      post({ channel: "sms", text: text.value }).then(function (res) {
+        if (res && res._ok && res.sent) {
+          status(smsStatus, "ok", DT("\u2713 Text sent to {phone}.", { phone: r.phone }));
+          smsSend.textContent = D("Sent"); markSent("text");
+        } else {
+          status(smsStatus, "warn", D("The text didn't go out. Try again, or text from your phone."));
+          smsSend.disabled = false; smsSend.textContent = D("Try again");
+        }
+      }, function () {
+        status(smsStatus, "warn", D("You seem to be offline. Text from your phone instead."));
+        smsSend.disabled = false; smsSend.textContent = D("Try again");
+      });
+    };
+
+    el.hidden = false;
+    document.body.classList.add("has-sheet");
+    el.querySelector(".nsheet__panel").scrollTop = 0;
+    var titleEl = $("[data-ns-title]");
+    titleEl.setAttribute("tabindex", "-1");
+    try { titleEl.focus({ preventScroll: true }); } catch (e) { titleEl.focus(); }
   }
 
   function openCompletionSheet(r, note, shots) {
@@ -1037,6 +1185,13 @@
       "</div></div>";
   }
 
+  /** "Sent Oct 14 by email, unpaid" */
+  function sentLine(p) {
+    var when = new Date(p.lastSentAt || p.sentAt).toLocaleDateString(I.locale(), { month: "short", day: "numeric" });
+    var via = { email: D("by email"), text: D("by text"), copied: D("as a copied link") }[p.sentVia] || "";
+    return DT("Sent {when} {via}, unpaid", { when: when, via: via }).replace(/\s+,/, ",");
+  }
+
   /** Payment link panel: set an amount, generate the link, then send it. */
   function paymentPanel(r) {
     var pays = S.paymentsFor(r.id);
@@ -1050,14 +1205,16 @@
       history =
         '<ul class="summary" style="margin:.9rem 0">' +
         "<li><span class='k'>Amount</span><span class='v'>" + S.money(latest.amount) + "</span></li>" +
-        "<li><span class='k'>Status</span><span class='v'>" + (latest.status === "paid" ? "Paid" : "Link sent, unpaid") + "</span></li>" +
+        "<li><span class='k'>Status</span><span class='v'>" + (latest.status === "paid" ? "Paid"
+          : (latest.sentAt ? sentLine(latest) : "Ready, not sent to the customer yet")) + "</span></li>" +
         "<li><span class='k'>Expires</span><span class='v'>" + exp.toLocaleDateString(I.locale(), { month: "long", day: "numeric", year: "numeric" }) + "</span></li>" +
         "</ul>" +
         '<div class="field"><label for="pl-url-' + r.id + '">The link</label>' +
         '<input class="input" id="pl-url-' + r.id + '" data-pl-url readonly value="' + latest.url + '"></div>' +
         '<div class="req__actions" style="margin-bottom:.4rem">' +
-          '<button class="btn btn--primary btn--sm" data-act="pay-email" data-id="' + r.id + '">Email the link</button>' +
-          '<button class="btn btn--ghost btn--sm" data-act="pay-text" data-id="' + r.id + '">Text the link</button>' +
+          (latest.status === "paid" ? "" :
+            '<button class="btn btn--primary btn--sm" data-act="pay-send" data-id="' + r.id + '">' +
+            (latest.sentAt ? "Send again" : "Send to customer") + "</button>") +
           '<button class="btn btn--ghost btn--sm" data-act="pay-copy" data-id="' + r.id + '">Copy link</button>' +
           '<button class="btn btn--ghost btn--sm" data-act="pay-verify" data-id="' + r.id + '">Check with Stripe</button>' +
           (latest.status === "paid"
@@ -1746,11 +1903,20 @@
       var amt = parseFloat(card.querySelector("[data-pl-amount]").value);
       var desc = card.querySelector("[data-pl-desc]").value.trim();
       if (!amt || amt <= 0) { window.alert(D("Enter the amount to charge, in dollars.")); return; }
-      S.createPayment(req, amt, {
+      var made = S.createPayment(req, amt, {
         description: desc || S.describeJob(req),
         baseUrl: window.location.href.split("#")[0].split("?")[0]
       });
       refreshAll();
+      // Straight to the review panel: nothing goes to the customer until Send.
+      openPaymentSheet(req, S.activePaymentFor(id) || made);
+      return;
+    }
+
+    if (act === "pay-send") {
+      var ps = S.activePaymentFor(id) || S.paymentsFor(id)[0];
+      if (!ps) { window.alert(D("Create the link first.")); return; }
+      openPaymentSheet(req, ps);
       return;
     }
 
@@ -1761,7 +1927,12 @@
         var input = document.querySelector('[data-act="pay-copy"][data-id="' + id + '"]')
                           .closest(".resched").querySelector("[data-pl-url]");
         input.select(); input.setSelectionRange(0, 99999);
-        try { document.execCommand("copy"); window.alert(D("Link copied.")); }
+        try {
+          document.execCommand("copy");
+          S.markPaymentSent(p0.token, "copied");   // assume it's being pasted to the customer
+          refreshAll();
+          window.alert(D("Link copied. It's marked as sent; paste it into your message to the customer."));
+        }
         catch (x) { window.alert(D("Copy it from the box above.")); }
         return;
       }
@@ -2038,7 +2209,12 @@
       return '<span class="pill pill--conf">Paid</span>' +
         (j.stripeRef ? '<span class="dbref" title="Stripe reference">' + j.stripeRef + "</span>" : "");
     }
-    if (j.paymentStatus === "sent") return '<span class="pill pill--wait">Link sent</span>';
+    if (j.paymentStatus === "sent") {
+      var live = S.activePaymentFor(j.id);
+      return live && !live.sentAt
+        ? '<span class="pill pill--new">Link not sent yet</span>'
+        : '<span class="pill pill--wait">Link sent</span>';
+    }
     return '<span class="pill pill--new">Unpaid</span>';
   }
 
@@ -2068,7 +2244,7 @@
         visible.map(function (j) {
           var meta = j.display;
           var when = j.scheduledFor
-            ? S.prettyDate(j.scheduledFor) + (j.window ? " &middot; " + S.WINDOWS.filter(function (w) { return w.id === j.window; }).map(function (w) { return w.label; })[0] : "")
+            ? S.prettyDate(j.scheduledFor) + (j.window ? " &middot; " + S.windowName(j.window) : "")
             : "<span style='color:var(--muted)'>Not scheduled</span>";
           return "<tr>" +
             '<td><code class="dbjob">' + j.id + "</code></td>" +
@@ -2083,7 +2259,10 @@
                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l2-3h8l2 3h3v11H3z"/><circle cx="12" cy="13" r="3.5"/></svg>' +
                 j.photoCount + "</button>"
               : '<span class="dbsub">&mdash;</span>') + "</td>" +
-            '<td><button class="btn btn--ghost btn--sm" data-db-open="' + j.id + '">Open</button></td>' +
+            '<td class="dbacts">' +
+              (j.status === "done" && !j.paid
+                ? '<button class="btn btn--primary btn--sm" data-db-pay="' + j.id + '">Payment link</button>' : "") +
+              '<button class="btn btn--ghost btn--sm" data-db-open="' + j.id + '">Open</button></td>' +
             "</tr>";
         }).join("") + "</tbody></table>" +
         (rows.length > visible.length
@@ -2224,6 +2403,14 @@
       var less = e.target.closest("[data-db-less]");
       if (less) { dbShown = DB_PAGE; renderDbResults(); return; }
 
+      var pb = e.target.closest("[data-db-pay]");
+      if (pb) {
+        // Straight to the payment panel for a finished, unpaid job.
+        var pid = pb.getAttribute("data-db-pay");
+        openPay = pid; openEditor = null;
+        openJobDetail(pid);
+        return;
+      }
       var b = e.target.closest("[data-db-open]");
       if (!b) return;
       openJobDetail(b.getAttribute("data-db-open"));

@@ -29,7 +29,7 @@ const MAX_TOTAL_BYTES = 8 * 1024 * 1024;           // all photos together
 
 const BIZ = "Menifee Maids";
 const BIZ_PHONE = "951-464-8147";
-const KINDS = new Set(["confirmed", "changed", "proposed", "cancelled", "declined", "completed"]);
+const KINDS = new Set(["confirmed", "changed", "proposed", "cancelled", "declined", "completed", "payment"]);
 const NEEDS_DATE = new Set(["confirmed", "changed", "proposed", "cancelled"]);
 
 const WINDOWS = {
@@ -84,6 +84,11 @@ function message(kind, job, slot, note) {
           lines: ["We can't make the time you picked.",
                   `Could we do your cleaning on ${t} instead?`,
                   "Reply YES to confirm, or tell us another time that suits you."] },
+    payment: es
+      ? { subject: "Su factura de Menifee Maids",
+          lines: ["Su factura está lista. Puede pagarla de forma segura con el enlace que le enviamos."] }
+      : { subject: "Your invoice from Menifee Maids",
+          lines: ["Your invoice is ready. You can pay it securely using the link we sent."] },
     completed: es
       ? { subject: "Su limpieza está terminada",
           lines: ["Terminamos su limpieza. ¡Gracias por elegirnos!"] }
@@ -123,7 +128,8 @@ function smsText(kind, job, slot) {
                   : `We've had to cancel your cleaning on ${t}. Call us to rebook.`,
     declined: es ? "Lamentablemente no podemos atender su solicitud de limpieza. Llámenos si desea otra opción."
                  : "Unfortunately we aren't able to take your cleaning request. Call us if you'd like other options.",
-    completed: es ? "Terminamos su limpieza. ¡Gracias por elegirnos!" : "Your cleaning is complete. Thank you for choosing us!"
+    completed: es ? "Terminamos su limpieza. ¡Gracias por elegirnos!" : "Your cleaning is complete. Thank you for choosing us!",
+    payment: es ? "Su factura está lista. Puede pagarla con el enlace que le enviamos." : "Your invoice is ready. You can pay it using the link we sent."
   }[kind];
   return `${hi} ${body} ${es ? "Ref." : "Ref"} ${job.id}. ${es ? "Responda STOP para no recibir mensajes." : "Reply STOP to opt out."}`;
 }
