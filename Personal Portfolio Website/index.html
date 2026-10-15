@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -21,9 +21,13 @@
         <ul>
           <li><a href="#about">About</a></li>
           <li><a href="#projects">Projects</a></li>
+          <li><a href="credentials.html">Credentials</a></li>
+          <li><a href="https://drive.google.com/file/d/1HhBh9AsgU-SuBAXBeWaBUL0oQY0mCs3P/view?usp=drive_link" target="_blank" rel="noopener noreferrer">Resume</a></li>
+          <li><a href="https://esmeralda-cabrera-ventura.github.io/index.html" target="_blank" rel="noopener noreferrer">Blog</a></li>
           <li><a href="#services">Services</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
+        <a href="contact.html" class="btn btn-primary btn-connect">Let's Connect</a>
       </nav>
     </div>
   </header>
@@ -34,120 +38,302 @@
     <section class="hero section" id="top">
       <div class="container hero-grid">
         <div class="hero-text">
-          <h1>Esmeralda Cabrera Ventura</h1>
-          <p class="hero-subtitle">Emerging ML/AI &amp; Cloud Computing Professional</p>
-          <p class="hero-tagline">
-            <em>I design and build data-driven scalable systems that transform complex problems into clear, actionable solutions.</em>
-          </p>
-          <P>Welcome to my portfolio website!</P>
+          <div class="hero-title-wrap">
+            <p class="hero-eyebrow"><span>CLOUD</span><span class="dot">&mdash;</span><span>DATA</span><span class="dot">&mdash;</span><span>AI</span><span class="dot">&mdash;</span><span>SOLUTIONS</span></p>
+            <h1>Esmeralda C. Ventura</h1>
+          </div>
+          <p class="hero-subtitle">AWS / Azure Cloud &amp; ML/AI Professional</p>
+          <p class="hero-tagline"><em>I design and build data-driven scalable systems that transform complex problems into clear, actionable solutions.</em></p>
+
+          <!-- All five actions on one line, left to right: View My Work,
+               Visit My Blog, See Resume, View Credentials, Schedule an
+               Interview. They share one palette so the row reads as a single
+               set, and only wrap once the viewport is genuinely too narrow. -->
+          <!-- Buttons + feature row share one wrapper sized to the button row,
+               so the feature row starts and ends exactly where the buttons do. -->
+          <div class="hero-cta">
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-hero btn-hero-lead btn-view-work">
+              View My Work
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+
+            <a href="https://esmeralda-cabrera-ventura.github.io/index.html" target="_blank" rel="noopener noreferrer" class="btn btn-hero btn-blog">
+              Visit My Blog
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h9a5 5 0 0 1 5 5v11"/><path d="M4 10h7"/><path d="M4 16h5"/><circle cx="18.5" cy="20" r="1.6"/></svg>
+            </a>
+
+            <a href="https://drive.google.com/file/d/1HhBh9AsgU-SuBAXBeWaBUL0oQY0mCs3P/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="btn btn-hero btn-resume">
+              See Resume
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+            </a>
+
+            <a href="credentials.html" class="btn btn-hero btn-credentials">
+              View Credentials
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </a>
+
+            <div class="schedule-wrap">
+              <button type="button" id="scheduleInterviewBtn" class="btn btn-hero btn-schedule">
+                Schedule an Interview
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
+              </button>
+              <p class="schedule-note" id="scheduleNote">
+                Recruiters: verification via LinkedIn is required before scheduling.
+              </p>
+            </div>
+          </div>
+
+          <div class="hero-features">
+            <div class="feature">
+              <svg class="feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0 0-9h-1.8A7 7 0 1 0 4 15.9"/></svg>
+              <div class="feature-text">
+                <span class="feature-title">Cloud Architect</span>
+                <span class="feature-sub">AWS &amp; Azure</span>
+              </div>
+            </div>
+            <div class="feature">
+              <svg class="feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <div class="feature-text">
+                <span class="feature-title">Problem Solver</span>
+                <span class="feature-sub">Complex to Simple</span>
+              </div>
+            </div>
+            <div class="feature">
+              <svg class="feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.8 1 .8 1.6V18h6.4v-1.7c0-.6.3-1.2.8-1.6A7 7 0 0 0 12 2z"/></svg>
+              <div class="feature-text">
+                <span class="feature-title">Innovator</span>
+                <span class="feature-sub">AI &amp; Automation</span>
+              </div>
+            </div>
+            <div class="feature">
+              <svg class="feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <div class="feature-text">
+                <span class="feature-title">Leader</span>
+                <span class="feature-sub">Strategy &amp; Impact</span>
+              </div>
+            </div>
+          </div>
+          </div>
         </div>
 
         <div class="hero-photo-wrapper">
-          <img
-            src="ProfessionalPhoto.jpg"
-            alt="Esmeralda Cabrera Ventura headshot"
-            class="hero-photo"
-          />
+          <div class="hero-photo-frame">
+            <img
+              src="ProfessionalPhoto.jpg"
+              alt="Esmeralda Cabrera Ventura headshot"
+              class="hero-photo"
+            />
+          </div>
+          <div class="veteran-badge">
+            <img src="AirForceLogo.png" alt="U.S. Air Force symbol" class="veteran-icon" />
+            <div class="veteran-text">
+              <span class="veteran-line-1">U.S. Air Force Veteran</span>
+              <span class="veteran-line-2">Technology Professional</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ABOUT + SKILLS -->
-    <section id="about" class="section">
-      <div class="container about-grid">
+    <section id="about" class="section section-about">
+      <div class="container">
+        <div class="panel about-panel">
+          <div class="about-grid">
 
-        <!-- LEFT: ABOUT + VISION + BEYOND THE CODE -->
-        <div class="about-main">
-          <h2>About Me</h2>
-          <p>
-            I am a transitioning U.S. Air Force Aerospace Systems Operations Manager and emerging technology professional specializing in cloud computing, software engineering, machine learning, and agentic AI automation. I combine military-grade discipline, systems-level thinking, and technical versatility to translate complex missions into high-impact digital solutions, bridging the gap between execution, strategy, and innovation. I am advancing my capabilities through a Master of Science in Computer Science and advanced coursework in AI/ML, DevOps, Blockchain, SaaS, and Cloud Computing to help organizations strengthen operations, enhance decision-making, and accelerate growth in both private-sector and government environments. You can learn more about me on <a href="https://www.linkedin.com/in/esmeraldaspace" target="_blank"><strong><u>LinkedIn</u></strong></a>.
+            <!-- LEFT: ABOUT ME + LONG-TERM VISION -->
+            <div class="about-col about-col-left">
+              <div class="card-header">
+                <span class="card-icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <h2 class="card-title">ABOUT ME</h2>
+              </div>
 
+              <p class="about-text">
+                I&rsquo;m the kind of technologist who loves taking a massive, seemingly impossible operational puzzle and turning it into an elegant, scalable digital reality. As a security-cleared Solutions Architect, Software Engineer, and Founder of Apex Intelligent Systems, I spend my time crafting custom cloud infrastructure, full-stack software, and AI-driven automation systems that transform how organizations operate. Client-obsessed and fiercely customer-focused, I design every system with an uncompromising eye on the end-user experience.
+              </p>
+              <p class="about-text">
+                I combine deep systems-level strategy with the hands-on passion of an active engineer. I believe great technology shouldn&rsquo;t just function, it should seamlessly bridge operations, strategy, and continuous innovation to give organizations a serious competitive edge.
+              </p>
+              <p class="about-text">
+                My work spans architecture through implementation, including the design of production-grade Azure, AWS, and hybrid cloud environments, as well as the development of AI applications, agentic AI workflows, automation solutions, and cloud-native web applications. I combine cloud engineering, software development, Agile, DevOps, and applied machine learning to build secure, scalable, high-availability systems. My focus is on strengthening operational resilience, improving decision-making, streamlining processes, enabling modernization, and delivering real-world business outcomes across government and private-sector environments.
+              </p>
+              <p class="about-text about-text-linkedin">
+                You can learn more about me on <a href="https://www.linkedin.com/in/esmeraldaspace" target="_blank" rel="noreferrer" class="inline-link">LinkedIn</a>.
+              </p>
+            </div>
 
-          </p>
+            <!-- LEFT, LOWER: LONG-TERM VISION (own card beneath About Me) -->
+            <div class="about-col about-col-vision">
+              <div class="card-header">
+                <span class="card-icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                </span>
+                <h2 class="card-title">LONG-TERM VISION</h2>
+              </div>
+              <p class="vision-text">
+                My long-term vision is to help build responsible cloud, AI/ML, and automation technologies that strengthen organizations, elevate human potential, and contribute to a more efficient, resilient, and empowered future for humankind.
+              </p>
+            </div>
 
-          <div class="stacked-section">
-            <h3>Long-Term Vision</h3>
-            <p>
-              My long-term vision is to help build responsible cloud, AI/ML, and automation technologies that strengthen organizations, elevate human potential, and contribute to a more efficient, resilient, and empowered future for humankind.
-            </p>
+            <!-- MIDDLE: TECHNICAL SKILLS -->
+            <div class="about-col about-col-skills">
+              <div class="card-header">
+                <span class="card-icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </span>
+                <h2 class="card-title">TECHNICAL SKILLS</h2>
+              </div>
+              <ul class="check-list">
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Python and Java</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>CI/CD, Scikit-Learn</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>TensorFlow / Keras</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>NumPy, Pandas</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Matplotlib, Seaborn</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Azure, AWS, Google Cloud</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Kubernetes, SQL</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Terraform, Databricks</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Powershell, Docker</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Full Stack, MongoDB</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Networking &amp; Security</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Agentic Automation</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>GitHub, Agile</li>
+                <li><svg class="check-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>DevOps, API Integration</li>
+              </ul>
+            </div>
 
-            <h3>Beyond the Code</h3>
-            <p>
-              Outside of my work, I focus on continuous self-improvement through fitness, wellness, continuous learning, and creative interests. I’m driven by curiosity and enjoy exploring new ideas, while also giving back through STEM education, veteran causes, and community initiatives.
-            </p>
+            <!-- RIGHT: CORE STRENGTHS -->
+            <div class="about-col about-col-strengths">
+              <div class="card-header">
+                <span class="card-icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+                <h2 class="card-title">CORE STRENGTHS</h2>
+              </div>
+              <ul class="strength-list">
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>Discipline</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Adaptability</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Leadership</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Reliability</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Communication</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.8 1 .8 1.6V18h6.4v-1.7c0-.6.3-1.2.8-1.6A7 7 0 0 0 12 2z"/></svg>Innovation</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>Client Focused</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Integrity</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Structured</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/><polyline points="9 11 9 7 15 7 15 11"/><line x1="12" y1="15" x2="12" y2="17"/></svg>Accountability</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Building</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Growth Mindset</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Cross-Functional Collaboration</li>
+                <li><svg class="strength-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>Respect</li>
+              </ul>
+            </div>
 
-            <!-- SERVICES MOVED INTO ABOUT SECTION -->
-         <div class="stacked-section">
-           <h3 id="services">Services I Offer</h3>
-           <p>
-             I help individuals, startups, and organizations build, automate, and scale
-             cloud-native, data-driven, and AI-powered solutions. My services include:
-             </p>
+            <!-- BOTTOM: BEYOND THE CODE (right-hand column on desktop) -->
+            <div class="about-col about-col-beyond">
+              <div class="card-header">
+                <span class="card-icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </span>
+                <h2 class="card-title">BEYOND THE CODE</h2>
+              </div>
+              <div class="beyond-body">
+                <div class="beyond-copy">
+                  <p class="beyond-text">
+                    Outside of my work, I focus on continuous self-improvement through fitness, wellness, lifelong learning, and creative interests. I enjoy spending time outdoors and in nature, whether hiking, exploring scenic places, taking photographs, or simply stepping away from technology to recharge. Being outdoors energizes me, clears my mind, and often inspires fresh ideas and new creative perspectives.
+                  </p>
+                  <p class="beyond-text">
+                    I&rsquo;m driven by curiosity and enjoy exploring new ideas while also giving back through STEM education, veteran causes, and community initiatives. I bring a strong growth mindset and an unwavering commitment to self-improvement into every aspect of my life. My creative outlets include UI/UX micro-design, technical writing, photography, and exploring digital media generation. Whether I am experimenting with fresh creative tools, mastering a new fitness discipline, enjoying an outdoor adventure, or diving into new academic subjects, my passion for continuous learning keeps me constantly evolving.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-             <ul class="services-list">
-             <li>Cloud Solutions Architecture (AWS & Azure)</li>
-             <li>Data Science & Analytics</li>
-             <li>App + Web Development</li>
-             <li>Machine Learning & Agentic AI Automation</li>
-             <li>Intelligent Cloud–AI Hybrid Solutions</li>
-             <li>Technical & Strategic Consulting</li>
-          </ul>
-       </div>
+            <!-- BOTTOM: standalone photo card (sits left of Beyond the Code on desktop) -->
+            <div class="about-col about-col-photo">
+              <img
+                src="CasualOutdoorPortrait.jpg"
+                alt="Esmeralda Cabrera Ventura outdoors by a mountain lake"
+                class="photo-card-img"
+                loading="lazy"
+              />
+            </div>
+
+            <!-- LEFT, LOWER: VIDEO RESUME -->
+            <div class="about-col about-col-video video-panel">
+              <h2 class="video-title">VIDEO RESUME</h2>
+              <div class="video-divider"></div>
+              <div class="video-player-wrap">
+                <video
+                  class="video-player"
+                  controls
+                  preload="metadata"
+                  playsinline
+                  poster="VideoResume_poster.jpg"
+                >
+                  <source src="VideoResume.mp4" type="video/mp4" />
+                  Your browser does not support embedded videos. You can
+                  <a href="VideoResume.mp4" download>download the video</a> instead.
+                </video>
+              </div>
+            </div>
 
           </div>
         </div>
+      </div>
+    </section>
 
-        <!-- RIGHT: TECHNICAL SKILLS + CORE STRENGTHS + VIDEO -->
-        <div class="about-side">
-
-          <article class="info-card">
-            <h3>Technical Skills</h3>
-            <ul>
-              <li>Python, PowerShell</li>
-              <li>CI/CD, Scikit-Learn </li>
-              <li>TensorFlow / Keras</li>
-              <li>NumPy, Pandas</li>
-              <li>Matplotlib, Seaborn</li>
-              <li>AWS EC2, VPC, IAM</li>
-              <li>S3, RDS, Pipelines</li>
-              <li>Lambda, CloudWatch</li>
-              <li>Docker, ECR, ECS </li>
-              <li>Azure fundamentals</li>
-            </ul>
-          </article>
-
-          <article class="info-card">
-            <h3>Core Strengths</h3>
-            <ul>
-              <li>Discipline</li>
-              <li>Adaptability</li>
-              <li>Leadership</li>
-              <li>Reliability</li>
-              <li>Communication</li>
-              <li>Initiative</li>
-              <li>Focus</li>
-              <li>Integrity</li>
-              <li>Team Building</li>
-            </ul>
-          </article>
-
-          <article class="info-card video-card">
-            <h3>Video Resume</h3>
-            <div class="video-placeholder">
-              <div class="video-placeholder-text">Coming Soon</div>
-              <div class="play-button">▶</div>
-              <!-- When ready, replace the content above with an actual <video> or <iframe> embed. -->
+    <!-- SERVICES + VIDEO -->
+    <section id="services" class="section section-services">
+      <div class="container">
+        <div class="services-row">
+          <div class="panel services-panel">
+            <div class="card-header">
+              <span class="card-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </span>
+              <h2 class="card-title">SERVICES I OFFER</h2>
             </div>
-          </article>
+            <p class="services-intro">
+              I help individuals, startups, and organizations build, automate, and scale cloud-native, data-driven, and AI-powered solutions.
+            </p>
+            <div class="services-grid">
+              <div class="service-item">
+                <svg class="service-icon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0 0-9h-1.8A7 7 0 1 0 4 15.9"/></svg>
+                <span class="service-label">Cloud Solution Architecture (AWS &amp; Azure)</span>
+              </div>
+              <div class="service-item">
+                <svg class="service-icon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><polyline points="3 17 9 11 13 15 21 7"/></svg>
+                <span class="service-label">Data Science &amp; Analytics</span>
+              </div>
+              <div class="service-item">
+                <svg class="service-icon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="7 10 9 12 7 14"/><line x1="12" y1="14" x2="16" y2="14"/></svg>
+                <span class="service-label">App + Web Development</span>
+              </div>
+              <div class="service-item">
+                <svg class="service-icon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span class="service-label">Machine Learning &amp; Agentic AI Automation</span>
+              </div>
+              <div class="service-item">
+                <svg class="service-icon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="6.4" y1="6.4" x2="9.9" y2="9.9"/><line x1="17.6" y1="6.4" x2="14.1" y2="9.9"/><line x1="6.4" y1="17.6" x2="9.9" y2="14.1"/><line x1="17.6" y1="17.6" x2="14.1" y2="14.1"/></svg>
+                <span class="service-label">Intelligent Cloud AI Agent Solutions</span>
+              </div>
+              <div class="service-item">
+                <svg class="service-icon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                <span class="service-label">Technical &amp; Strategic Consulting</span>
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>
     </section>
 
     <!-- PROJECT PORTFOLIOS -->
-    <section id="projects" class="section">
+    <section id="projects" class="section section-projects">
       <div class="container">
-        <h2>Featured Project Portfolios</h2>
+        <h2 class="section-heading">FEATURED PROJECT PORTFOLIOS</h2>
 
         <div class="portfolio-grid">
           <a
@@ -156,16 +342,16 @@
             target="_blank"
             rel="noreferrer"
           >
-            <img src="DataScience.png" alt="Data science portfolio tile" />
+            <img src="DataScience.png" alt="Data Science portfolio" />
           </a>
 
           <a
             class="portfolio-card"
-            href="https://github.com/esmeralda-cabrera-ventura/Web-Apps-Developement"
+            href="https://github.com/esmeralda-cabrera-ventura/Web-Apps-Development"
             target="_blank"
             rel="noreferrer"
           >
-            <img src="WebApps.png" alt="Web applications portfolio tile" />
+            <img src="WebApps.png" alt="Web Applications portfolio" />
           </a>
 
           <a
@@ -174,36 +360,47 @@
             target="_blank"
             rel="noreferrer"
           >
-            <img src="CloudProjects.png" alt="Cloud projects portfolio tile" />
+            <img src="CloudProjects.png" alt="Cloud Projects portfolio" />
           </a>
 
           <a
             class="portfolio-card"
-            href="https://github.com/esmeralda-cabrera-ventura/SafeSpend"
+            href="https://github.com/esmeralda-cabrera-ventura/AI-Applications"
             target="_blank"
             rel="noreferrer"
           >
-            <img src="AI.Apps.png" alt="AI applications portfolio tile" />
+            <img src="AI.Apps.png" alt="AI Applications portfolio" />
+          </a>
+
+          <a
+            class="portfolio-card"
+            href="https://github.com/esmeralda-cabrera-ventura/Automations"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img src="Automations.png" alt="Automations portfolio" />
           </a>
         </div>
 
-        <p class="section-subtitle portfolios-note">
-          (Click on an image to see the portfolio)
+        <p class="portfolios-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;color:#a78bfa;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Click on any image to see the portfolio
         </p>
       </div>
     </section>
 
     <!-- CONTACT -->
-    <section id="contact" class="section">
+    <section id="contact" class="section section-contact">
       <div class="container contact-container">
-        <h2>CONTACT ME</h2>
+        <h2 class="section-heading">CONTACT</h2>
+        <p class="contact-lead">
+          Use the <a href="contact.html" class="inline-link">contact form</a> to send
+          a message directly, or reach me on any of these.
+        </p>
 
         <div class="contact-grid">
-          <a
-            class="contact-card"
-            href="mailto:esmeralda.cabrera.v@gmail.com"
-          >
-            <img src="email.png" alt="Email icon" />
+          <a class="contact-card" href="contact.html">
+            <img src="email.png" alt="Contact form" />
           </a>
 
           <a
@@ -212,7 +409,7 @@
             target="_blank"
             rel="noreferrer"
           >
-            <img src="Linkedin.png" alt="LinkedIn icon" />
+            <img src="Linkedin.png" alt="LinkedIn" />
           </a>
 
           <a
@@ -221,7 +418,7 @@
             target="_blank"
             rel="noreferrer"
           >
-            <img src="GitHub.png" alt="GitHub icon" />
+            <img src="GitHub.png" alt="GitHub" />
           </a>
         </div>
       </div>
@@ -233,11 +430,12 @@
   <footer class="site-footer">
     <div class="container">
       <hr class="footer-divider" />
-      <p>© 2025 Esmeralda Cabrera Ventura. All rights reserved.</p>
-      <p>Designed, developed, and self-hosted on AWS S3 by Esmeralda C. Cabrera Ventura.</p>
+      <p class="footer-line-1">&copy; 2026 Esmeralda Cabrera Ventura. All rights reserved.</p>
+      <p class="footer-line-2">Designed, developed, and self-hosted on AWS S3 by Esmeralda C. Cabrera Ventura.</p>
     </div>
   </footer>
 
   <script src="script.js"></script>
+  <script src="linkedin-auth.js"></script>
 </body>
 </html>

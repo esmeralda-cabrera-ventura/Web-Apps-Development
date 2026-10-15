@@ -1,3 +1,7 @@
+/* =========================================================
+   ESMERALDA VENTURA — PORTFOLIO
+   Original background gradient preserved.
+========================================================= */
 
 *,
 *::before,
@@ -9,10 +13,6 @@ html {
   scroll-behavior: smooth;
 }
 
-h2[id], h3[id] {
-  scroll-margin-top: 90px;  
-}
-
 html,
 body {
   margin: 0;
@@ -21,10 +21,12 @@ body {
 
 body {
   min-height: 100vh;
-  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   background: linear-gradient(135deg, #0A0D20 0%, #121736 35%, #2A2580 70%, #4A2A95 100%);
-
+  background-attachment: fixed;
   color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img {
@@ -37,73 +39,67 @@ a {
   text-decoration: none;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+/* One-inch side margins (96px). The max-width only kicks in on very wide
+   monitors, where an unbounded line length would be hard to read. */
 .container {
-  max-width: 1200px;
+  max-width: 1800px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 96px;
 }
 
 .section {
-  padding: 52px 0;
+  padding: 36px 0;
+  scroll-margin-top: 90px;
 }
 
-h2[id],
-h3[id] {
-  scroll-margin-top: 90px;  
-}
- 
-.section h2 {
-  font-family: 'Poppins', system-ui, sans-serif;
-  font-size: 26px;
-  font-weight: 700;
-  margin: 0 0 14px;
-}
-
-.section p {
-  font-size: 15px;
-  line-height: 1.7;
-  color: #d7d7eb;
-}
-
-.section-subtitle {
-  margin: 0 0 24px;
-  font-size: 24px;
-  color: #d7d7eb;
-}
-
-/* HEADER / NAV ---------------------------------------------------- */
+/* ============ HEADER ============ */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(5, 8, 20, 0.9);
-  backdrop-filter: blur(10px);
+  background: rgba(5, 8, 22, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(120, 160, 255, 0.08);
 }
 
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 0;
+  /* Vertical only: this element is also .container, and a padding shorthand
+     would wipe out the page's side margins. */
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .logo-area {
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
 .logo-image {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
 .main-nav ul {
-  list-style: none;
   display: flex;
-  gap: 26px;
-  margin: 0;
-  padding: 0;
+  gap: 24px;
 }
 
 .main-nav a {
@@ -111,309 +107,934 @@ h3[id] {
   font-weight: 500;
   color: #e6ebff;
   position: relative;
+  transition: color 0.18s ease;
 }
 
-.main-nav a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0;
-  height: 2px;
-  background: #4fb3ff;
-  transition: width 0.2s ease-out;
+.main-nav a:hover { color: #ffffff; }
+
+.main-nav a.active {
+  color: #4fb3ff;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
 }
 
-.main-nav a:hover::after {
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, background 0.18s ease-out, border-color 0.18s ease-out;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #2f7dff 0%, #1e63e6 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(47, 125, 255, 0.45), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(47, 125, 255, 0.6), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e6ebff;
+  border-color: rgba(160, 190, 255, 0.35);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(160, 190, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------
+   HERO ACTION BUTTONS
+   All five share one palette drawn out of the page background itself
+   (navy -> indigo -> violet) rather than five competing brand colours,
+   so the row reads as a single set instead of a pile of stickers.
+   Only "View My Work" is lifted, so the eye still knows where to start.
+   --------------------------------------------------------------- */
+.btn-hero {
+  background: linear-gradient(180deg, rgba(122, 140, 255, 0.16) 0%, rgba(74, 84, 190, 0.13) 100%);
+  border-color: rgba(150, 175, 255, 0.32);
+  color: #e9eeff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.btn-hero:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(140, 158, 255, 0.28) 0%, rgba(88, 98, 210, 0.22) 100%);
+  border-color: rgba(178, 200, 255, 0.58);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(48, 58, 150, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.btn-hero .icon { color: #9db4ff; }
+.btn-hero:hover .icon { color: #cfdcff; }
+
+/* The one lifted button. Still inside the same indigo family - a deeper,
+   more saturated version of its neighbours, not a new colour. */
+.btn-hero-lead {
+  background: linear-gradient(180deg, rgba(96, 116, 245, 0.62) 0%, rgba(58, 66, 175, 0.55) 100%);
+  border-color: rgba(178, 198, 255, 0.5);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(58, 70, 190, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.btn-hero-lead:hover {
+  background: linear-gradient(180deg, rgba(114, 134, 255, 0.78) 0%, rgba(70, 80, 200, 0.7) 100%);
+  border-color: rgba(200, 216, 255, 0.7);
+  box-shadow: 0 10px 26px rgba(58, 70, 190, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-hero-lead .icon,
+.btn-hero-lead:hover .icon { color: #ffffff; }
+
+/* Schedule an Interview keeps its own hover/disabled behaviour but now
+   inherits the shared hero fill above. */
+.btn-schedule {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.btn-schedule:disabled {
+  opacity: 0.65;
+  cursor: progress;
+  transform: none;
+}
+
+/* Keeps the Schedule button and its caption in one column so the caption
+   stays under that button instead of spanning the whole row. */
+.schedule-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: min-content;
+}
+
+.schedule-note {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #8f9dc0;
+  margin: 8px 0 0;
+  text-align: center;
   width: 100%;
 }
 
+.schedule-note.error { color: #ff9b9b; }
+
+.btn-connect {
+  padding: 10px 22px;
+  font-size: 14px;
+}
+
+.btn .icon { flex-shrink: 0; }
+
+/* Hero buttons, sized so all five fit on one line. These five are nowrap,
+   so their combined width is the minimum width of the whole text column -
+   which is what decides how large the photo beside them can be. */
+.hero-actions .btn {
+  padding: 10px 11px;
+  font-size: 12.5px;
+  gap: 5px;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+
+.hero-actions .btn .icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============ HERO ============ */
 .hero {
-  padding: 70px 0 0;
-  margin-bottom: 8px;  
+  padding: 56px 0 28px;
 }
 
 .hero-grid {
   display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 48px; 
+  /* The text column still has to carry five action buttons on one line, but
+     with the wider container the photo column gets a bigger share than it
+     used to. */
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: stretch;
 }
 
-.hero-text h1,
-.hero-text .hero-subtitle,
-.hero-text .hero-tagline,
-.hero-text p {
-  font-size: 18px;
-  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.hero-text > * {
-  margin-bottom: 14px;  
-  line-height: 1.9;     
+/* Wrapper around the button row and the feature row. It shrinks to the
+   width of the button row, so the feature row below (width: 100%) spans
+   exactly the same left and right edges as the five buttons. */
+.hero-cta {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.hero-text .hero-features {
+  margin-top: auto;
+}
+
+.hero-title-wrap {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 4px;
+}
+
+.hero-eyebrow {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: #4fb3ff;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+.hero-eyebrow .dot {
+  letter-spacing: 0;
+  color: #4fb3ff;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.hero-eyebrow > span:not(.dot) {
+  flex-shrink: 0;
 }
 
 .hero-text h1 {
-  font-family: 'Poppins', system-ui, sans-serif;
-  font-size: 42px;
-  margin: 0 0 8px;
-}
-
-.hero-text p:last-of-type {
-  margin-bottom: 0; 
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  margin: 0 0 18px;
+  color: #ffffff;
+  text-align: left;
+  width: 100%;
 }
 
 .hero-subtitle {
-  font-size: 54px;
-  font-weight: 600;
-  margin: 0 0 56px;   
-  color: #cdd5ff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #e6ebff;
+  margin: 0 0 22px;
+  line-height: 1.4;
+  text-align: left;
+  width: 100%;
 }
-
-.hero-subtitle { font-size: 20px !important; }
 
 .hero-tagline {
-  font-size: 46px;
-  max-width: 620px;
-  color: #e2e6ff;
-  margin: 0 0 56px;   
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: #b8c3e0;
+  margin: 0 0 34px;
+  text-align: left;
+  width: 100%;
 }
 
-.hero-text p:last-of-type {
-  font-size: 21px;   
-}
-
-.hero-photo-wrapper {
+/* All five actions on one line. Buttons are tuned down in padding, type
+   size and icon size specifically so the row fits the hero column without
+   wrapping; the row only breaks apart once the viewport is genuinely too
+   narrow for it (see the media queries below). */
+.hero-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: 14px;
+  margin-bottom: 26px;
+  width: 100%;
   align-items: flex-start;
+  justify-content: center;
+}
+
+/* First feature starts at the left edge of "View My Work", last feature
+   ends at the right edge of "Schedule an Interview". */
+.hero-features {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 18px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feature-icon {
+  color: #4fb3ff;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.feature-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.feature-sub {
+  font-size: 12px;
+  color: #8a94b5;
+  line-height: 1.2;
+}
+
+/* HERO PHOTO */
+.hero-photo-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 4px;
+  gap: 0;
+}
+
+.hero-photo-frame {
+  position: relative;
+  border-radius: 14px;
+  padding: 0;
+  background: transparent;
+  transition: transform 0.25s ease-out;
+  cursor: pointer;
+  width: 100%;
+  max-width: 512px;
+}
+
+.hero-photo-frame:hover {
+  transform: scale(1.025);
 }
 
 .hero-photo {
   width: 100%;
-  max-width: 440px;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+}
+
+.veteran-badge {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 15px 22px;
+  background: rgba(8, 14, 38, 0.92);
+  border: 1px solid rgba(120, 160, 255, 0.3);
   border-radius: 12px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-  transform-origin: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+  width: 100%;
+  max-width: 512px;
+  justify-content: center;
 }
 
-.hero-photo-wrapper:hover .hero-photo {
-  transform: scale(1.06);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+.veteran-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
-/* ABOUT ----------------------------------------------------------- */
+.veteran-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.veteran-line-1 {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.veteran-line-2 {
+  font-size: 13.5px;
+  color: #b8c3e0;
+}
+
+/* ============ PANELS (shared card style) ============ */
+.panel {
+  background: rgba(8, 14, 36, 0.55);
+  border: 1px solid rgba(120, 160, 255, 0.18);
+  border-radius: 16px;
+  padding: 28px 28px;
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.card-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: #4fb3ff;
+}
+
+.card-title {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  line-height: 1;
+}
+
+/* ============ ABOUT SECTION ============ */
+.section-about {
+  padding-top: 70px;
+}
+
+.about-panel {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
 .about-grid {
   display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 40px;
-  align-items: flex-start;
+  grid-template-columns: 0.9fr 1.1fr 0.8fr;
+  grid-template-rows: auto auto auto;
+  gap: 20px;
+  align-items: stretch;
 }
 
-.stacked-section h3 {
-  font-size: 19px;
-  margin: 20px 0 8px;
+.about-col-left {
+  grid-column: 1;
+  grid-row: 1 / span 2;
 }
 
-.stacked-section p {
+.about-col-vision {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.about-col-video {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.about-col-skills {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.about-col-strengths {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.about-col-beyond {
+  grid-column: 3;
+  grid-row: 2 / span 2;
+}
+
+.about-col-photo {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.about-col {
+  background: rgba(8, 14, 36, 0.55);
+  border: 1px solid rgba(120, 160, 255, 0.18);
+  border-radius: 16px;
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Beyond the Code copy column. The photo now lives in its own card
+   alongside this one (.about-col-photo). */
+.beyond-body {
+  display: flex;
+  flex: 1;
+}
+
+.beyond-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Photo card: the image IS the card. No padding, no inner frame and no
+   visible border, so the photo fills the panel edge to edge and picks up the
+   same rounded corners as every other card in the grid. */
+.about-col.about-col-photo {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border: none;
+  background: none;
+  /* Sized by the photo's own 4:5 ratio, sitting directly beneath the skills
+     card with the Long-Term Vision card closing out the column below it. */
+  align-self: start;
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .about-col.about-col-photo:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.photo-card-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+}
+
+.beyond-text {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: #c8cee5;
   margin: 0;
 }
 
-#about.section {
-  padding-top: 8px;
-  padding-bottom: 48px; 
+.about-text {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #c8cee5;
+  margin-bottom: 14px;
 }
 
-.about-side {
+.about-text-linkedin {
+  margin-bottom: 22px;
+}
+
+.inline-link {
+  color: #4fb3ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.inline-link:hover { color: #7ec6ff; }
+
+/* Long-Term Vision card */
+.vision-text {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: #c8cee5;
+  margin: 0;
+}
+
+/* Technical Skills list */
+.check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.check-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  color: #d6dcf0;
+  font-weight: 400;
+}
+
+.check-icon {
+  color: #4fb3ff;
+  flex-shrink: 0;
+}
+
+/* Core Strengths list */
+.strength-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.strength-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  color: #d6dcf0;
+  font-weight: 400;
+}
+
+.strength-icon {
+  color: #4fb3ff;
+  flex-shrink: 0;
+}
+
+/* ============ SERVICES SECTION ============ */
+.section-services {
+  padding-top: 14px;
+}
+
+.services-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 96px;     
-  margin-bottom: 40px;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 20px;
+  align-items: stretch;
 }
 
-.info-card {
-  background: rgba(6, 11, 40, 0.92);
-  border-radius: 12px;
-  padding: 18px 22px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(120, 160, 255, 0.35);
+.services-panel {
+  width: 100%;
+  max-width: 940px;
 }
 
-.info-card h3 {
-  font-size: 18px;
-  margin: 0 0 8px;
-  text-align: center;
+.services-panel {
+  display: flex;
+  flex-direction: column;
 }
 
-.info-card ul {
-  margin: 0;
-  padding-left: 18px;
+.services-intro {
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.6;
-  color: #d7d7eb;
+  color: #b8c3e0;
+  margin-bottom: 26px;
+  max-width: none;
 }
 
-.about-side .info-card:nth-child(3) {
-  grid-column: 1 / -1;
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-top: auto;
 }
 
-.video-card {
-  margin-top: 96px;
-}
-
-.video-placeholder {
-  position: relative;
-  border-radius: 10px;
-  border: 2px solid rgba(115, 168, 255, 0.7);
-  background: radial-gradient(circle at top left, rgba(127, 176, 255, 0.18), rgba(3, 5, 20, 0.9));
-  height: 210px;
+.service-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  text-align: center;
+  gap: 10px;
+  padding: 6px 4px;
 }
 
-.video-placeholder-text {
-  font-size: 18px;
+.service-icon {
+  color: #4fb3ff;
+}
+
+.service-label {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: #c8cee5;
+  font-weight: 500;
+}
+
+/* VIDEO PANEL */
+.video-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 26px 24px;
+}
+
+.video-title {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
   font-weight: 700;
-  color: #dfe4ff;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  margin-bottom: 8px;
 }
 
-.play-button {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+.video-divider {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #4fb3ff, #8b5cf6);
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+
+.video-player-wrap {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ff335c;
-  box-shadow: 0 0 24px rgba(255, 51, 92, 0.6);
-  font-size: 26px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
 }
 
-/* PORTFOLIO ------------------------------------------------------- */
+/* Poster "pop" on hover - lifts and glows the same way the portfolio and
+   contact cards do, so it reads as part of the same design language.
+   Only on real pointer devices, and only while the poster is showing:
+   once playback starts the .is-playing class holds the frame steady. */
+@media (hover: hover) and (pointer: fine) {
+  .video-player-wrap:not(.is-playing):hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(120, 160, 255, 0.35),
+                0 0 26px rgba(79, 179, 255, 0.32);
+  }
+
+  .video-player-wrap:not(.is-playing):hover .video-player {
+    filter: brightness(1.06) saturate(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-player-wrap,
+  .video-player-wrap:hover {
+    transform: none;
+    transition: box-shadow 0.25s ease-out;
+  }
+}
+
+.video-player {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+  border-radius: 10px;
+  background: #000;
+  transition: filter 0.25s ease-out;
+}
+
+/* ============ PROJECTS SECTION ============ */
+.section-projects {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.section-heading {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 26px;
+}
+
 .portfolio-grid {
-  margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
+  /* 5 categories: tiles are scaled down from the previous 4-up layout
+     so the new Automations tile fits on the same single row. */
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  max-width: 1020px;
+  margin: 0 auto;
 }
 
 .portfolio-card {
-  background: rgba(5, 10, 35, 0.96);
+  display: block;
   border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.55);
-  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, border 0.18s ease-out;
-  border: 1px solid rgba(120, 160, 255, 0.35);
+  overflow: hidden;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  line-height: 0;
 }
-
-#projects.section h2,
-#projects h2,
-#projects .container > h2,
-#projects .container h2 {
-  text-align: center !important;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 
 .portfolio-card img {
-  border-radius: 10px;
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
 }
 
 .portfolio-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.75);
-  border-color: #4fb3ff;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
 }
 
 .portfolios-note {
   text-align: center;
-  margin-top: 32px;
-  font-size: 18px;
+  margin-top: 22px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  color: #b8c3e0;
 }
 
-/* SERVICES -------------------------------------------------------- */
-.two-col {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 40px;
-  align-items: flex-start;
+/* ============ CONTACT SECTION ============ */
+.section-contact {
+  padding-top: 16px;
+  padding-bottom: 50px;
 }
 
-.services-list {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: #d7d7eb;
-  margin-bottom: 68px;
-}
-
-/* CONTACT --------------------------------------------------------- */
-.contact-container h2 {
-  text-align: center;
+.contact-container .section-heading {
+  letter-spacing: 0.32em;
+  margin-bottom: 22px;
 }
 
 .contact-grid {
-  margin-top: 24px;
   display: grid;
-  grid-auto-flow: column;              
-  grid-auto-columns: max-content;      
-  justify-content: center;             
-  gap: 24px;                           
+  grid-template-columns: repeat(3, minmax(150px, 185px));
+  gap: 16px;
+  justify-content: center;
 }
 
-
 .contact-card {
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: none;
-  border: none;
-  transition: transform 0.2s ease-out, filter 0.2s ease-out;
+  display: block;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  line-height: 0;
 }
 
 .contact-card img {
-  max-width: 130px;
-  border-radius: 18px;
-  box-shadow: 0 0 20px rgba(90, 120, 255, 0.65);
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
 }
 
 .contact-card:hover {
-  transform: translateY(-6px) scale(1.03);
-  filter: brightness(1.05);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
 }
 
-/* FOOTER ---------------------------------------------------------- */
+.contact-lead {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #b8c3e0;
+  text-align: center;
+  max-width: 620px;
+  margin: -10px auto 26px;
+}
+
+/* ============ FOOTER ============ */
 .site-footer {
-  padding: 26px 0 40px;
-  font-size: 18px;
-  color: #c7c7d8;
+  padding: 22px 0 26px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  color: #8a94b5;
   text-align: center;
 }
 
 .footer-divider {
   border: none;
-  border-top: 1px solid rgba(200, 210, 255, 0.35);
-  margin-bottom: 14px;
+  border-top: 1px solid rgba(120, 160, 255, 0.18);
+  margin: 0 0 16px;
 }
+
+.footer-line-1 { margin-bottom: 10px; color: #b8c3e0; }
+.footer-line-2 { color: #8a94b5; }
+
+/* ============ REVEAL ANIMATIONS ============ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.985);
+  transition:
+    opacity 0.75s cubic-bezier(0.25, 0.8, 0.3, 1),
+    transform 0.75s cubic-bezier(0.25, 0.8, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Reduced motion: skip animations entirely for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
 /* =========================================================
-   MOBILE VIEW (CLEAN SINGLE-COLUMN STACK)
+   MEDIUM SCREENS (tablets / smaller laptops)
+========================================================= */
+/* The hero row wraps on its own; below this just tighten the gaps. */
+/* The five nowrap buttons set the minimum width of the text column, which
+   squeezes the photo beside them. Below this width that squeeze starts to
+   look wrong, so let the row wrap and hand the space back to the photo -
+   and give the labels their full size again while we're at it. */
+@media (max-width: 1400px) {
+  .hero-actions { flex-wrap: wrap; gap: 12px; }
+  .hero-actions .btn { padding: 12px 15px; font-size: 13.5px; }
+  .hero-actions .btn .icon { width: 16px; height: 16px; }
+}
+
+@media (max-width: 1180px) {
+  .main-nav ul { gap: 18px; }
+}
+
+@media (max-width: 1100px) {
+
+  .hero-text h1 { font-size: 52px; }
+  .hero-cta { width: 100%; }
+  .hero-features { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .about-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; }
+  .about-col-left { grid-column: 1 / -1; grid-row: 1; }
+  .about-col-vision { grid-column: 1 / -1; grid-row: 2; }
+  .about-col-skills { grid-column: 1; grid-row: 3; }
+  .about-col-strengths { grid-column: 2; grid-row: 3; }
+  .about-col-beyond { grid-column: 1 / -1; grid-row: 4; }
+  .about-col-photo { grid-column: 1 / -1; grid-row: 5; align-self: auto; }
+  .about-col-video { grid-column: 1 / -1; grid-row: 6; }
+  .about-col.about-col-photo { max-width: 420px; margin: 0 auto; width: 100%; }
+  .photo-card-img { height: auto; flex: 0 0 auto; object-fit: contain; }
+  .services-grid { grid-template-columns: repeat(3, 1fr); }
+  .services-row { grid-template-columns: 1fr; }
+  .portfolio-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+}
+
+/* =========================================================
+   MOBILE VIEW (single-column stack)
    Phones + small tablets
 ========================================================= */
-
 @media (max-width: 768px) {
 
   html, body {
@@ -423,149 +1044,168 @@ h3[id] {
     -webkit-text-size-adjust: 100%;
   }
 
-  .container {
-    padding: 0 16px;
-  }
+  .container { padding: 0 16px; }
+  .section { padding: 22px 0; }
 
-  .section {
-    padding: 18px 0; 
-  }
-
-  .section h2 {
-    margin: 0 0 10px; 
-  }
-
-  #about.section {
-    padding-bottom: 24px;
-  }
-
-  #projects.section {
-    padding-top: 16px;
-  }
-
-  /* ---------------- HEADER ---------------- */
+  /* HEADER */
   .header-inner {
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
+  .main-nav { flex-direction: column; align-items: center; gap: 10px; }
+  .main-nav ul { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .btn-connect { padding: 9px 18px; }
 
-  .logo-area {
-    justify-content: center;
-  }
-
-  .main-nav ul {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  /* ---------------- HERO ---------------- */
-  .hero {
-    padding-top: 24px;
-  }
-
+  /* HERO */
+  .hero { padding: 24px 0 18px; }
   .hero-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .hero-text {
+    gap: 24px;
     text-align: center;
   }
-
-  .hero-text h1 {
-    font-size: 28px;
-    line-height: 1.15;
-    white-space: normal;
-    text-align: center;
-  }
-
-  .hero-photo-wrapper {
+  .hero-text { align-items: center; text-align: center; }
+  .hero-title-wrap { width: 100%; }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
     justify-content: center;
-  }
-
-  .hero-photo {
-    max-width: 260px;
-  }
-
-  /* ---------------- ABOUT ---------------- */
-  .about-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .about-side {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 12px;
-    margin-bottom: 0;
-  }
-
-  .info-card {
-    padding: 14px;
-  }
-
-  /* ---------------- VIDEO ---------------- */
-  .video-card {
-    margin-top: 8px; 
-  }
-
-  .video-placeholder {
-    height: 190px;
-  }
-
-  /* ---------------- SERVICES ---------------- */
-  .two-col {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .services-list {
+    gap: 8px;
     margin-bottom: 12px;
   }
+  .hero-text h1 {
+    font-size: 30px;
+    line-height: 1.15;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .hero-subtitle {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .hero-tagline {
+    font-size: 15px;
+    max-width: none;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  /* On a phone all five actions become one centred column, still in order. */
+  .hero-actions {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 26px;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+  .schedule-wrap { width: 100%; max-width: 280px; }
+  .hero-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-photo-wrapper { padding-top: 0; gap: 14px; }
+  .container { padding: 0 18px; }
+  .hero-photo-frame { max-width: 340px; }
+  .veteran-badge {
+    padding: 11px 16px;
+    gap: 14px;
+    max-width: 340px;
+  }
+  .veteran-icon { width: 46px; }
+  .veteran-line-1 { font-size: 13px; }
+  .veteran-line-2 { font-size: 12px; }
 
-  /* ---------------- PORTFOLIO ---------------- */
+  /* ABOUT */
+  .section-about { padding-top: 50px; }
+  .about-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 14px;
+  }
+  .about-col-left, .about-col-vision, .about-col-skills, .about-col-strengths,
+  .about-col-beyond, .about-col-photo, .about-col-video {
+    grid-column: auto;
+    grid-row: auto;
+    align-self: auto;
+  }
+  /* The photo card stacks directly under Beyond the Code, sized and centered
+     the same way the hero photo is on mobile. */
+  .about-col.about-col-photo { max-width: 340px; margin: 0 auto; width: 100%; }
+  .photo-card-img { height: auto; flex: 0 0 auto; object-fit: contain; }
+
+  /* SERVICES */
+  .section-services { padding-top: 8px; }
+  .services-row { grid-template-columns: 1fr; }
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .video-panel { min-height: 240px; }
+
+  /* PROJECTS */
   .portfolio-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 12px;
+    gap: 14px;
+    max-width: 320px;
+    margin: 0 auto;
   }
 
-  .portfolios-note {
-    margin-top: 12px;
-    font-size: 14px;
-  }
-
-  /* ---------------- CONTACT ---------------- */
+  /* CONTACT */
   .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+    max-width: 340px;
+    margin: 0 auto;
+    justify-content: center;
     justify-items: center;
   }
+  .contact-card { width: 100%; max-width: 104px; }
 
-  .contact-card img {
-    max-width: 110px;
+  /* BUTTON COLORS
+     Stacked, the translucent hero fill picks up whatever gradient sits
+     behind it, so the five buttons drift apart in tone. Opaque fills equal
+     to what they composite to on desktop keep the set consistent. */
+  .hero-actions .btn-hero {
+    background-image: none;
+    background-color: #1c2247;
+  }
+  .hero-actions .btn-hero:hover {
+    background-image: none;
+    background-color: #262d5a;
+  }
+  .hero-actions .btn-hero-lead {
+    background-image: none;
+    background-color: #3a44ab;
+  }
+  .hero-actions .btn-hero-lead:hover {
+    background-image: none;
+    background-color: #4753cb;
   }
 
-  /* ---------------- FOOTER ---------------- */
-  .site-footer {
-    font-size: 14px;
-    line-height: 1.5;
-  }
+  /* READABILITY - slightly brighter body copy in the informational panels */
+  .about-text { color: #e2e7f5; }
+  .beyond-text { color: #e2e7f5; }
+  .vision-text { color: #ccd3e8; }
+  .check-list li { color: #eef1fb; }
+  .strength-list li { color: #eef1fb; }
+  .services-intro { color: #d8dff2; }
+  .service-label { color: #e2e7f5; }
 
-  .site-footer p {
-    display: block;
-    margin: 6px 0;
-  }
-
-  .site-footer .copyright-line {
-    white-space: nowrap;
-  }
-
-  .site-footer .rights-line {
-    display: block;
-  }
+  /* FOOTER */
+  .site-footer { font-size: 12px; }
 }
-

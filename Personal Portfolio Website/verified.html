@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Verified | Esmeralda Cabrera Ventura</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .gate-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .gate-card {
+      max-width: 620px; width: 100%; text-align: center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(160,190,255,0.22);
+      border-radius: 18px; padding: 48px 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .gate-icon { margin: 0 auto 22px; display: block; color: #4ade80; }
+    .gate-card.deny .gate-icon { color: #f87171; }
+    .gate-title { font-family: 'Poppins', system-ui, sans-serif; font-size: 30px; font-weight: 700; color: #fff; margin: 0 0 12px; }
+    .gate-text { font-family: 'Inter', system-ui, sans-serif; font-size: 16px; line-height: 1.65; color: #b8c3e0; margin: 0 0 12px; }
+    .gate-meta { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: #8f9dc0; margin: 22px 0 0; }
+    .gate-actions { margin-top: 28px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .gate-name { color: #fff; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="gate-wrap">
+    <div class="gate-card" id="card">
+      <svg class="gate-icon" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
+      </svg>
+      <h1 class="gate-title" id="title">Verification complete</h1>
+      <p class="gate-text" id="body">Checking your access token&hellip;</p>
+      <div class="gate-actions" id="actions"></div>
+      <p class="gate-meta" id="meta"></p>
+    </div>
+  </div>
+
+  <script>
+    /* ===================================================================
+       >>> EDIT THIS <<<  Your Calendly event link.
+       =================================================================== */
+    const CALENDLY_URL = "https://calendly.com/esmeralda-cabrera-v";
+
+    const params  = new URLSearchParams(window.location.search);
+    const token   = params.get("token");
+    const state   = params.get("state");
+    const name    = params.get("name")  || "";
+    const email   = params.get("email") || "";
+
+    const title   = document.getElementById("title");
+    const body    = document.getElementById("body");
+    const actions = document.getElementById("actions");
+    const meta    = document.getElementById("meta");
+    const card    = document.getElementById("card");
+
+    function deny(msg) {
+      card.classList.add("deny");
+      title.textContent = "We couldn't confirm this link";
+      body.innerHTML = msg;
+      actions.innerHTML = '<a class="btn btn-secondary" href="index.html">Back to site</a>';
+    }
+
+    // 1. CSRF: the state must match the nonce this browser generated.
+    let expected = null;
+    try { expected = sessionStorage.getItem("li_oauth_state"); } catch (e) {}
+    if (expected && state && state !== expected) {
+      deny("This verification link didn't originate from this browser session. Please start over from the homepage.");
+    } else if (!token) {
+      deny("No access token was supplied. Please start over from the homepage.");
+    } else {
+      try { sessionStorage.removeItem("li_oauth_state"); } catch (e) {}
+
+      // 2. Read the expiry the Lambda encoded into the token payload.
+      //    The signature itself is verified server-side; this is only a
+      //    friendly "your link went stale" check.
+      let expired = false;
+      try {
+        const payload = JSON.parse(atob(token.split(".")[0].replace(/-/g, "+").replace(/_/g, "/")));
+        if (payload.exp && Date.now() / 1000 > payload.exp) expired = true;
+      } catch (e) { /* opaque token - let Calendly handle it */ }
+
+      if (expired) {
+        deny("This scheduling link has expired. Verification links are valid for 15 minutes \u2014 please start over from the homepage.");
+      } else {
+        const target = CALENDLY_URL
+          + (CALENDLY_URL.includes("?") ? "&" : "?")
+          + "name="  + encodeURIComponent(name)
+          + "&email=" + encodeURIComponent(email)
+          + "&utm_source=linkedin_verified"
+          + "&utm_content=" + encodeURIComponent(token);
+
+        title.textContent = "You're verified";
+        body.innerHTML = (name ? 'Thanks, <span class="gate-name">' + name.replace(/[<>&]/g, "") + '</span>. ' : "")
+          + "Your LinkedIn profile cleared all three verification checks. Opening the scheduling page&hellip;";
+        actions.innerHTML = '<a class="btn btn-primary" href="' + target + '">Continue to scheduling</a>';
+        meta.textContent = "This link is single-use and expires in 15 minutes.";
+
+        let n = 4;
+        const tick = setInterval(() => {
+          n--;
+          if (n <= 0) { clearInterval(tick); window.location.replace(target); }
+        }, 1000);
+      }
+    }
+  </script>
+</body>
+</html>

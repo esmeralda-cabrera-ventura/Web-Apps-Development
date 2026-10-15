@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Verification Not Completed | Esmeralda Cabrera Ventura</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .gate-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .gate-card {
+      max-width: 660px; width: 100%; text-align: center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(160,190,255,0.22);
+      border-radius: 18px; padding: 48px 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .gate-icon { margin: 0 auto 22px; display: block; color: #fbbf24; }
+    .gate-title { font-family: 'Poppins', system-ui, sans-serif; font-size: 30px; font-weight: 700; color: #fff; margin: 0 0 14px; }
+    .gate-text { font-family: 'Inter', system-ui, sans-serif; font-size: 16px; line-height: 1.7; color: #b8c3e0; margin: 0 0 18px; }
+    .gate-reason {
+      font-family: 'Inter', system-ui, sans-serif; font-size: 14.5px; line-height: 1.7;
+      color: #e6ebff; background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.28); border-radius: 12px;
+      padding: 16px 20px; margin: 0 0 24px; text-align: left;
+    }
+    .gate-reason strong { color: #fbbf24; display: block; margin-bottom: 6px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .gate-actions { margin-top: 26px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .gate-meta { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: #8f9dc0; margin: 26px 0 0; }
+    .gate-meta a { color: #4fb3ff; }
+  </style>
+</head>
+<body>
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <svg class="gate-icon" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <h1 class="gate-title">Automatic verification didn't pass</h1>
+      <p class="gate-text">
+        Thanks for your interest. My scheduling page is reserved for verified recruiters,
+        and the automated check wasn't able to confirm your profile against all three criteria.
+      </p>
+
+      <div class="gate-reason" id="reasonBox">
+        <strong>What happened</strong>
+        <span id="reasonText">Your LinkedIn profile did not meet the verification requirements.</span>
+      </div>
+
+      <p class="gate-text">
+        This is an automated screen and it does get things wrong &mdash; especially for
+        recruiters at smaller firms or on personal LinkedIn accounts. If you believe you
+        should have access, just email me and I'll send you a scheduling link directly.
+      </p>
+
+      <div class="gate-actions">
+        <a class="btn btn-primary" href="mailto:esmeralda.cabreraventura@mssa.newhorizons.com?subject=Interview%20Scheduling%20Request">Email me directly</a>
+        <a class="btn btn-secondary" href="index.html">Back to site</a>
+      </div>
+
+      <p class="gate-meta">
+        You can also reach me on <a href="https://www.linkedin.com/in/esmeraldaspace" target="_blank" rel="noreferrer">LinkedIn</a>.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // The Lambda appends ?reason=<code> so the visitor gets a specific,
+    // actionable explanation instead of a generic rejection.
+    const REASONS = {
+      no_badge:        "LinkedIn did not report an identity or workplace verification badge on your account. You can add one from LinkedIn under Settings \u2192 Sign in & security \u2192 Verifications.",
+      no_keyword:      "Your LinkedIn headline didn't include a recruiting-related title (for example \u201crecruiter\u201d, \u201ctalent acquisition\u201d, or \u201chead of talent\u201d).",
+      consumer_domain: "The email on your LinkedIn account is a personal/consumer address. Please retry using a LinkedIn account tied to your corporate email.",
+      no_identity:     "LinkedIn didn't return a valid account identifier for your sign-in. Please try signing in again.",
+      incomplete_profile: "Your LinkedIn profile is missing a name or a profile photo. Adding both and retrying usually resolves this.",
+      insufficient_data: "LinkedIn didn't return enough profile data for the automated check to reach a decision. This usually means privacy settings restricted what was shared.",
+      no_email:        "LinkedIn didn't return a verified email address for your account.",
+      access_denied:   "You cancelled the LinkedIn authorization before it completed.",
+      bad_state:       "The verification request couldn't be matched to your browser session. Please start again from the homepage.",
+      code_expired:    "This sign-in link was already used or has expired. LinkedIn authorization links only work once \u2014 please head back to the homepage and click Schedule an Interview again.",
+      token_error:     "We couldn't complete the handshake with LinkedIn. Please try again in a moment.",
+      server_error:    "Something went wrong on our end during verification. Please try again, or email me directly."
+    };
+
+    const reason = new URLSearchParams(window.location.search).get("reason");
+    if (reason && REASONS[reason]) {
+      document.getElementById("reasonText").textContent = REASONS[reason];
+    } else if (reason) {
+      document.getElementById("reasonBox").style.display = "none";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | Esmeralda Cabrera Ventura</title>
+  <meta name="description" content="Send a message to Esmeralda Cabrera Ventura about roles, consulting work, or collaboration." />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="contact.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo-area">
+        <a href="index.html" aria-label="Back to home">
+          <img src="Logo.png" alt="ECV logo" class="logo-image" />
+        </a>
+      </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#projects">Projects</a></li>
+          <li><a href="credentials.html">Credentials</a></li>
+          <li><a href="https://drive.google.com/file/d/1HhBh9AsgU-SuBAXBeWaBUL0oQY0mCs3P/view?usp=drive_link" target="_blank" rel="noopener noreferrer">Resume</a></li>
+          <li><a href="https://esmeralda-cabrera-ventura.github.io/index.html" target="_blank" rel="noopener noreferrer">Blog</a></li>
+          <li><a href="index.html#services">Services</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+        </ul>
+        <a href="contact.html" class="btn btn-primary btn-connect">Let's Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contact-main">
+    <section class="section">
+      <div class="container">
+
+        <a href="index.html" class="contact-back">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to portfolio
+        </a>
+
+        <div class="contact-layout">
+
+          <!-- LEFT: intro + direct channels -->
+          <aside class="contact-aside">
+            <p class="contact-eyebrow">Contact</p>
+            <h1 class="contact-title">Let's connect.</h1>
+            <p class="contact-blurb">
+              Whether you're hiring, scoping a project, or want a second opinion
+              on a cloud or AI problem, send the details here and I'll reply
+              directly. Everything in this form goes straight to my inbox.
+            </p>
+
+            <div class="contact-direct">
+              <h2 class="contact-direct-title">Other ways to reach me</h2>
+              <a class="contact-link" href="mailto:esmeralda.cabrera-ventura@outlook.com">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+                esmeralda.cabrera-ventura@outlook.com
+              </a>
+              <a class="contact-link" href="https://www.linkedin.com/in/esmeraldaspace" target="_blank" rel="noopener noreferrer">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                linkedin.com/in/esmeraldaspace
+              </a>
+              <a class="contact-link" href="https://www.github.com/esmeralda-cabrera-ventura" target="_blank" rel="noopener noreferrer">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                github.com/esmeralda-cabrera-ventura
+              </a>
+            </div>
+
+            <p class="contact-note-small">
+              Looking to book time instead? You can Schedule an Interview
+              <a href="index.html#top" class="inline-link js-schedule-interview">here</a>.
+            </p>
+          </aside>
+
+          <!-- RIGHT: the form -->
+          <div class="panel contact-panel">
+            <form id="contactForm" class="contact-form" novalidate>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="firstName">First name <span class="req">*</span></label>
+                  <input type="text" id="firstName" name="firstName" autocomplete="given-name" required />
+                  <p class="field-error" data-error-for="firstName"></p>
+                </div>
+                <div class="field">
+                  <label for="lastName">Last name <span class="req">*</span></label>
+                  <input type="text" id="lastName" name="lastName" autocomplete="family-name" required />
+                  <p class="field-error" data-error-for="lastName"></p>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="email">Email <span class="req">*</span></label>
+                  <input type="email" id="email" name="email" autocomplete="email" placeholder="you@company.com" required />
+                  <p class="field-error" data-error-for="email"></p>
+                </div>
+                <div class="field">
+                  <label for="phone">Phone</label>
+                  <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="(555) 555-5555" />
+                  <p class="field-error" data-error-for="phone"></p>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="linkedin">LinkedIn</label>
+                  <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/…" />
+                  <p class="field-error" data-error-for="linkedin"></p>
+                </div>
+                <div class="field">
+                  <label for="city">City</label>
+                  <input type="text" id="city" name="city" autocomplete="address-level2" placeholder="City, State / Country" />
+                  <p class="field-error" data-error-for="city"></p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="message">Message <span class="req">*</span></label>
+                <textarea id="message" name="message" rows="7" required
+                  placeholder="What are you working on, and how can I help?"></textarea>
+                <div class="field-foot">
+                  <p class="field-error" data-error-for="message"></p>
+                  <span class="char-count" id="charCount">0 characters</span>
+                </div>
+              </div>
+
+              <!-- Spam trap, kept off-screen. It carries no label text and a
+                   meaningless id on purpose: an earlier version called this
+                   "Company", and Edge's autofill recognised that and filled it
+                   in, which made the form treat a real visitor as a bot. -->
+              <div class="hp-field" aria-hidden="true">
+                <input type="text" id="hp_ref_code" name="_honey" tabindex="-1"
+                       autocomplete="off" inputmode="none" />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-send" id="sendBtn">
+                  Send message
+                  <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+                <p class="form-privacy">
+                  Your details are used only to reply to this message.
+                </p>
+              </div>
+
+              <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <hr class="footer-divider" />
+      <p class="footer-line-1">&copy; 2026 Esmeralda Cabrera Ventura. All rights reserved.</p>
+      <p class="footer-line-2">Designed, developed, and self-hosted on AWS S3 by Esmeralda C. Cabrera Ventura.</p>
+    </div>
+  </footer>
+
+  <script src="linkedin-auth.js"></script>
+  <script src="contact.js"></script>
+</body>
+</html>
