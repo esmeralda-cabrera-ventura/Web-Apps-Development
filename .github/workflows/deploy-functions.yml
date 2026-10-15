@@ -12,7 +12,7 @@ on:
 env:
   AZURE_FUNCTIONAPP_NAME: menifee-cleaningco-jobs
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'menifee-maids/functions'
-  NODE_VERSION: '24.x'
+  NODE_VERSION: '22.x'
 
 jobs:
   build-and-deploy:
